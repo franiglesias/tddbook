@@ -1,0 +1,9 @@
+1.tdd-intro.md
+2.tdd-quality-life.md
+Katas/1.FizzBuzz/1.Rules-of-tdd.md
+Katas/1.FizzBuzz/2.FizzBuzz.md
+Katas/1.FizzBuzz/3.FizzBuzz-resolved.md
+Katas/2.PrimeFactors/2.PrimeFactors.mdKatas/2.PrimeFactors/3.PrimeFactors-resolved.md
+Katas/3.NIF/First-test.md
+Katas/3.NIF/NIF.md
+Katas/3.NIF/NIF-resolved.md
