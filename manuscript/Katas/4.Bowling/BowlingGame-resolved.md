@@ -1,0 +1,1277 @@
+# Resolviendo la kata Bowling Game
+
+## Enunciado de la kata
+
+La kata consiste en crear un programa para calcular las puntuaciones de un jugador en un juego de los Bolos, aunque para evitar complicarla mucho sólo se calcula el resultado final y no se hacen validaciones sobre las puntuaciones.
+
+Un breve recordatorio de las reglas:
+
+* Cada juego tiene 10 turnos de 2 lanzamientos cada uno.
+* En cada lanzamiento se cuentan los bolos que han caído y ese número es la puntuación
+* 0 puntos en un *gutter*
+* Si se tiran todos los bolos entre los dos intentos es un *spare*, y se suma como bonus la puntuación del siguiente lanzamiento
+* Si se tiran todos los bolos en el primer lanzamiento es un *strike*, y se suma como bonus la puntuación de los siguientes dos lanzamientos
+* Si el strike o el spare se logran en el último frame habrá lanzamientos extra
+
+## Lenguaje y enfoque
+
+Para hacer esta kata he escogido Ruby y RSpec. Posiblemente notes que tengo cierta preferencia por los frameworks de test de la familia *Spec, pero es que han sido diseñados pensando en TDD, considerando el test como especificación lo que ayuda mucho a salirse del marco de pensar en los tests como QA.
+
+Dicho eso, no hay ningún problema en usar cualquier otro framework de testing, como los de la familia *Unit.
+
+Por otro lado, emplearemos orientación a objetos.
+
+## Primer test: iniciando el juego
+
+A estas alturas, el primer test debería ser suficiente para forzarnos a definir e instanciar la clase:
+
+```ruby
+require 'rspec'
+
+RSpec.describe 'A Bowling Game' do
+  it 'should start a new game' do
+    game = BowlingGame.new
+  end
+end
+```
+
+El test fallará, obligándonos a escribir el código de producción mínimo para que llegue a pasar. Básicamente, crear un archivo con la definición de la clase e instanciarla.
+
+```ruby
+class BowlingGame
+
+end
+```
+
+y requerir la clase en el test:
+
+```ruby
+require 'rspec'
+require_relative '../src/bowling_game'
+
+RSpec.describe 'A Bowling Game' do
+  it 'should start a new game' do
+    game = BowlingGame.new
+  end
+end
+```
+
+Y ya estamos en verde, con todo listo para el siguiente test.
+
+## Segundo test: lanzando la bola
+
+Para que nuestro BowlingGame sea útil necesitaremos al menos dos cosas:
+
+* Una forma de indicar el resultado de un lanzamiento, pasando el número de bolos derribado, que sería un command. Un command provoca un efecto en el estado de un objeto, pero no devuelve nada por lo que necesitamos una vía alternativa de observar ese efecto.
+* Una forma de obtener la puntuación en un momento dado, que sería una query. Una query devuelve una respuesta, por lo que podemos verificar que es la que esperamos.
+
+Puede que te preguntes: ¿Cuál de las dos deberíamos atacar primero?
+
+No hay una regla fija, pero una forma de verlo puede ser la siguiente:
+
+Los métodos query devuelven un resultado y su efecto puede testearse, pero hay que tener en cuenta en este punto asegurarnos de que la respuesta esperada no nos dificultará crear nuevos tests que fallen.
+
+Por contra, los métodos command podemos introducirlos con un mínimo de código, sin tener que estar pendientes de sus efectos en futuros tests, salvo asegurarnos de que los parámetros que reciban son válidos.
+
+Así que vamos empezar introduciendo un método para lanzar la bola, que simplemente espera recibir el número de bolos derribado, que puede ser 0. Pero para forzar eso debemos escribir un test primero:
+
+```ruby
+require 'rspec'
+require_relative '../src/bowling_game'
+
+RSpec.describe 'A Bowling Game' do
+  it 'should start a new game' do
+    game = BowlingGame.new
+  end
+
+  it 'should roll a ball knocking down 0 pins' do
+    game = BowlingGame.new
+    game.roll 0
+  end
+end
+```
+
+Y el código suficiente para hacer que el test pase es simplemente definir el método:
+
+```ruby
+class BowlingGame
+  def roll(pins_down)
+
+  end
+end
+```
+
+## Primer refactor
+
+En esta kata vamos a prestar especial atención a la fase de refactor. Hay que buscar un equilibrio para que ciertos refactors no nos condicionen las posibilidades de hacer evolucionar el código. Del mismo modo que la optimización prematura es un *smell*, la sobre ingeniería prematura también lo es.
+
+El código de producción no ofrece todavía ninguna oportunidad de refactor, pero los tests empiezan a mostrar un patrón. El objeto `game` podría vivir como variable de instancia e inicializarse en un método setup de la especificación o test case.
+
+```ruby
+require 'rspec'
+require_relative '../src/bowling_game'
+
+RSpec.describe 'A Bowling Game' do
+
+  before do
+    @game = BowlingGame.new
+  end
+
+  it 'should start a new game' do
+    game = BowlingGame.new
+  end
+
+  it 'should roll a ball knocking down 0 pins' do
+    @game.roll 0
+  end
+end
+```
+
+Y esto hace que el primer test sea redundante:
+
+```ruby
+require 'rspec'
+require_relative '../src/bowling_game'
+
+RSpec.describe 'A Bowling Game' do
+
+  before do
+    @game = BowlingGame.new
+  end
+
+  it 'should roll a ball knocking down 0 pins' do
+    @game.roll 0
+  end
+end
+```
+
+Con esto la especificación será más manejable.
+
+## Tercer test: contando los puntos
+
+Toca introducir un método para poder saber el marcador del juego. Lo reclamamos mediante un test que falle:
+
+```ruby
+require 'rspec'
+require_relative '../src/bowling_game'
+
+RSpec.describe 'A Bowling Game' do
+
+  before do
+    @game = BowlingGame.new
+  end
+
+  it 'should roll a ball knocking down 0 pins' do
+    @game.roll 0
+  end
+
+  it 'should score after a gutter roll' do
+    @game.roll 0
+    expect(@game.score).to eq(0)
+  end
+end
+```
+
+El test fallará porque no existe el método score.
+
+```ruby
+class BowlingGame
+  def roll(pins_down)
+
+  end
+
+  def score
+    
+  end
+end
+```
+
+Y seguirá fallando porque tiene que devolver 0. Lo mínimo para lograr que pase es:
+
+```ruby
+class BowlingGame
+  def roll(pins_down)
+
+  end
+
+  def score
+    0
+  end
+end
+```
+
+## Cuarto test: el peor lanzador del mundo
+
+Muchas soluciones de la kata van directamente a este punto donde vamos a empezar a definir el comportamiento de BowlingGame tras los 20 lanzamientos. Nosotros hemos escogido un camino con pasos más pequeños y vamos a ver qué implica.
+
+Nuestro siguiente test intentará hacer posible obtener un marcador tras 20 lanzamientos. Una forma de hacerlo es simularlos y lo más sencillo sería que todos ellos fuesen fallidos, es decir, que no tirasen ningún bolo con lo que el marcador final sería 0.
+
+Es parece un buen test para empezar:
+
+```ruby
+require 'rspec'
+require_relative '../src/bowling_game'
+
+RSpec.describe 'A Bowling Game' do
+
+  before do
+    @game = BowlingGame.new
+  end
+
+  it 'should roll a ball knocking down 0 pins' do
+    @game.roll 0
+  end
+
+  it 'should score after a gutter roll' do
+    @game.roll 0
+    expect(@game.score).to eq(0)
+  end
+
+  it 'should score a gutter game' do
+    20.times do
+      @game.roll 0
+    end
+    expect(@game.score).to eq(0)
+  end
+end
+
+```
+
+Pero no lo es. Lo ejecutamos y pasa a la primera.
+
+Este test no nos obliga a introducir cambios en el código de producción porque no falla. En el fondo es el mismo test que teníamos antes. Sin embargo, en algunos sentidos es un test mejor ya que nuestro objetivo es que `score` nos devuelva los resultados tras la totalidad de lanzamientos.
+
+Así que podemos considerar esto como nuestro...
+
+## Segundo refactor
+
+Simplemente eliminamos el test anterior por redundante:
+
+```ruby
+require 'rspec'
+require_relative '../src/bowling_game'
+
+RSpec.describe 'A Bowling Game' do
+
+  before do
+    @game = BowlingGame.new
+  end
+
+  it 'should roll a ball knocking down 0 pins' do
+    @game.roll 0
+  end
+  
+  it 'should score a gutter game' do
+    20.times do
+      @game.roll 0
+    end
+    expect(@game.score).to eq(0)
+  end
+end
+```
+
+Como el test no nos ha requerido escribir código de producción, necesitamos un test que sí falle.
+
+## Cuarto test (reprise): enseñando a contar a nuestro juego
+
+Necesitamos esperar un resultado distinto a cero en `score` para vernos obligados a implementar nuevo código de producción. De todos los resultados posibles de un juego completo de bolos quizá el más sencillo de probar sea el caso en que todos los lanzamientos acaban con un único bolo derribado. De este modo, esperamos que la puntuación final sea 20.
+
+```ruby
+require 'rspec'
+require_relative '../src/bowling_game'
+
+RSpec.describe 'A Bowling Game' do
+
+  before do
+    @game = BowlingGame.new
+  end
+
+  it 'should roll a ball knocking down 0 pins' do
+    @game.roll 0
+  end
+
+  it 'should score a gutter game' do
+    20.times do
+      @game.roll 0
+    end
+    expect(@game.score).to eq(0)
+  end
+
+  it 'should score all ones' do
+    20.times do
+      @game.roll 1
+    end
+    expect(@game.score).to eq(20)
+  end
+end
+```
+
+Este test ya falla porque no hay nada que acumule los puntos obtenidos en cada lanzamiento. Por tanto, necesitamos tener esa variable, que se inicie a cero y que vaya acumulando los resultados.
+
+Pero… un momento. Eso ¿no son muchas cosas?
+
+## Tercer refactor: un paso atrás para llegar más lejos
+
+Repasemos, para pasar el test que tenemos ahora fallando necesitamos:
+
+* Añadir una variable en la clase para almacenar las puntuaciones
+* Iniciarla a 0
+* Acumular en ella los resultados
+
+Son muchas cosas para añadir en un sólo ciclo mientras tenemos un test fallando.
+
+El caso es que, en realidad, podríamos olvidar este test un momento y volver al estado anterior cuando estábamos todavía en verde. Para ello comentamos el nuevo test de modo que no se ejecute.
+
+```ruby
+require 'rspec'
+require_relative '../src/bowling_game'
+
+RSpec.describe 'A Bowling Game' do
+
+  before do
+    @game = BowlingGame.new
+  end
+
+  it 'should roll a ball knocking down 0 pins' do
+    @game.roll 0
+  end
+
+  it 'should score a gutter game' do
+    20.times do
+      @game.roll 0
+    end
+    expect(@game.score).to eq(0)
+  end
+
+  # it 'should score all ones' do
+  #   20.times do
+  #     @game.roll 1
+  #   end
+  #   expect(@game.score).to eq(20)
+  # end
+end
+```
+
+Y ahora procedemos al refactor:
+
+Cambiamos la constante 0 por una variable:
+
+```ruby
+class BowlingGame
+  def roll(pins_down)
+
+  end
+
+  def score
+    @score = 0
+  end
+end
+```
+
+Podemos mejorar este código, guardando en la variable los puntos obtenidos en el lanzamiento. Este código sigue haciendo pasar el test y es un cambio mínimo:
+
+```ruby
+class BowlingGame
+  def roll(pins_down)
+    @score = pins_down
+  end
+
+  def score
+    @score
+  end
+end
+```
+
+## Volviendo al cuarto test
+
+Ahora sí que lanzamos el cuarto test y vemos de nuevo que falla:
+
+```ruby
+require 'rspec'
+require_relative '../src/bowling_game'
+
+RSpec.describe 'A Bowling Game' do
+
+  before do
+    @game = BowlingGame.new
+  end
+
+  it 'should roll a ball knocking down 0 pins' do
+    @game.roll 0
+  end
+
+  it 'should score a gutter game' do
+    20.times do
+      @game.roll 0
+    end
+    expect(@game.score).to eq(0)
+  end
+
+  it 'should score all ones' do
+    20.times do
+      @game.roll 1
+    end
+    expect(@game.score).to eq(20)
+  end
+end
+```
+
+El cambio necesario en el código es más pequeño ahora. Tenemos que iniciar la variable en construcción, de modo que cada juego empieza en cero y va acumulando puntos. Fíjate que aparte del constructor nos basta con añadir un signo `+`.
+
+```ruby
+class BowlingGame
+
+  def initialize
+    @score = 0
+  end
+
+  def roll(pins_down)
+    @score += pins_down
+  end
+
+  def score
+    @score
+  end
+end
+```
+
+De nuevo en verde, sabiendo que ya acumulamos los puntos.
+
+## Cuarto refactor: tests más cómodos
+
+Al observar los tests vemos que puede ser útil tener un método para lanzar varias veces la bola con el mismo resultado. Así que lo extraemos y, por supuesto, lo utilizamos:
+
+```ruby
+require 'rspec'
+require_relative '../src/bowling_game'
+
+RSpec.describe 'A Bowling Game' do
+
+  before do
+    @game = BowlingGame.new
+  end
+
+  it 'should roll a ball knocking down 0 pins' do
+    @game.roll 0
+  end
+
+  it 'should score a gutter game' do
+    roll_many 20, 0
+    expect(@game.score).to eq(0)
+  end
+
+  it 'should score all ones' do
+    roll_many 20, 1
+    expect(@game.score).to eq(20)
+  end
+
+  def roll_many(times, pins_down)
+    times.times do
+      @game.roll pins_down
+    end
+  end
+end
+```
+
+## Quinto test: manejando un *spare*
+
+Ahora que ya sabemos que nuestro BowlingGame es capaz de acumular los puntos obtenidos en cada lanzamiento es momento de seguir avanzando. Podemos empezar a tratar casos especiales como por ejemplo, cómo se procesa un *spare*, es decir, tumbar los diez bolos con dos lanzamientos en un *frame*.
+
+Así que escribimos un test que simule esa situación. Lo más sencillo es imaginar que el *spare* ocurre en el primer *frame* y que el resultado del tercer lanzamiento es el bonus. Para que sea más fácil, el resto de lanzamientos hasta completar el juego serán 0, con lo que no introducimos puntuaciones extrañas.
+
+He aquí un test posible:
+
+```ruby
+require 'rspec'
+require_relative '../src/bowling_game'
+
+RSpec.describe 'A Bowling Game' do
+
+  before do
+    @game = BowlingGame.new
+  end
+
+  it 'should roll a ball knocking down 0 pins' do
+    @game.roll 0
+  end
+
+  it 'should score a gutter game' do
+    roll_many 20, 0
+    expect(@game.score).to eq(0)
+  end
+
+  it 'should score all ones' do
+    roll_many 20, 1
+    expect(@game.score).to eq(20)
+  end
+
+  it 'should score an spare' do
+    @game.roll 5
+    @game.roll 5
+    @game.roll 3
+    roll_many 17, 0
+    expect(@game.score).to eq(16)
+  end
+
+  def roll_many(times, pins_down)
+    times.times do
+      @game.roll pins_down
+    end
+  end
+end
+```
+
+El test falla porque `score` nos devuelve 13 puntos cuando deberían ser 16. Ahora mismo no existe un mecanismo que cuente el lanzamiento posterior al *spare* como bonus.
+
+El problema es que nos hace falta contar los puntos no por lanzamiento, sino por frame, para poder saber si un frame ha dado un spare o no y actuar en consecuencia. Además, ya no nos basta con ir sumando los puntos, sino que debemos pasar la responsabilidad del recuento al método score, de modo que `roll` se limite a almacenar los parciales y sea `score` quien gestione la lógica de calcular por frame.
+
+De nuevo nos vemos en la necesidad de cambiar primero la estructura del código sin cambiar el comportamiento antes de introducir el nuevo. Por tanto, anulamos este test y refactorizamos con el test anterior como red de seguridad para introducir el concepto de frame en el recuento.
+
+## Quinto refactor: introduciendo el concepto de *frame*
+
+Primero regresamos al test anterior, anulando temporalmente el que está fallando:
+
+```ruby
+require 'rspec'
+require_relative '../src/bowling_game'
+
+RSpec.describe 'A Bowling Game' do
+
+  before do
+    @game = BowlingGame.new
+  end
+
+  it 'should roll a ball knocking down 0 pins' do
+    @game.roll 0
+  end
+
+  it 'should score a gutter game' do
+    roll_many 20, 0
+    expect(@game.score).to eq(0)
+  end
+
+  it 'should score all ones' do
+    roll_many 20, 1
+    expect(@game.score).to eq(20)
+  end
+
+  # it 'should score an spare' do
+  #   @game.roll 5
+  #   @game.roll 5
+  #   @game.roll 3
+  #   roll_many 17, 0
+  #   expect(@game.score).to eq(16)
+  # end
+
+  def roll_many(times, pins_down)
+    times.times do
+      @game.roll pins_down
+    end
+  end
+end
+```
+
+Vamos por el refactor. En primer lugar, cambiamos el nombre de la variable:
+
+```ruby
+class BowlingGame
+
+  def initialize
+    @rolls = 0
+  end
+
+  def roll(pins_down)
+    @rolls += pins_down
+  end
+
+  def score
+    @rolls
+  end
+end
+```
+
+Los tests siguen pasando. Ahora cambiamos su significado y movemos la suma a `score`:
+
+```
+class BowlingGame
+
+  def initialize
+    @rolls = []
+  end
+
+  def roll(pins_down)
+    @rolls.push pins_down
+  end
+
+  def score
+    score = 0
+    @rolls.each do |roll|
+      score += roll
+    end
+    score
+  end
+end
+```
+
+Comprobamos que los tests siguen pasando. Puede ser buen momento para introducir el concepto de `frame`. Sabemos que hay un máximo de 10 frames.
+
+```ruby
+class BowlingGame
+
+  def initialize
+    @rolls = []
+  end
+
+  def roll(pins_down)
+    @rolls.push pins_down
+  end
+
+  def score
+    score = 0
+    roll = 0
+
+    10.times do
+      frame_score = @rolls[roll] + @rolls[roll+1]
+      score += frame_score
+      roll += 2
+    end
+    score
+  end
+end
+```
+
+Con este cambio los tests siguen pasando y ya tenemos acceso a la puntuación por frame. Parece que estamos listos para reintroducir el test anterior.
+
+## Quinto test (reprise): manejando un *spare*
+
+Volvemos a activar el test que falla.
+
+```ruby
+require 'rspec'
+require_relative '../src/bowling_game'
+
+RSpec.describe 'A Bowling Game' do
+
+  before do
+    @game = BowlingGame.new
+  end
+
+  it 'should roll a ball knocking down 0 pins' do
+    @game.roll 0
+  end
+
+  it 'should score a gutter game' do
+    roll_many 20, 0
+    expect(@game.score).to eq(0)
+  end
+
+  it 'should score all ones' do
+    roll_many 20, 1
+    expect(@game.score).to eq(20)
+  end
+
+  it 'should score an spare' do
+      @game.roll 5
+      @game.roll 5
+      @game.roll 3
+      roll_many 17, 0
+      expect(@game.score).to eq(16)
+    end
+
+  def roll_many(times, pins_down)
+    times.times do
+      @game.roll pins_down
+    end
+  end
+end
+```
+
+Ahora estamos en mejor disposición para introducir el comportamiento deseado con un cambio bastante pequeño:
+
+```ruby
+class BowlingGame
+
+  def initialize
+    @rolls = []
+  end
+
+  def roll(pins_down)
+    @rolls.push pins_down
+  end
+
+  def score
+    score = 0
+    roll = 0
+
+    10.times do
+      frame_score = @rolls[roll] + @rolls[roll + 1]
+      if frame_score == 10
+        frame_score += @rolls[roll + 2]
+      end
+      score += frame_score
+      roll += 2
+    end
+    score
+  end
+end
+```
+
+Añadiendo un bloque `if` es suficiente para volver a pasar el test.
+
+## Sexto refactor
+
+En este punto en que ya tenemos los tests pasando podemos hacer varias mejoras en el código. Vamos por partes:
+
+Demos significado a algunos números mágicos en el código de producción:
+
+```ruby
+class BowlingGame
+  
+  def initialize
+    @rolls = []
+  end
+
+  def roll(pins_down)
+    @rolls.push pins_down
+  end
+
+  FRAMES_IN_A_GAME = 10
+  ALL_PINS_DOWN = 10
+
+  def score
+    score = 0
+    roll = 0
+
+    FRAMES_IN_A_GAME.times do
+      frame_score = @rolls[roll] + @rolls[roll + 1]
+      if frame_score == ALL_PINS_DOWN
+        frame_score += @rolls[roll + 2]
+      end
+      score += frame_score
+      roll += 2
+    end
+    score
+  end
+end
+```
+
+El cálculo de la puntuación en el frame podría extraerse a un método y ahorrarnos la variable temporal de paso:
+
+```ruby
+class BowlingGame
+
+  def initialize
+    @rolls = []
+  end
+
+  def roll(pins_down)
+    @rolls.push pins_down
+  end
+
+  FRAMES_IN_A_GAME = 10
+  ALL_PINS_DOWN = 10
+
+  def score
+    score = 0
+    roll = 0
+
+    FRAMES_IN_A_GAME.times do
+      score += frame_score(roll)
+      roll += 2
+    end
+    score
+  end
+
+  private
+
+  def frame_score(roll)
+    frame_score = @rolls[roll] + @rolls[roll + 1]
+    if frame_score == ALL_PINS_DOWN
+      frame_score += @rolls[roll + 2]
+    end
+    frame_score
+  end
+end
+```
+
+Podemos darle significado a la suma de los puntos en cada lanzamiento del frame, así como a la pregunta de si se trata de un *spare* o no, y *rubyficar* un poco el código:
+
+```ruby
+class BowlingGame
+
+  def initialize
+    @rolls = []
+  end
+
+  def roll(pins_down)
+    @rolls.push pins_down
+  end
+
+  FRAMES_IN_A_GAME = 10
+  ALL_PINS_DOWN = 10
+
+  def score
+    score = 0
+    roll = 0
+
+    FRAMES_IN_A_GAME.times do
+      frame_score = base_frame_score(roll)
+      frame_score += @rolls[roll + 2] if spare? frame_score
+      score += frame_score
+      roll += 2
+    end
+    score
+  end
+
+  private
+
+  def spare?(frame_score)
+    frame_score == ALL_PINS_DOWN
+  end
+
+  def base_frame_score(roll)
+    @rolls[roll] + @rolls[roll + 1]
+  end
+end
+```
+
+Lo cierto es que esto nos está pidiendo a gritos extraer todo a una clase `Frame`, pero ahora no lo vamos a hacer pues podríamos caer en un smell por exceso de diseño. 
+
+Por otro lado, mirando el test, podemos detectar algunos puntos de mejora. Por ejemplo, ser más explícitos en el ejemplo:
+
+```ruby
+require 'rspec'
+require_relative '../src/bowling_game'
+
+RSpec.describe 'A Bowling Game' do
+
+  before do
+    @game = BowlingGame.new
+  end
+
+  it 'should roll a ball knocking down 0 pins' do
+    @game.roll 0
+  end
+
+  it 'should score a gutter game' do
+    roll_many 20, 0
+    expect(@game.score).to eq(0)
+  end
+
+  it 'should score all ones' do
+    roll_many 20, 1
+    expect(@game.score).to eq(20)
+  end
+
+  it 'should score an spare' do
+      roll_spare
+      @game.roll 3
+      roll_many 17, 0
+      expect(@game.score).to eq(16)
+    end
+
+  def roll_many(times, pins_down)
+    times.times do
+      @game.roll pins_down
+    end
+  end
+
+  def roll_spare
+    @game.roll 5
+    @game.roll 5
+  end
+end
+```
+
+Y con esto terminamos damos por terminado el refactor. Queremos tratar el caso del `strike`.
+
+## Sexto test: cómo gestionar un *strike*
+
+`Strike` es conseguir tumbar todos los bolos en un único lanzamiento. En ese caso, el bonus consiste en los puntos obtenidos en los siguientes dos lanzamientos. El siguiente test nos propone un ejemplo de eso:
+
+```ruby
+require 'rspec'
+require_relative '../src/bowling_game'
+
+RSpec.describe 'A Bowling Game' do
+
+  before do
+    @game = BowlingGame.new
+  end
+
+  it 'should roll a ball knocking down 0 pins' do
+    @game.roll 0
+  end
+
+  it 'should score a gutter game' do
+    roll_many 20, 0
+    expect(@game.score).to eq(0)
+  end
+
+  it 'should score all ones' do
+    roll_many 20, 1
+    expect(@game.score).to eq(20)
+  end
+
+  it 'should score an spare' do
+    roll_spare
+    @game.roll 3
+    roll_many 17, 0
+    expect(@game.score).to eq(16)
+  end
+
+  it 'should score an strike' do
+    @game.roll(10)
+    @game.roll(4)
+    @game.roll(3)
+    roll_many 17, 0
+    expect(@game.score).to eq(24)
+  end
+
+  def roll_many(times, pins_down)
+    times.times do
+      @game.roll pins_down
+    end
+  end
+
+  def roll_spare
+    @game.roll 5
+    @game.roll 5
+  end
+end
+```
+
+En esta ocasión el test falla porque el código de producción calcula un total de 17 puntos (los 10 del strike más los 7 de los dos siguientes lanzamientos). Sin embargo, debería contar esos 7 dos veces: el bonus y la puntuación normal.
+
+Ahora mismo tenemos todo lo necesario en el código de producción y, en principio, no tenemos que volver atrás. Tan sólo introducir los cambios necesarios. Fundamentalmente nos interesa detectar que se ha realizado el *strike*.
+
+```ruby
+class BowlingGame
+
+  def initialize
+    @rolls = []
+  end
+
+  def roll(pins_down)
+    @rolls.push pins_down
+  end
+
+  FRAMES_IN_A_GAME = 10
+  ALL_PINS_DOWN = 10
+
+  def score
+    score = 0
+    roll = 0
+
+    FRAMES_IN_A_GAME.times do
+      if @rolls[roll] == 10
+        frame_score = 10 + @rolls[roll + 1] + @rolls[roll + 2]
+        roll += 1
+      else
+        frame_score = base_frame_score roll
+        frame_score += @rolls[roll + 2] if spare? frame_score
+        roll += 2
+      end
+      score += frame_score
+    end
+
+    score
+  end
+
+  private
+
+  def spare?(frame_score)
+    frame_score == ALL_PINS_DOWN
+  end
+
+  def base_frame_score(roll)
+    @rolls[roll] + @rolls[roll + 1]
+  end
+end
+```
+
+## Séptimo refactor
+
+El código de producción que tenemos ahora nos permite pasar los tests y, por tanto, estamos en disposición de arreglar su estructura.
+
+Empecemos haciendo algunas cosas más explícitas sobre el strike:
+
+```ruby
+class BowlingGame
+
+  def initialize
+    @rolls = []
+  end
+
+  def roll(pins_down)
+    @rolls.push pins_down
+  end
+
+  FRAMES_IN_A_GAME = 10
+  ALL_PINS_DOWN = 10
+
+  def score
+    score = 0
+    roll = 0
+
+    FRAMES_IN_A_GAME.times do
+      if strike? roll
+        frame_score = 10 + base_frame_score(roll + 1)
+        roll += 1
+      else
+        frame_score = base_frame_score roll
+        frame_score += @rolls[roll + 2] if spare? frame_score
+        roll += 2
+      end
+      score += frame_score
+    end
+
+    score
+  end
+
+  private
+
+  def strike?(roll)
+    @rolls[roll] == ALL_PINS_DOWN
+  end
+
+  def spare?(frame_score)
+    frame_score == ALL_PINS_DOWN
+  end
+
+  def base_frame_score(roll)
+    @rolls[roll] + @rolls[roll + 1]
+  end
+end
+```
+
+
+La estructura de cálculo de la puntuación del frame resulta poco clara, así que vamos a volver atrás y dejarlo también más claro:
+
+```ruby
+class BowlingGame
+
+  def initialize
+    @rolls = []
+  end
+
+  def roll(pins_down)
+    @rolls.push pins_down
+  end
+
+  FRAMES_IN_A_GAME = 10
+  ALL_PINS_DOWN = 10
+
+  def score
+    score = 0
+    roll = 0
+
+    FRAMES_IN_A_GAME.times do
+      if strike? roll
+        frame_score = 10 + base_frame_score(roll + 1)
+        roll += 1
+      elsif spare? base_frame_score roll
+        frame_score = 10 + @rolls[roll + 2]
+        roll += 2
+      else
+        frame_score = base_frame_score roll
+        roll += 2
+      end
+      score += frame_score
+    end
+
+    score
+  end
+
+  private
+
+  def strike?(roll)
+    @rolls[roll] == ALL_PINS_DOWN
+  end
+
+  def spare?(frame_score)
+    frame_score == ALL_PINS_DOWN
+  end
+
+  def base_frame_score(roll)
+    @rolls[roll] + @rolls[roll + 1]
+  end
+end
+```
+
+Este refactor deja en evidencia que `strike?` y `spare?` tiene una estructura diferente, lo que dificulta su comprensión y su manejo. Cambiamos `spare` para igualarlos y de paso quitamos también números mágicos.
+
+```ruby
+class BowlingGame
+
+  def initialize
+    @rolls = []
+  end
+
+  def roll(pins_down)
+    @rolls.push pins_down
+  end
+
+  FRAMES_IN_A_GAME = 10
+  ALL_PINS_DOWN = 10
+
+  def score
+    score = 0
+    roll = 0
+
+    FRAMES_IN_A_GAME.times do
+      if strike? roll
+        frame_score = ALL_PINS_DOWN + base_frame_score(roll + 1)
+        roll += 1
+      elsif spare? roll
+        frame_score = ALL_PINS_DOWN + @rolls[roll + 2]
+        roll += 2
+      else
+        frame_score = base_frame_score roll
+        roll += 2
+      end
+      score += frame_score
+    end
+
+    score
+  end
+
+  private
+
+  def strike?(roll)
+    ALL_PINS_DOWN == @rolls[roll]
+  end
+
+  def spare?(roll)
+    ALL_PINS_DOWN == base_frame_score(roll)
+  end
+
+  def base_frame_score(roll)
+    @rolls[roll] + @rolls[roll + 1]
+  end
+end
+```
+
+Ahora podemos extraer métodos que hagan más explícitos los cálculos:
+
+```ruby
+class BowlingGame
+
+  def initialize
+    @rolls = []
+  end
+
+  def roll(pins_down)
+    @rolls.push pins_down
+  end
+
+  FRAMES_IN_A_GAME = 10
+  ALL_PINS_DOWN = 10
+
+  def score
+    score = 0
+    roll = 0
+
+    FRAMES_IN_A_GAME.times do
+      if strike? roll
+        frame_score = strike_score roll
+        roll += 1
+      elsif spare? roll
+        frame_score = spare_score roll
+        roll += 2
+      else
+        frame_score = base_frame_score roll
+        roll += 2
+      end
+      score += frame_score
+    end
+
+    score
+  end
+
+  private
+
+  def spare_score(roll)
+    ALL_PINS_DOWN + @rolls[roll + 2]
+  end
+
+  def strike_score(roll)
+    ALL_PINS_DOWN + base_frame_score(roll + 1)
+  end
+
+  def strike?(roll)
+    ALL_PINS_DOWN == @rolls[roll]
+  end
+
+  def spare?(roll)
+    ALL_PINS_DOWN == base_frame_score(roll)
+  end
+
+  def base_frame_score(roll)
+    @rolls[roll] + @rolls[roll + 1]
+  end
+end
+```
+
+## El último test: la mejor jugadora del mundo
+
+En principio, el desarrollo que tenemos es suficiente. Sin embargo, nos conviene tener algún test que lo certifique. Por ejemplo, este nuevo test corresponde a un juego perfecto: todos los lanzamientos son strikes:
+
+```ruby
+require 'rspec'
+require_relative '../src/bowling_game'
+
+RSpec.describe 'A Bowling Game' do
+
+  before do
+    @game = BowlingGame.new
+  end
+
+  it 'should roll a ball knocking down 0 pins' do
+    @game.roll 0
+  end
+
+  it 'should score a gutter game' do
+    roll_many 20, 0
+    expect(@game.score).to eq(0)
+  end
+
+  it 'should score all ones' do
+    roll_many 20, 1
+    expect(@game.score).to eq(20)
+  end
+
+  it 'should score an spare' do
+    roll_spare
+    @game.roll 3
+    roll_many 17, 0
+    expect(@game.score).to eq(16)
+  end
+
+  it 'should score an strike' do
+    @game.roll(10)
+    @game.roll(4)
+    @game.roll(3)
+    roll_many 17, 0
+    expect(@game.score).to eq(24)
+  end
+
+  def roll_many(times, pins_down)
+    times.times do
+      @game.roll pins_down
+    end
+  end
+
+  it 'should score perfect game' do
+    roll_many 12, 10
+    expect(@game.score).to eq(300)
+  end
+
+  def roll_spare
+    @game.roll 5
+    @game.roll 5
+  end
+end
+```
+
+Al ejecutarlo, el test pasa, lo que nos confirma que BowlingGame funciona como esperamos.
