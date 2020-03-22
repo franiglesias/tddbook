@@ -1,6 +1,12 @@
-## The way to TDD
+## El camino del TDD
 
-Work in progress
+**Work in progress**
+
+Proyecto de libro para facilitar el aprendizaje de TDD, con propuestas de katas secuenciadas para tratar diversos aspectos de la metodología. Las katas se estructuran con enunciado, un ejemplo de resolución y una explicación desarrollada del principal aspecto trabajado en ellas.
+
+El libro podría usarse como soporte para un plan de formación en TDD.
+
+## Contenidos
 
 * [¿Qué es TDD y por qué debería importarme?](manuscript/1.tdd-intro.md)
 * [Calidad de vida y TDD](manuscript/2.tdd-quality-life.md)
@@ -21,3 +27,9 @@ Work in progress
   * Bowling Game (Ruby, RSpec, OOP)
       * [Bowling Game](manuscript/Katas/4.Bowling/BowlingGame.md)
       * [Resolviendo la kata Bowling Game](manuscript/Katas/4.Bowling/BowlingGame-resolved.md)
+
+
+## Repositorios con soluciones a las katas
+
+* [Ruby](https://github.com/franiglesias/tddbook-ruby)
+* [JS](https://github.com/franiglesias/tddbook-js)
