@@ -1,10 +1,10 @@
 ## El camino del TDD
 
-**Work in progress**
+**This is a work in progress**
 
 Proyecto de libro para facilitar el aprendizaje de TDD, con propuestas de katas secuenciadas para tratar diversos aspectos de la metodología. Las katas se estructuran con enunciado, un ejemplo de resolución y una explicación desarrollada del principal aspecto trabajado en ellas.
 
-El libro podría usarse como soporte para un plan de formación en TDD.
+El libro podría usarse como soporte para un plan de formación en TDD. Cada una de las katas ha sido seleccionada y orientada para
 
 ## Contenidos
 
@@ -27,6 +27,7 @@ El libro podría usarse como soporte para un plan de formación en TDD.
   * Bowling Game (Ruby, RSpec, OOP)
       * [Bowling Game](manuscript/Katas/4.Bowling/BowlingGame.md)
       * [Resolviendo la kata Bowling Game](manuscript/Katas/4.Bowling/BowlingGame-resolved.md)
+      * [La fase de refactor](manuscript/Katas/4.Bowling/Refactor.md)
 
 
 ## Repositorios con soluciones a las katas

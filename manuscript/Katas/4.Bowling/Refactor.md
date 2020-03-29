@@ -1,0 +1,265 @@
+# La fase de refactor
+
+En capítulos anteriores, mencionamos las leyes de TDD. Originalmente, estas leyes eran dos, en la formulación de Kent Beck:
+
+* No escribir una línea de código sin antes tener un test automático que falle
+* Eliminar la duplicación
+
+En esencia, lo que Kent Beck proponía es definir primero una pequeña parte de la especificación mediante un test, implementar un algoritmo muy pequeño que la satisfaga y, a continuación, revisar el código en busca de casos de duplicación para refactorizarlos en un algoritmo más general y flexible.
+
+Y eso es, más o menos, como define Martin Fowler el ciclo Red-Green-Refactor:
+
+* Escribe un test para el siguiente fragmento de funcionalidad que deseas añadir
+* Escribe el código de producción necesario para que el test pase
+* Refactoriza el código, tanto el nuevo como el anterior, para que esté bien estructurado
+
+Este enunciado parece dar por sentado que el refactor es, por así decir, el final de cada etapa del proceso. Pero, paradójicamente, si interpretamos el ciclo al pie de la letra caeremos en una mala práctica.
+
+## La función del refactor en TDD
+
+Por lo general, en *Test Driven Development* se favorece que tanto los tests como los cambios en el código de producción sean lo más pequeños posibles. Este enfoque minimalista es beneficioso porque nos permite trabajar con poca carga cognitiva en cada ciclo, mientras aprendemos y alcanzamos mayor y más profunda comprensión del problema, aplazando decisiones de modo que estemos mejor informadas cuando nos toca afrontarlas.
+
+Normalmente, los pequeños pasos en TDD nos permiten hacer cambios de código muy sencillos cada vez. Muchas veces estos cambios son obvios y nos llevan a implementaciones que podríamos considerar ingenuas. Sin embargo, por muy sencillas o bastas que nos parezcan, estas implementaciones hacen pasar los tests y, por tanto, cumplen las especificaciones. Podríamos entregar ese código si es el caso.
+
+Y una vez que tenemos el último test pasando estamos en condiciones de refactorizar. Este verde nos da via libre para hacer cambios en la forma de la implementación garantizando que no cambiamos la funcionalidad conseguida.
+
+La fase de refactor está precisamente para hacer evolucionar esas implementaciones ingenuas a mejores diseños teniendo la red de seguridad que nos proporcionan los tests que están pasando.
+
+## Que refactors ejecutar
+
+En cada ciclo es posible realizar diversos refactors. Obviamente, en las primeras fases serán más pequeños e incluso es posible que nos parezca que no son necesarios. Sin embargo, es conveniente aprovechar la oportunidad cuando se presenta.
+
+Podemos hacer muchos tipos de refactors, entre otros:
+
+* Introducir constantes para reemplazar valores mágicos.
+* Cambiar nombres de variables y parámetros para reflejar mejor sus intenciones.
+* Extraer métodos privados.
+* Extraer condicionales a métodos cuando se vuelvan complejas.
+* Aplanar estructuras condicionadas anidadas.
+* Extraer ramas de condicionales a métodos privados.
+
+## Límites del refactor
+
+En ocasiones, un *exceso* de refactor puede llevarnos a que la implementación se complique y sea difícil avanzar en el proceso de TDD. Esto ocurre cuando introducimos ciertos patrones de forma prematura, sin que el desarrollo esté todavía terminado. Sería un *refactor prematura* parecido a la *optimización prematura*, generando un código difícil de mantener.
+
+Podríamos decir que hay dos modalidades de refactor implicadas:
+
+* Una de alcance limitado aplicable en cada ciclo red-green-refactor cuya función es facilitar la legibilidad, sostenibilidad y capacidad de evolución del algoritmo en desarrollo.
+* La otra que tendrá lugar una vez que hemos completado toda la funcionalidad y cuyo objetivo es introducir un diseño más evolucionado y orientado a patrones.
+
+Otra cuestión interesante es la introducción de características exclusivas o propias del lenguaje, que en principio también convendría posponer hasta esa fase final. ¿Por qué dejarlas para este momento? Precisamente porque pueden limitar nuestra capacidad de refactorizar un código si todavía no tenemos seguridad acerca de hacia dónde podría evolucionar.
+
+Por ejemplo, en Ruby esta construcción:
+
+```ruby
+def greet(name = nil)
+  if name.nil?
+    name = 'my friend'
+  end
+
+  "Hello, #{name}"
+end
+```
+
+Podría refactorizarse, y de hecho se recomienda, de esta forma que me parece realmente bonita:
+
+```ruby
+def greet(name = nil)
+  name = 'my friend' if name.nil?
+
+  "Hello, #{name}"
+end
+```
+
+En este caso, la estructura representa la idea de asignar un valor por defecto a la variable, algo que podríamos conseguir también de este modo, el cual es común a otros lenguajes:
+
+```ruby
+def greet(name = 'my friend')
+  "Hello, #{name}"
+end
+```
+
+Las tres variantes hacen pasar los tests, pero cada una de ellas nos coloca en una posición ligeramente distinta de cara a los futuros requerimientos.
+
+Por ejemplo, supongamos que nuestro próximo requerimiento nos pide poder introducir varios nombres. Una posible solución para eso es usar *splat parámeters*, es decir, que la función admita un número indefinido de parámetros que luego se presentarán dentro del método como un `array`. En Ruby esto se expresa así:
+
+```ruby
+def greet(*name)
+  #
+end
+```
+
+Esta declaración, por ejemplo, es incompatible con la tercera variante ya que el *splat operator* no admite un valor por defecto y tendremos que reimplementar ese paso, lo que nos llevará de nuevo a utilizar una de las otras variantes.
+
+En principio no parece que sea un gran inconveniente pero implica deshacer toda la lógica que venga determinada por esa estructura y, según el momento de desarrollo en que nos encontremos puede llevarnos incluso a callejones sin salida.
+
+En las otras opciones, es un poco menos inconveniente. Además de cambiar la signatura lo único que tenemos que modificar es la pregunta (`empty?` por `nil?`) y el valor por defecto que, en lugar de un `string`, pasa a ser un `array` de `string`. Por supuesto, para finalizar tenemos que hacer un `join` de la colección para poder mostrarlo en el saludo.
+
+```ruby
+def greet(*name)
+  if name.empty?
+    name = ['my friend']
+  end
+
+  names = name.join(', ')
+
+  "Hello, #{names}"
+end
+```
+
+O la versión *rubyficada*:
+
+```ruby
+def greet(*name)
+  name = ['my friend'] if name.empty?
+
+  names = name.join(', ')
+
+  "Hello, #{names}"
+end
+```
+
+Aparte de eso, sería necesario en este punto un refactor del nombre del parámetro que exprese más claramente su nuevo significado:
+
+```ruby
+def greet(*people)
+  people = ['my friend'] if people.empty?
+
+  names = people.join(', ')
+
+  "Hello, #{names}"
+end
+```
+
+Así que como recomendación general es conveniente buscar un equilibrio entre los refactors que nos ayudan a mantener el código limpio y legible de aquellos que podríamos considerar como sobreingeniería. Una implementación un poco menos refinada puede ser más fácil de cambiar a medida que se introducen nuevos tests que una muy evolucionada.
+
+No *sobrerefactorices* antes de tiempo.
+
+## Cuando es el momento de hacer refactor
+
+Para hacer refactor la condición *sine qua non* es que todos los tests existentes estén pasando. En este momento nos interesa analizar el estado de la implementación y aplicar los refactors que mejor le vayan.
+
+Si un test está en rojo nos indica que una parte de la especifcación no está conseguida y, por lo tanto, debemos trabajar en eso y no en el refactor.
+
+Pero hay un caso especial: cuando añadimos un nuevo test que falla y nos damos cuenta de que necesitamos un refactor previo para poder implementar la solución más obvia o sencilla para ese test.
+
+¿Cómo actuamos en este caso? Pues tenemos que dar un paso atrás.
+
+### El paso atrás en el ciclo Red-Green-Refactor
+
+Supongamos un ejemplo sencillo. Vamos a iniciar la [Greeting kata de testdouble](https://github.com/testdouble/contributing-tests/wiki/Greeting-Kata). Empezamos con un test con el que definir la interfaz:
+
+```ruby
+require 'rspec'
+
+RSpec.describe 'A simple greeting' do
+  it 'should greet a person' do
+    expect(greet('Fran')).to eq('Hello, Fran')
+  end
+end
+```
+
+Nuestro siguiente paso es crear la implementación más sencilla para que el test pase, cosa que podríamos hacer así:
+
+```ruby
+def greet(name)
+  'Hello, Fran'
+end
+```
+
+El siguiente requerimiento es que maneje el caso de que no se proporcione nombre, en cuyo caso debe ofrecer alguna fórmula anónima como la que ponemos de ejemplo en este test:
+
+```ruby
+require 'rspec'
+
+def greet(name)
+  'Hello, Fran'
+end
+
+RSpec.describe 'A simple greeting' do
+  it 'should greet a person' do
+    expect(greet('Fran')).to eq('Hello, Fran')
+  end
+
+  it 'should greet even if no name provided' do
+    expect(greet).to eq('Hello, my friend')
+  end
+end
+```
+
+El test falla en primer lugar porque el argumento no es opcional. Pero es que además no se usa en la implementación actual y necesitamos usarlo para hacer lo más obvio que requiere este test. Tenemos que ejecutar varios pasos preparatorios antes de poder realizar la implementación, a saber:
+
+* Hacer opcional el parámetro `name`
+* Usar el parámetro en el valor de retorno
+
+El caso es que con el nuevo requerimiento tenemos nueva información que nos sería útil para refactorizar la solución del primer test. Sin embargo, como tenemos un nuevo test que falla, no deberíamos hacer refactor, por lo que eliminamos o anulamos el test anterior. Por ejemplo, comentándolo:
+
+```ruby
+require 'rspec'
+
+def greet(name)
+  'Hello, Fran'
+end
+
+RSpec.describe 'A simple greeting' do
+  it 'should greet a person' do
+    expect(greet('Fran')).to eq('Hello, Fran')
+  end
+  
+  # it 'should greet even if no name provided' do
+  #   expect(greet).to eq('Hello, my friend')
+  # end
+end
+```
+
+Al hacer así, volvemos a tener los tests en verde y podemos aplicar los cambios necesarios, que no alteran el comportamiento implementado hasta el momento. 
+
+Hacemos opcional el parámetro del nombre.
+
+```ruby
+def greet(name = nil)
+  'Hello, Fran'
+end
+```
+
+Aquí empezamos a dar uso al parámetro:
+
+```ruby
+def greet(name)
+  "Hello, #{name}"
+end
+```
+
+Esto nos ha permitido pasar de nuestra primera implementación tosca a una lo bastante flexible con la que el test sigue pasando y estamos en mejores condiciones para reintroducir el siguiente test:
+
+```ruby
+require 'rspec'
+
+def greet(name = nil)
+  "Hello, #{name}"
+end
+
+RSpec.describe 'A simple greeting' do
+  it 'should greet a person' do
+    expect(greet('Fran')).to eq('Hello, Fran')
+  end
+
+  it 'should greet even if no name provided' do
+    expect(greet).to eq('Hello, my friend')
+  end
+end
+```
+
+Obviamente, el test falla, pero la razón del fallo es justamente que nos falta código que resuelva el requerimiento. Lo único que tenemos que hacer es comprobar si recibimos un nombre o no y actuar en consecuencia.
+
+```ruby
+def greet(name = nil)
+  if name.nil?
+    name = 'my friend'
+  end
+  
+  "Hello, #{name}"
+end
+```
+
+En cierto modo, resulta que la *información del futuro*, o sea, el nuevo test que planteamos para introducir la siguiente funcionalidad, *afecta al pasado*, es decir al estado adecuado del código para poder conitnuar, y nos obliga a considerar la profundidad del refactor necesario antes de afrontar el nuevo ciclo. En esta situación, lo mejor es volver al último test que pasaba, anulando el nuevo, y trabajar en el refactor hasta estar mejor preparadas para continuar avanzando.

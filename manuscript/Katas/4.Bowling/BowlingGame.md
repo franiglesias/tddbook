@@ -9,7 +9,7 @@ antes de poder afrontar los cambios necesarios para hacer pasar el test.
 
 La kata que vamos a practicar ahora, además de ser una de las clásicas, tiene la particularidad de que casi cada nueva funcionalidad que añadimos, cada nuevo test, require un refactor relativamente grande del algoritmo. Eso nos pone en un dilema: no podemos estar refactorizando si el test no está en verde. 
 
-O dicho de otro modo: en ocasiones nos encontraremos que el nuevo test nos proporciona una información que no teníamos antes y que nos muestra una oportunidad de refactor que debemos afrontar **antes** de atacar la parte nueva de funcionalidad.
+O dicho de otro modo: en ocasiones nos encontraremos que el nuevo test nos proporciona una información que no teníamos antes y que nos muestra una oportunidad de refactor que debemos afrontar **antes** de implementar la parte nueva de funcionalidad.
 
 Por eso, con la kata Bowling Game, aprenderemos cómo manejar esta situación y dar un paso atrás para refactorizar el código de producción con lo aprendido al pensar en el nuevo test. 
 

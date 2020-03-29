@@ -7,3 +7,6 @@ Katas/2.PrimeFactors/2.PrimeFactors.mdKatas/2.PrimeFactors/3.PrimeFactors-resolv
 Katas/3.NIF/First-test.md
 Katas/3.NIF/NIF.md
 Katas/3.NIF/NIF-resolved.md
+Katas/4.Bowling/BowlingGame.md
+Katas/4.Bowling/BowlingGame-resolved.md
+Katas/4.Bowling/Refactor.md
