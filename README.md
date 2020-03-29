@@ -4,7 +4,9 @@
 
 Proyecto de libro para facilitar el aprendizaje de TDD, con propuestas de katas secuenciadas para tratar diversos aspectos de la metodología. Las katas se estructuran con enunciado, un ejemplo de resolución y una explicación desarrollada del principal aspecto trabajado en ellas.
 
-El libro podría usarse como soporte para un plan de formación en TDD. Cada una de las katas ha sido seleccionada y orientada para
+El libro podría usarse como soporte para un plan de formación en TDD. Cada una de las katas ha sido seleccionada y orientada para ilustrar un aspecto específico del proceso de test driven development.
+
+Por otro lado, cada una de las katas se desarrolla en un lenguaje diferente.
 
 ## Contenidos
 
