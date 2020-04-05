@@ -26,6 +26,6 @@ En TDD nos referimos con el nombre de código de producción al código que escr
 
 Unidad es software es un concepto bastante flexible y que hay que interpretar en un contexto, pero se refiere normalmente a una pieza de software que se puede ejecutar de forma unitaria y aislada incluso aunque esté compuesta de varios elementos.
 
-## Subject under test
+## Subject under test
 
 La unidad de software que es ejercitada en un test.

@@ -1,0 +1,788 @@
+# Resolviendo la kata Greetings
+
+## Enunciado de la kata
+
+El enunciado de esta kata es muy simple. Se trata de crear una función pura `greet()` que devuelva un string con un saludo. Se le pasa como parámetro el nombre de la persona a la que saludar.
+
+Seguidamente se van añadiendo requisitos que nos obligarán a extender el algoritmo para darles soporte únicamente a través de la entrada y salida de esta función. Para cada requisito se nos proporciona un ejemplo. Son los siguientes:
+
+| Requisitos | input | output |
+|:----|:------|:-------|
+| 1. Interpolar nombre en un saludo sencillo | "Bob"   | Hello, Bob. |
+| 2. Si no se pasa nombre, retornar alguna fórmula genérica  | null  | Hello, my friend. |
+| 3. Si nos gritan, contestar con un grito   | "JERRY" | HELLO, JERRY! |
+| 4. Manejar dos nombres | "Jill", "Jane" | Hello, Jill and Jane. |
+| 5. Manejar cualquier número de nombras, con coma estilo Oxford   | "Amy", "Brian", "Charlotte" | Hello, Amy, Brian, and Charlotte. |
+| 6. Permitir mezclar nombres normales y gritados, pero separar las respuestas.  | "Amy", "BRIAN", "Charlotte" | Hello, Amy and Charlotte. AND HELLO BRIAN!|
+| 7. Si un nombre contiene una coma, separarlo | "Bob", "Charlie, Dianne" | Hello, Bob, Charlie, and Dianne. |
+| 8. Permitir escapar las comas de #7   | "Bob", "\"Charlie, Dianne\" | Hello, Bob and Charlie, Dianne. |
+
+## Lenguaje y enfoque
+
+Esta kata la vamos a resolver en Scala con el framework FunSite. Lo escribiremos usando un enfoque funcional.
+
+## Primer test: saludo básico
+
+La forma en que se presenta esta kata nos proporciona prácticamente los casos de test que necesitamos. A estas alturas creo que podemos dar un salto relativamente grande. Este es nuestro primer test en el que suponemos que la función será un método de la clase Greetings en el package greetings.
+
+```scala
+import greetings.Greetings
+import org.scalatest.FunSuite
+
+class GreetingTest extends FunSuite {
+  test("Require the function") {
+    assert(Greetings.greet("Bob") === "Hello, Bob.")
+  }
+}
+```
+
+El test fallará, como era de esperar. En este caso crearemos el código mínimo necesario para hacerlo pasar de una sola vez:
+
+```scala
+package greetings
+
+object Greetings {
+  def greet(value: String): String = {
+    "Hello, Bob."
+  }
+}
+```
+
+Scala no nos permite definir la función sin argumentos y usarla pasándole alguno, por lo que nos vemos obligadas a incorporarlo en la signatura. Por lo demás, devolvemos el `string` esperado por el test para que se ponga en verde.
+
+## Segundo test: saludo genérico
+
+El segundo caso es gestionar la situación en que no nos pasan ningún nombre, por lo que el saludo deberá ser genérico.
+
+```scala
+import greetings.Greetings
+import org.scalatest.FunSuite
+
+class GreetingTest extends FunSuite {
+  test("Require the function") {
+    assert(Greetings.greet("Bob") === "Hello, Bob.")
+  }
+
+    test("Act when name is null") {
+      assert(Greetings.greet() === "Hello, my friend.")
+    }
+}
+```
+
+Lo primero que observamos es que el test fallará porque greet espera un parámetro que no le pasamos. Esto nos está indicando que el parámetro debería ser opcional.
+
+Nuestra primera intención sería corregir eso y permitir que se pueda pasar un parámetro opcional. Pero hay que tener en cuenta que si lo hacemos, el test seguirá fallando.
+
+Por tanto, lo que vamos a hacer es descartar de momento este último test y refactorizar el código que tenemos mientras mantenemos el primer test pasando.
+
+## Primer refactor: usar el parámtro
+
+Desactivamos el test:
+
+```scala
+import org.scalatest.FunSuite
+
+class GreetingTest extends FunSuite {
+  test("Require the function") {
+    assert(Greetings.greet("Bob") === "Hello, Bob.")
+  }
+
+//    test("Act when name is null") {
+//      assert(Greetings.greet() === "Hello, my friend.")
+//    }
+}
+```
+
+Y hacemos el refactor. En Scala es posible poner valores por defecto eliminando la necesidad de pasar un parámetro.
+
+```scala
+package greetings
+
+object Greetings {
+  def greet(name: String = "Bob"): String = {
+    "Hello, Bob."
+  }
+}
+```
+
+Nos faltaría hacer un uso efectivo del parámetro, en este caso mediante una interpolación.
+
+```scala
+package greetings
+
+object Greetings {
+  def greet(name: String = "Bob"): String = {
+    s"Hello, $name."
+  }
+}
+```
+
+## Segundo test: saludo genérico
+
+Volvemos a activar el segundo test para poder implementar el requisito 2 que consiste en permitir un saludo genérico si no se pasan valores:
+
+```scala
+import greetings.Greetings
+import org.scalatest.FunSuite
+
+class GreetingTest extends FunSuite {
+  test("Require the function") {
+    assert(Greetings.greet("Bob") === "Hello, Bob.")
+  }
+
+  test("Act when name is null") {
+    assert(Greetings.greet() === "Hello, my friend.")
+  }
+}
+```
+
+El test no pasará, pero el cambio necesario para que sí lo haga es muy sencillo:
+
+```scala
+package greetings
+
+object Greetings {
+  def greet(name: String = "my friend"): String = {
+    s"Hello, $name."
+  }
+}
+```
+
+Es muy importante fijarse en este detalle. El cambio que hemos realizado ha sido muy pequeño, pero para que pudiese ser pequeño hemos hecho antes el refactor protegiéndonos con tel test anterior. Es muy habitual intentar hacer ese refactor con el nuevo test fallando, pero esa es una mala práctica.
+
+## Tercer test: responder a gritos
+
+Este tercer test introduce el nuevo requisito de responder de manera diferente a los nombres expresados por completo en mayúsculas:
+
+```scala
+import greetings.Greetings
+import org.scalatest.FunSuite
+
+class GreetingTest extends FunSuite {
+  test("Require the function") {
+    assert(Greetings.greet("Bob") === "Hello, Bob.")
+  }
+
+  test("Act when name is null") {
+    assert(Greetings.greet() === "Hello, my friend.")
+  }
+
+  test("Should manage shout") {
+    assert(Greetings.greet("JERRY") === "HELLO, JERRY!")
+  }
+}
+```
+
+Nos aseguramos de que el test falla por el motivo correcto antes de pasar a escribir el código de producción. Este es un enfoque posible:
+
+```scala
+package greetings
+
+object Greetings {
+  def greet(name: String = "my friend"): String = {
+    if (name.toUpperCase == name) {
+      return s"HELLO, $name!"
+    }
+    s"Hello, $name."
+  }
+}
+```
+
+Llegadas a este punto vamos a ver qué oportunidades tenemos de hacer  refactor. Esto nos lleva a esta solución tan sencilla:
+
+```scala
+package greetings
+
+object Greetings {
+  def greet(name: String = "my friend"): String = {
+    if (name.toUpperCase() == name) s"HELLO, $name!" else s"Hello, $name."
+  }
+}
+```
+
+De momento no hay mucho más que podamos hacer con la información que tenemos hasta ahora por lo que vamos a examinar el siguiente requisito.
+
+## Cuarto test: poder manejar dos nombres
+
+El requisito cuatro nos pide manejar dos nombres, lo que cambia ligeramente la cadena de saludo. Por supuesto, nos proporciona un ejemplo con el que hacer un test.
+
+```scala
+import greetings.Greetings
+import org.scalatest.FunSuite
+
+class GreetingTest extends FunSuite {
+  test("Require the function") {
+    assert(Greetings.greet("Bob") === "Hello, Bob.")
+  }
+
+  test("Act when name is null") {
+    assert(Greetings.greet() === "Hello, my friend.")
+  }
+
+  test("Should manage shout") {
+    assert(Greetings.greet("JERRY") === "HELLO, JERRY!")
+  }
+
+  test("Should manage two names") {
+    assert(Greetings.greet("Jill", "Jane") === "Hello, Jill and Jane.")
+  }
+}
+```
+
+Es posible que al escribir el test el propio IDE te haya advertido de que no es correcto pasar dos argumentos cuando la signatura de la función sólo permite uno, que además es opcional. Si no es así, la ejecución del test fallará al no poder compilar.
+
+Como ya hemos visto en otras ocasiones la mejor forma de afrontar esto es retroceder al test anterior y hacer un refactor con el que prevenir el problema. Así que anulamos temporalmente el test que acabamos de introducir.
+
+## Segundo refactor: preparándose para varios nombres
+
+```scala
+import greetings.Greetings
+import org.scalatest.FunSuite
+
+class GreetingTest extends FunSuite {
+  test("Require the function") {
+    assert(Greetings.greet("Bob") === "Hello, Bob.")
+  }
+
+  test("Act when name is null") {
+    assert(Greetings.greet() === "Hello, my friend.")
+  }
+
+  test("Should manage shout") {
+    assert(Greetings.greet("JERRY") === "HELLO, JERRY!")
+  }
+
+//  test("Should manage two names") {
+//    assert(Greetings.greet("Jill", "Jane") === "Hello, Jill and Jane.")
+//  }
+}
+```
+
+Y refactorizamos a una implementación que nos permita introducir dos parámetros. La forma más fácil de hacerlo es usando *splat parameters*. Sin embargo eso nos forzará a cambiar el algoritmo ya que los parámetros se presentarán como un objeto `Seq` de `String`. Además de eso, cambiamos el nombre del parámetro.
+
+```scala
+package greetings
+
+object Greetings {
+  def greet(person: String*): String = {
+    if (person.isEmpty) return "Hello, my friend."
+
+    val name = person.last
+
+    if (name.toUpperCase() == name) s"HELLO, $name!" else s"Hello, $name."
+  }
+}
+```
+
+Esta es una reimplementación ingenua, suficiente para permitirnos pasar el test, pero que podríamos desarrollar a un estilo más propio del lenguaje. Una de las mejores cosas que nos proporciona TDD es justamente esta facilidad para permitirnos bosquejar implementaciones funcionales, aunque sean toscas, pero que nos ayudan a reflexionar sobre el problema y experimentar otras soluciones alternativas.
+
+Para mejorarla un poco vamos primero a extraer la condición del `if` a una función anidada, con lo que no sólo es más expresiva sino también más fácil de reutilizar llegado el caso:
+
+```scala
+package greetings
+
+object Greetings {
+  def greet(person: String*): String = {
+    def isShouting(name: String): Boolean = {
+      name.toUpperCase() == name
+    }
+    if (person.isEmpty) return "Hello, my friend."
+
+    val name = person.last
+
+    if (isShouting(name)) s"HELLO, $name!" else s"Hello, $name."
+  }
+}
+```
+
+La cuestión ahora, ¿nos conviene retomar el cuarto test o deberíamos seguir con el refactor para dar soporte a los cambios que necesitamos?
+
+## Tercer refactor
+
+El último refactor nos ha permitido dar soporte a una lista de nombres, pero necesitaríamos cambiar el enfoque para dar soporte a recibir una colección de nombres a los que saludar, pero no le damos soporte realmente
+
+Hasta ahora distinguimos si es hay que *gritar* cuando cuando montamos el saludo. Sin embargo, es posible que nos interese separar primero los nombres en función si son gritados o no.
+
+Así que lo que hacemos es repartir la lista de nombres en dos, según si son gritados o no, y adaptamos el resto del código a eso. En Scala podemos interpolar expresiones muy fácilmente:
+
+```scala
+package greetings
+
+object Greetings {
+  def greet(person: String*): String = {
+    def isShouting(name: String): Boolean = {
+      name.toUpperCase() == name
+    }
+    if (person.isEmpty) return "Hello, my friend."
+
+    val (shout, normal) = person.partition(isShouting)
+
+    if (normal.nonEmpty)
+      s"Hello, ${normal.last}."
+    else if (shout.nonEmpty)
+      s"HELLO, ${shout.last}!"
+    else ""
+  }
+}
+```
+
+Con esto deberíamos estar mejor preparadas para afrontar el cuarto test, así que lo activamos.
+
+## Reintroduciendo el cuarto test
+
+Al volver a activar el cuarto test ocurre lo que podíamos predecir: se hará el saludo a una sola persona, que será la precisamente la última de las dos.
+
+```scala
+import greetings.Greetings
+import org.scalatest.FunSuite
+
+class GreetingTest extends FunSuite {
+  test("Require the function") {
+    assert(Greetings.greet("Bob") === "Hello, Bob.")
+  }
+
+  test("Act when name is null") {
+    assert(Greetings.greet() === "Hello, my friend.")
+  }
+
+  test("Should manage shout") {
+    assert(Greetings.greet("JERRY") === "HELLO, JERRY!")
+  }
+
+  test("Should manage two names") {
+    assert(Greetings.greet("Jill", "Jane") === "Hello, Jill and Jane.")
+  }
+}
+```
+
+El resultado es:
+
+```
+Expected :"Hello, J[ill and J]ane."
+Actual   :"Hello, J[]ane."
+```
+
+Es decir, el test falla por lo que debería fallar indicándonos que tenemos que introducir un cambio que se ocupe de procesar la lista de nombres y concatenarla. Gracias a los refactors anteriores es fácil de introducir:
+
+```scala
+package greetings
+
+object Greetings {
+  def greet(person: String*): String = {
+    def isShouting(name: String): Boolean = {
+      name.toUpperCase() == name
+    }
+    if (person.isEmpty) return "Hello, my friend."
+
+    val (shout, normal) = person.partition(isShouting)
+
+    if (normal.nonEmpty)
+      s"Hello, ${normal.mkString(" and ")}."
+    else if (shout.nonEmpty)
+      s"HELLO, ${shout.last}!"
+    else ""
+  }
+}
+```
+
+Es importante fijarse en que en este punto no intentamos adelantarnos a los próximos requisitos, sino que resolvemos el problema actual. Sólo cuando introduzcamos el próximo test y con ello aprendamos cosas nuevas sobre el comportamiento que estamos implementando en la función nos plantearemos volver atrás a refactorizar los cambios previos que podamos necesitar.
+
+## Quinto test: manejar un número indeterminado de nombres
+
+El quinto requisito consiste en manejar un número indeterminado de nombres, con un pequeño cambio en el formato del saludo. Introducimos un nuevo test que lo especifica:
+
+```scala
+import greetings.Greetings
+import org.scalatest.FunSuite
+
+class GreetingTest extends FunSuite {
+  test("Require the function") {
+    assert(Greetings.greet("Bob") === "Hello, Bob.")
+  }
+
+  test("Act when name is null") {
+    assert(Greetings.greet() === "Hello, my friend.")
+  }
+
+  test("Should manage shout") {
+    assert(Greetings.greet("JERRY") === "HELLO, JERRY!")
+  }
+
+  test("Should manage two names") {
+    assert(Greetings.greet("Jill", "Jane") === "Hello, Jill and Jane.")
+  }
+
+  test("Should manage several names") {
+    assert(Greetings.greet("Amy", "Brian", "Charlotte") === "Hello, Amy, Brian, and Charlotte.")
+  }
+}
+```
+
+El resultado del test es:
+
+```
+Expected :"Hello, Amy[, Brian,] and Charlotte."
+Actual   :"Hello, Amy[ and Brian] and Charlotte."
+```
+
+Podemos empezar por el siguiente cambio:
+
+```scala
+package greetings
+
+object Greetings {
+  def greet(person: String*): String = {
+    def isShouting(name: String): Boolean = {
+      name.toUpperCase() == name
+    }
+    if (person.isEmpty) return "Hello, my friend."
+
+    val (shout, normal) = person.partition(isShouting)
+
+    if (normal.nonEmpty)
+      s"Hello, ${normal.mkString(", ")}."
+    else if (shout.nonEmpty)
+      s"HELLO, ${shout.last}!"
+    else ""
+  }
+}
+```
+
+Esto rompe el test anterior y tampoco pasa el nuevo, que nos indica que el último elemento de la lista requiere un trato especial:
+
+```
+Expected :"Hello, Amy, Brian, [and ]Charlotte."
+Actual   :"Hello, Amy, Brian, []Charlotte."
+```
+
+Hagamos eso literalmente, es decir: separemos el último elemento:
+
+```scala
+package greetings
+
+object Greetings {
+  def greet(person: String*): String = {
+    def isShouting(name: String): Boolean = {
+      name.toUpperCase() == name
+    }
+    if (person.isEmpty) return "Hello, my friend."
+
+    val (shout, normal) = person.partition(isShouting)
+
+    if (normal.nonEmpty)
+      s"Hello, ${normal.init.mkString(", ")}, and ${normal.last}."
+    else if (shout.nonEmpty)
+      s"HELLO, ${shout.last}!"
+    else ""
+  }
+}
+```
+
+Sin embargo, este cambio hace pasar el último test, pero hace que fallen el anterior y el primero. El problema es que en el caso del saludo normal y el del saludo a dos personas no pueden seguir el mismo patrón. Estamos destapando un agujero para tapar otro.
+
+Puesto que estamos haciendo fallar tests que ya estaban pasando lo mejor es que volvamos al punto del código en que los cuatro tests anteriores se cumplían.
+
+```scala
+package greetings
+
+object Greetings {
+  def greet(person: String*): String = {
+    def isShouting(name: String): Boolean = {
+      name.toUpperCase() == name
+    }
+    if (person.isEmpty) return "Hello, my friend."
+
+    val (shout, normal) = person.partition(isShouting)
+
+    if (normal.nonEmpty)
+      s"Hello, ${normal.mkString(" and ")}."
+    else if (shout.nonEmpty)
+      s"HELLO, ${shout.last}!"
+    else ""
+  }
+}
+```
+
+Lo que nos indica este recorrido de ida y vuelta es que hay dos tipos de casos que tienen tratamiento diferente.
+
+* Listas de 2 o menos nombres.
+* Listas de más de 2 nombres.
+
+Lo más sencillo es reconocer eso y abrazarlo en el código:
+
+```scala
+package greetings
+
+object Greetings {
+  def greet(person: String*): String = {
+    def isShouting(name: String): Boolean = {
+      name.toUpperCase() == name
+    }
+    if (person.isEmpty) return "Hello, my friend."
+
+    val (shout, normal) = person.partition(isShouting)
+
+    if (normal.nonEmpty)
+      if (normal.length <= 2)
+        s"Hello, ${normal.mkString(" and ")}."
+      else
+        s"Hello, ${normal.init.mkString(", ")}, and ${normal.last}."
+    else if (shout.nonEmpty)
+      s"HELLO, ${shout.last}!"
+    else ""
+  }
+}
+```
+
+De nuevo, una implementación tosca e ingenua nos permite hacer pasar todos los tests, acudiendo a un mecanismo tan simple como es el de posponer la generalización. Es ahora, al haber logrado el comportamiento deseado cuando podemos intentar a analizar el problema y buscar un algoritmo más general.
+
+Como queremos centrarnos en la parte del algoritmo que concatena los nombres dentro del saludo vamos a hacer primero el siguiente refactor, extrayendo a una función inline el bloque de código que nos interesa:
+
+```scala
+package greetings
+
+object Greetings {
+  def greet(person: String*): String = {
+    def isShouting(name: String): Boolean = {
+      name.toUpperCase() == name
+    }
+    if (person.isEmpty) return "Hello, my friend."
+
+    val (shout, normal) = person.partition(isShouting)
+
+    def concatenate = {
+      if (normal.length <= 2)
+        s"${normal.mkString(" and ")}."
+      else
+        s"${normal.init.mkString(", ")}, and ${normal.last}."
+    }
+
+    if (normal.nonEmpty)
+      s"Hello, ${concatenate}"
+    else if (shout.nonEmpty)
+      s"HELLO, ${shout.last}!"
+    else ""
+  }
+}
+```
+
+Lo más interesante es haber aislado específicamente la concatenación de nombres. Vamos a hacer un par de cambios más. Ahora mismo actuamos directamente sobre la secuencia `normal` que está en el ámbito de la función `greet` y, por tanto, es global dentro de la función `concatenate`:
+
+```scala
+package greetings
+
+object Greetings {
+  def greet(person: String*): String = {
+    def isShouting(name: String): Boolean = {
+      name.toUpperCase() == name
+    }
+    if (person.isEmpty) return "Hello, my friend."
+
+    val (shout, normal) = person.partition(isShouting)
+
+    def concatenate(names: Seq[String]) = {
+      if (names.length <= 2)
+        s"${names.mkString(" and ")}"
+      else
+        s"${names.init.mkString(", ")}, and ${names.last}"
+    }
+
+    if (normal.nonEmpty)
+      s"Hello, ${concatenate(normal)}."
+    else if (shout.nonEmpty)
+      s"HELLO, ${shout.last}!"
+    else ""
+  }
+}
+```
+
+Tras habernos asegurado de que los tests siguen pasando, vamos a hacer explícitos los diferentes casos que se tratan. Ahora mismo, la lista de un sólo nombre queda cubierta de forma implícita por el caso de dos nombres. Nuestro objetivo es tratar de entender mejor las regularidades en los tres supuestos:
+
+```scala
+package greetings
+
+object Greetings {
+  def greet(person: String*): String = {
+    def isShouting(name: String): Boolean = {
+      name.toUpperCase() == name
+    }
+    if (person.isEmpty) return "Hello, my friend."
+
+    val (shout, normal) = person.partition(isShouting)
+
+    def concatenate(names: Seq[String]) = {
+      if (names.length == 1)
+        s"${names.last}"
+      else if (names.length == 2)
+        s"${names.mkString(" and ")}"
+      else
+        s"${names.init.mkString(", ")}, and ${names.last}"
+    }
+
+    if (normal.nonEmpty)
+      s"Hello, ${concatenate(normal)}."
+    else if (shout.nonEmpty)
+      s"HELLO, ${shout.last}!"
+    else ""
+  }
+}
+```
+
+Demos un pequeño paso más en el caso de dos nombres:
+
+```scala
+package greetings
+
+object Greetings {
+  def greet(person: String*): String = {
+    def isShouting(name: String): Boolean = {
+      name.toUpperCase() == name
+    }
+    if (person.isEmpty) return "Hello, my friend."
+
+    val (shout, normal) = person.partition(isShouting)
+
+    def concatenate(names: Seq[String]) = {
+      if (names.length == 1)
+        s"${names.last}"
+      else if (names.length == 2)
+        s"${names.head} and ${names.last}"
+      else
+        s"${names.init.mkString(", ")}, and ${names.last}"
+    }
+
+    if (normal.nonEmpty)
+      s"Hello, ${concatenate(normal)}."
+    else if (shout.nonEmpty)
+      s"HELLO, ${shout.last}!"
+    else ""
+  }
+}
+```
+
+En Scala esto se puede expresar de manera más sucinta usando `match... case`:
+
+```scala
+package greetings
+
+object Greetings {
+  def greet(person: String*): String = {
+    def isShouting(name: String): Boolean = {
+      name.toUpperCase() == name
+    }
+
+    def concatenate(names: Seq[String]) = {
+      names.length match {
+        case 1 => s"${names.last}"
+        case 2 => s"${names.head} and ${names.last}"
+        case _ => s"${names.init.mkString(", ")}, and ${names.last}"
+      }
+    }
+
+    if (person.isEmpty) return "Hello, my friend."
+
+    val (shout, normal) = person.partition(isShouting)
+
+    if (normal.nonEmpty)
+      s"Hello, ${concatenate(normal)}."
+    else if (shout.nonEmpty)
+      s"HELLO, ${shout.last}!"
+    else ""
+  }
+}
+```
+
+Y un poquito más:
+
+```scala
+package greetings
+
+object Greetings {
+  def greet(person: String*): String = {
+    def isShouting(name: String): Boolean = {
+      name.toUpperCase() == name
+    }
+
+    def concatenate(names: Seq[String]) = {
+      s"${names.length match {
+        case 1 => ""
+        case 2 => s"${names.head} and "
+        case _ => s"${names.init.mkString(", ")}, and "
+      }}${names.last}"
+    }
+
+    if (person.isEmpty) return "Hello, my friend."
+
+    val (shout, normal) = person.partition(isShouting)
+
+    if (normal.nonEmpty)
+      s"Hello, ${concatenate(normal)}."
+    else if (shout.nonEmpty)
+      s"HELLO, ${shout.last}!"
+    else ""
+  }
+}
+```
+
+## Sexto test, gritar a los gritones
+
+En el test anterior nos hemos enfrentado al problema de generalizar el algoritmo para cualquier número de casos y hacerlo más expresivo sin romper la funcionalidad conseguida hasta aquel momento. Toca introducir un nuevo requisito mediante un nuevo test:
+
+```scala
+import greetings.Greetings
+import org.scalatest.FunSuite
+
+class GreetingTest extends FunSuite {
+  test("Require the function") {
+    assert(Greetings.greet("Bob") === "Hello, Bob.")
+  }
+
+  test("Act when name is null") {
+    assert(Greetings.greet() === "Hello, my friend.")
+  }
+
+  test("Should manage shout") {
+    assert(Greetings.greet("JERRY") === "HELLO, JERRY!")
+  }
+
+  test("Should manage two names") {
+    assert(Greetings.greet("Jill", "Jane") === "Hello, Jill and Jane.")
+  }
+
+  test("Should manage several names") {
+    assert(Greetings.greet("Amy", "Brian", "Charlotte") === "Hello, Amy, Brian, and Charlotte.")
+  }
+
+  test("Should shout to shouters") {
+    assert(Greetings.greet("Amy", "BRIAN", "Charlotte") === "Hello, Amy and Charlotte. AND HELLO, BRIAN!")
+  }
+}
+```
+
+Este test falla, como cabría esperar. Es interesante que ya nos habíamos preparado para este caso y tratábamos los saludos "gritones" de forma separada. Por lo que deducimos del ejemplo, podríamos aplicar el mismo tratamiento que a los "no gritones", teniendo en cuenta que pueden aparecer los dos casos simultáneamente. Después de un par de intentos, llegamos a esto:
+
+```scala
+package greetings
+
+object Greetings {
+  def greet(person: String*): String = {
+    def isShouting(name: String): Boolean = {
+      name.toUpperCase() == name
+    }
+
+    def concatenate(names: Seq[String]) = {
+      s"${names.length match {
+        case 1 => ""
+        case 2 => s"${names.head} and "
+        case _ => s"${names.init.mkString(", ")}, and "
+      }}${names.last}"
+    }
+
+    if (person.isEmpty) return "Hello, my friend."
+
+    val (shout, normal) = person.partition(isShouting)
+
+    s"${if (normal.nonEmpty) s"Hello, ${concatenate(normal)}." else ""}${if (shout.nonEmpty) s"${if (normal.nonEmpty) " AND " else ""}HELLO, ${concatenate(shout)}!" else ""}"
+  }
+}
+```

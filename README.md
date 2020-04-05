@@ -10,6 +10,7 @@ Por otro lado, cada una de las katas se desarrolla en un lenguaje diferente.
 
 ## Contenidos
 
+* [Prólogo](manuscript/0.preface.md)
 * [¿Qué es TDD y por qué debería importarme?](manuscript/1.tdd-intro.md)
 * [Calidad de vida y TDD](manuscript/2.tdd-quality-life.md)
 * [Conceptos básicos](manuscript/basic-concepts.md)
@@ -30,6 +31,9 @@ Por otro lado, cada una de las katas se desarrolla en un lenguaje diferente.
       * [Bowling Game](manuscript/Katas/4.Bowling/BowlingGame.md)
       * [Resolviendo la kata Bowling Game](manuscript/Katas/4.Bowling/BowlingGame-resolved.md)
       * [La fase de refactor](manuscript/Katas/4.Bowling/Refactor.md)
+  * Greetings (Scala, FunSuite, FP)
+     *  [Greetings](manuscript/Katas/5.Greetings/Greetings.md)
+     *  [Resolviendo la kata Greetings](manuscript/Katas/5.Greetings/Greetings-resolved.md)
 
 
 ## Repositorios con soluciones a las katas

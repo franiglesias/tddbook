@@ -263,3 +263,4 @@ end
 ```
 
 En cierto modo, resulta que la *información del futuro*, o sea, el nuevo test que planteamos para introducir la siguiente funcionalidad, *afecta al pasado*, es decir al estado adecuado del código para poder conitnuar, y nos obliga a considerar la profundidad del refactor necesario antes de afrontar el nuevo ciclo. En esta situación, lo mejor es volver al último test que pasaba, anulando el nuevo, y trabajar en el refactor hasta estar mejor preparadas para continuar avanzando.
+
