@@ -15,7 +15,7 @@ Seguidamente se van añadiendo requisitos que nos obligarán a extender el algor
 | 5. Manejar cualquier número de nombras, con coma estilo Oxford   | "Amy", "Brian", "Charlotte" | Hello, Amy, Brian, and Charlotte. |
 | 6. Permitir mezclar nombres normales y gritados, pero separar las respuestas.  | "Amy", "BRIAN", "Charlotte" | Hello, Amy and Charlotte. AND HELLO BRIAN!|
 | 7. Si un nombre contiene una coma, separarlo | "Bob", "Charlie, Dianne" | Hello, Bob, Charlie, and Dianne. |
-| 8. Permitir escapar las comas de #7   | "Bob", "\"Charlie, Dianne\" | Hello, Bob and Charlie, Dianne. |
+| 8. Permitir escapar las comas de #7   | "Bob", "\\"Charlie, Dianne\\"" | Hello, Bob and Charlie, Dianne. |
 
 ## Lenguaje y enfoque
 
@@ -781,6 +781,190 @@ object Greetings {
     if (person.isEmpty) return "Hello, my friend."
 
     val (shout, normal) = person.partition(isShouting)
+
+    s"${if (normal.nonEmpty) s"Hello, ${concatenate(normal)}." else ""}${if (shout.nonEmpty) s"${if (normal.nonEmpty) " AND " else ""}HELLO, ${concatenate(shout)}!" else ""}"
+  }
+}
+```
+
+## Séptimo test: separar nombres que contienen comas
+
+El siguiente requisito que se nos pide es separar los nombres que contienen comas. Para hacernos una idea esto viene siendo como permitir pasar los nombres con un número indeterminado de `strings` como en forma de un único `string` conteniendo varios nombres. Esto no altera realmente el modo en que generamos el saludo, sino más bien al modo en que preparamos los datos recibidos.
+
+Nos toca, por tanto, añadir un test que ejemplifique el nuevo requisito:
+
+```scala
+import greetings.Greetings
+import org.scalatest.FunSuite
+
+class GreetingTest extends FunSuite {
+  test("Require the function") {
+    assert(Greetings.greet("Bob") === "Hello, Bob.")
+  }
+
+  test("Act when name is null") {
+    assert(Greetings.greet() === "Hello, my friend.")
+  }
+
+  test("Should manage shout") {
+    assert(Greetings.greet("JERRY") === "HELLO, JERRY!")
+  }
+
+  test("Should manage two names") {
+    assert(Greetings.greet("Jill", "Jane") === "Hello, Jill and Jane.")
+  }
+
+  test("Should manage several names") {
+    assert(Greetings.greet("Amy", "Brian", "Charlotte") === "Hello, Amy, Brian, and Charlotte.")
+  }
+
+  test("Should shout to shouters") {
+    assert(Greetings.greet("Amy", "BRIAN", "Charlotte") === "Hello, Amy and Charlotte. AND HELLO, BRIAN!")
+  }
+
+  test("Should separate names with comma") {
+    assert(Greetings.greet("Bob", "Charlie, Dianne") === "Hello, Bob, Charlie, and Dianne.")
+  }
+}
+```
+
+Ejecutamos el test para comprobar que no pasa y nos planteamos cómo resolver este nuevo caso.
+
+En principio, podríamos recorrer la lista de personas y hacer un split de cada una de ellas por la coma. Como esto generará una colección de colecciones, la aplanamos. En Scala hay métodos para todo eso:
+
+```scala
+package greetings
+
+object Greetings {
+  def greet(person: String*): String = {
+    def isShouting(name: String): Boolean = {
+      name.toUpperCase() == name
+    }
+
+    def concatenate(names: Seq[String]) = {
+      s"${names.length match {
+        case 1 => ""
+        case 2 => s"${names.head} and "
+        case _ => s"${names.init.mkString(", ")}, and "
+      }}${names.last}"
+    }
+
+    if (person.isEmpty) return "Hello, my friend."
+
+    val personsList = person.flatMap(name => name.split(",").map(_.trim))
+
+    val (shout, normal) = personsList.partition(isShouting)
+
+    s"${if (normal.nonEmpty) s"Hello, ${concatenate(normal)}." else ""}${if (shout.nonEmpty) s"${if (normal.nonEmpty) " AND " else ""}HELLO, ${concatenate(shout)}!" else ""}"
+  }
+}
+```
+
+Y he aquí que el test pasa sin problemas.
+
+Una vez que hemos visto que la solución funciona, refactorizamos un poco el código:
+
+```scala
+package greetings
+
+object Greetings {
+  def greet(person: String*): String = {
+    def isShouting(name: String): Boolean = {
+      name.toUpperCase() == name
+    }
+
+    def concatenate(names: Seq[String]) = {
+      s"${names.length match {
+        case 1 => ""
+        case 2 => s"${names.head} and "
+        case _ => s"${names.init.mkString(", ")}, and "
+      }}${names.last}"
+    }
+
+    if (person.isEmpty) return "Hello, my friend."
+
+    val (shout, normal) = person
+      .flatMap(_.split(",").map(_.trim))
+      .partition(isShouting)
+
+    s"${if (normal.nonEmpty) s"Hello, ${concatenate(normal)}." else ""}${if (shout.nonEmpty) s"${if (normal.nonEmpty) " AND " else ""}HELLO, ${concatenate(shout)}!" else ""}"
+  }
+}
+```
+
+## Octavo test: escapar comas
+
+El octavo requisito consiste en permitir que se evite el comportamiento anterior si la entrada de texto está escapada. Veamos el caso en forma de test:
+
+```scala
+import greetings.Greetings
+import org.scalatest.FunSuite
+
+class GreetingTest extends FunSuite {
+  test("Require the function") {
+    assert(Greetings.greet("Bob") === "Hello, Bob.")
+  }
+
+  test("Act when name is null") {
+    assert(Greetings.greet() === "Hello, my friend.")
+  }
+
+  test("Should manage shout") {
+    assert(Greetings.greet("JERRY") === "HELLO, JERRY!")
+  }
+
+  test("Should manage two names") {
+    assert(Greetings.greet("Jill", "Jane") === "Hello, Jill and Jane.")
+  }
+
+  test("Should manage several names") {
+    assert(Greetings.greet("Amy", "Brian", "Charlotte") === "Hello, Amy, Brian, and Charlotte.")
+  }
+
+  test("Should shout to shouters") {
+    assert(Greetings.greet("Amy", "BRIAN", "Charlotte") === "Hello, Amy and Charlotte. AND HELLO, BRIAN!")
+  }
+
+  test("Should separate names with comma") {
+    assert(Greetings.greet("Bob", "Charlie, Dianne") === "Hello, Bob, Charlie, and Dianne.")
+  }
+
+  test("Should not separate names with comma if escaped") {
+    assert(Greetings.greet("Bob", "\"Charlie, Dianne\"") === "Hello, Bob and Charlie, Dianne.")
+  }
+}
+```
+
+De nuevo, esto afecta a la preparación de los datos antes de montar el saludo. La solución que se nos ocurre es detectar primero la situación de que la cadena viene escapada y reemplazar la coma por un carácter arbitrario antes de hacer el split. Una vez hecho, restauramos la coma original.
+
+En este caso, lo hacemos mediante una expresión regular, reemplazando por el símbolo # y restituyéndolo después.
+
+```scala
+package greetings
+
+object Greetings {
+  def greet(person: String*): String = {
+    def isShouting(name: String): Boolean = {
+      name.toUpperCase() == name
+    }
+
+    def concatenate(names: Seq[String]) = {
+      s"${names.length match {
+        case 1 => ""
+        case 2 => s"${names.head} and "
+        case _ => s"${names.init.mkString(", ")}, and "
+      }}${names.last}"
+    }
+
+    if (person.isEmpty) return "Hello, my friend."
+    
+    val escaped = "^\"([^,]+),(.+)\"$".r
+    val personsList = person
+      .map(input => escaped.replaceAllIn(input, "$1#$2"))
+      .flatMap(_.split(",").map(_.trim))
+      .map(_.replace("#", ","))
+
+    val (shout, normal) = personsList.partition(isShouting)
 
     s"${if (normal.nonEmpty) s"Hello, ${concatenate(normal)}." else ""}${if (shout.nonEmpty) s"${if (normal.nonEmpty) " AND " else ""}HELLO, ${concatenate(shout)}!" else ""}"
   }
