@@ -40,3 +40,4 @@ Por otro lado, cada una de las katas se desarrolla en un lenguaje diferente.
 
 * [Ruby](https://github.com/franiglesias/tddbook-ruby)
 * [JS](https://github.com/franiglesias/tddbook-js)
+* [Scala](https://github.com/franiglesias/tddbook-scala)
