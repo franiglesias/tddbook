@@ -1,5 +1,6 @@
 0.preface.md
 1.tdd-intro.md
+tdd-schools.md
 2.tdd-quality-life.md
 Katas/1.FizzBuzz/1.Rules-of-tdd.md
 Katas/1.FizzBuzz/2.FizzBuzz.md

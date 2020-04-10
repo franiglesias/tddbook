@@ -12,6 +12,7 @@ Por otro lado, cada una de las katas se desarrolla en un lenguaje diferente.
 
 * [Prólogo](manuscript/0.preface.md)
 * [¿Qué es TDD y por qué debería importarme?](manuscript/1.tdd-intro.md)
+* [Enfoques de TDD](manuscript/tdd-schools.md)
 * [Calidad de vida y TDD](manuscript/2.tdd-quality-life.md)
 * [Conceptos básicos](manuscript/basic-concepts.md)
 * [Coding-dojo y katas](manuscript/coding-dojo-katas.md)
