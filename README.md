@@ -10,32 +10,31 @@ Por otro lado, cada una de las katas se desarrolla en un lenguaje diferente.
 
 ## Contenidos
 
-* [Prólogo](manuscript/0.preface.md)
-* [¿Qué es TDD y por qué debería importarme?](manuscript/1.tdd-intro.md)
+* [Prólogo](manuscript/preface.md)
+* [¿Qué es TDD y por qué debería importarme?](manuscript/tdd-intro.md)
 * [Enfoques de TDD](manuscript/tdd-schools.md)
-* [Calidad de vida y TDD](manuscript/2.tdd-quality-life.md)
+* [Calidad de vida y TDD](manuscript/life-quality.md)
 * [Conceptos básicos](manuscript/basic-concepts.md)
 * [Coding-dojo y katas](manuscript/coding-dojo-katas.md)
 * Katas
   * FizzBuzz (Python, unittest, OOP)
-      * [Fizz Buzz](manuscript/Katas/1.FizzBuzz/2.FizzBuzz.md)
-      * [Resolviendo la kata Fizz Buzz](manuscript/Katas/1.FizzBuzz/3.FizzBuzz-resolved.md)
-      * [Las leyes de TDD](manuscript/Katas/1.FizzBuzz/1.Rules-of-tdd.md)
+      * [Las leyes de TDD](manuscript/Katas/FizzBuzz/tdd-rules.md)
+      * [Fizz Buzz](manuscript/Katas/FizzBuzz/FizzBuzz.md)
+      * [Resolviendo la kata Fizz Buzz](manuscript/Katas/FizzBuzz/FizzBuzz-resolved.md)
   * Prime Factors (Javascript, JEST, procedural)
-      * [Prime Factors](manuscript/Katas/2.PrimeFactors/2.PrimeFactors.md)
-      * [Resolviendo la kata Prime Factors](manuscript/Katas/2.PrimeFactors/3.PrimeFactors-resolved.md)
+      * [Prime Factors](manuscript/Katas/PrimeFactors/PrimeFactors.md)
+      * [Resolviendo la kata Prime Factors](manuscript/Katas/PrimeFactors/PrimeFactors-resolved.md)
   * NIF
-      * [NIF](manuscript/Katas/3.NIF/NIF.md)
-      * [Resolviendo la kata NIF](manuscript/Katas/3.NIF/NIF-resolved.md)
-      * [Sad path based tdd](manuscript/Katas/3.NIF/First-test.md)
+      * [Sad path based tdd](manuscript/Katas/NIF/first-test.md)
+      * [NIF](manuscript/Katas/NIF/NIF.md)
+      * [Resolviendo la kata NIF](manuscript/Katas/NIF/NIF-resolved.md)
   * Bowling Game (Ruby, RSpec, OOP)
-      * [Bowling Game](manuscript/Katas/4.Bowling/BowlingGame.md)
-      * [Resolviendo la kata Bowling Game](manuscript/Katas/4.Bowling/BowlingGame-resolved.md)
-      * [La fase de refactor](manuscript/Katas/4.Bowling/Refactor.md)
+      * [La fase de refactor](manuscript/Katas/Bowling/Refactor.md)
+      * [Bowling Game](manuscript/Katas/Bowling/BowlingGame.md)
+      * [Resolviendo la kata Bowling Game](manuscript/Katas/Bowling/BowlingGame-resolved.md)
   * Greetings (Scala, FunSuite, FP)
-     *  [Greetings](manuscript/Katas/5.Greetings/Greetings.md)
-     *  [Resolviendo la kata Greetings](manuscript/Katas/5.Greetings/Greetings-resolved.md)
-
+     *  [Greetings](manuscript/Katas/Greetings/Greetings.md)
+     *  [Resolviendo la kata Greetings](manuscript/Katas/Greetings/Greetings-resolved.md)
 
 ## Repositorios con soluciones a las katas
 

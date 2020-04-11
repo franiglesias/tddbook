@@ -37,6 +37,7 @@ Podemos hacer muchos tipos de refactors, entre otros:
 * Extraer condicionales a métodos cuando se vuelvan complejas.
 * Aplanar estructuras condicionadas anidadas.
 * Extraer ramas de condicionales a métodos privados.
+* Extraer funcionalidad a colaboradores.
 
 ## Límites del refactor
 
@@ -139,7 +140,7 @@ No *sobrerefactorices* antes de tiempo.
 
 Para hacer refactor la condición *sine qua non* es que todos los tests existentes estén pasando. En este momento nos interesa analizar el estado de la implementación y aplicar los refactors que mejor le vayan.
 
-Si un test está en rojo nos indica que una parte de la especifcación no está conseguida y, por lo tanto, debemos trabajar en eso y no en el refactor.
+Si un test está en rojo nos indica que una parte de la especificación no está conseguida y, por lo tanto, debemos trabajar en eso y no en el refactor.
 
 Pero hay un caso especial: cuando añadimos un nuevo test que falla y nos damos cuenta de que necesitamos un refactor previo para poder implementar la solución más obvia o sencilla para ese test.
 

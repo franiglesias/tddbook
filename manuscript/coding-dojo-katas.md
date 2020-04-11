@@ -30,9 +30,9 @@ La sesión de código puede desarrollarse de varias formas:
 
 * **Prepared kata.** Un presentador explica cómo resolver el ejercicio, pero contando con el feedback de las personas presentes. No se avanza hasta no tener un consenso. Es una forma muy adecuada de trabajar cuando el grupo se está iniciando y pocas personas están acostumbradas a la metodología.
 * **Randori kata.** La kata se realiza en pairing usando algún sistema para alternar entre el conducto (al teclado) y el copiloto. Los demás presentes colaboran haciendo sugerencias.
-* Una alternativa es que los participantes formen parejas y trabajen colaborativamente en la kata. A mitad del ejercicio se hace una parada para comentar sobre lo realizado unos minutos. Al final de la sesión se presentan las distintas soluciones en el punto donde hayan llegado. Cada pareja puede elegir el lenguaje de programación preferido, por lo que es una gran oportunidad para quienes quieran iniciarse en uno nuevo.
+* **Hands-on workshop.** Una alternativa es que los participantes formen parejas y trabajen colaborativamente en la kata. A mitad del ejercicio se hace una parada para comentar sobre lo realizado unos minutos. Al final de la sesión se presentan las distintas soluciones en el punto donde hayan llegado. Cada pareja puede elegir el lenguaje de programación preferido, por lo que es una gran oportunidad para quienes quieran iniciarse en uno nuevo.
 
-## Consejos para realizar las katas
+## Consejos para realizar las katas individualmente
 
 Al principio puede ser buena idea asistir a una kata dirigida. Básicamente se trata de una kata que hace una persona experta en forma de *live coding* mientras explica o comenta con la audiencia los distintos pasos, de modo que puedes ver la dinámica en acción. Si no tienes esta posibilidad, que puede ser lo más habitual, es buena idea ver alguna kata en vídeo. En los capítulos dedicados a cada kata puedes encontrar algunos enlaces.
 
@@ -46,7 +46,7 @@ De hecho, cada lenguaje de programación, enfoque o entorno de test podrían fav
 
 Si encuentras puntos en los que puedes elegir diversos cursos de acción, toma nota de ellos para repetir el ejercicio y probar otro camino a ver a dónde te dirige.
 
-En TDD es muy importante centrarse en el aquí y el ahora que nos define cada test que no pasa y no agobiarse por alcanzar el objetivo final. Esto no quiere decir dejarlo de lado o dedicarnos a otra cosa. Simplemente quiere decir que hay que recorrer ese camino paso a paso, y hacerlo así nos llevará a la meta casi sin darnos cuenta, con mucho menos esfuerzo y más solidez.
+En TDD es muy importante centrarse en **el aquí y el ahora** que nos define cada test que no pasa y no agobiarse por alcanzar el objetivo final. Esto no quiere decir dejarlo de lado o dedicarnos a otra cosa. Simplemente quiere decir que hay que recorrer ese camino paso a paso, y hacerlo así nos llevará a la meta casi sin darnos cuenta, con mucho menos esfuerzo y más solidez.
 
 Si es posible prueba a hacer la misma kata en diferentes lenguajes, incluso en diferentes frameworks de testing. Las dos familias más conocidas son:
 

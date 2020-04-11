@@ -84,7 +84,7 @@ La clase `FizzBuzz` no sólo no hace nada, ni siquiera tiene métodos. Hemos dic
 
 Para forzarnos a escribir el método `generate`, tenemos que escribir un test que lo llame. El método tendrá que devolver algo, ¿no? Específicamente queremos que nos devuelva la lista de números. Pero ahora no hace falta que lo haga con los múltiplos de 3 y 5 convertidos.
 
-El test debe verificar esto, pero debe seguir pasando cuando hayamos desarrollado el algoritmo completo. Lo que podemos verificar es que devuelve una lista de 100 elementos, sin prestar atención a los que devuelve exactamente.
+El test debe verificar esto, pero debe seguir pasando cuando hayamos desarrollado el algoritmo completo. Lo que podemos verificar es que devuelve una lista de 100 elementos, sin prestar atención a los que contiene exactamente.
 
 Este test nos forzará a crear el método `generate` y que éste devuelva una colección de 100 elementos:
 
@@ -205,13 +205,13 @@ if __name__ == '__main__':
     unittest.main()
 ```
 
-Hemos terminado nu nuevo ciclo en el que ya hemos introducido la fase de refactor.
+Hemos terminado un nuevo ciclo en el que ya hemos introducido la fase de refactor.
 
 ## El tercer test: generar una lista de números
 
-Nuestra clase FizzBuzz ya puede generar una lista de 100 elementos, pero de momento cada uno de ellos es, literalmente, nada. Es hora de escribir un test que nos fuerce a poner números en esa lista.
+Nuestra clase `FizzBuzz` ya puede generar una lista de 100 elementos, pero de momento cada uno de ellos es, literalmente, nada. Es hora de escribir un test que nos fuerce a poner números en esa lista.
 
-Para ellos podríamos esperar que la lista generada contiene los números del 1 al 100. Sin embargo tenemos un problema: al final del proceso de desarrollo la lista contendrá los números pero algunos de ellos estarán representados con las palabras Fizz, Buzz o BuzzFizz. Si no tengo esto en cuenta, este tercer test empezará a fallar en cuanto comience a implementar el algoritmo que convierte los números. No parece una buena solución.
+Para ellos podríamos esperar que la lista generada contiene los números del 1 al 100. Sin embargo tenemos un problema: al final del proceso de desarrollo la lista contendrá los números pero algunos de ellos estarán representados con las palabras **Fizz**, **Buzz** o **FizzBuzz**. Si no tengo esto en cuenta, este tercer test empezará a fallar en cuanto comience a implementar el algoritmo que convierte los números. No parece una buena solución.
 
 Un enfoque más prometedor es: ¿qué números no se verán afectados por el algoritmo? Pues aquellos que no sean múltiplos de 3 o de 5, por lo que podríamos escoger algunos de ellos para verificar que se incluyen en la lista sin transformar.
 
@@ -269,7 +269,7 @@ En principio, no vemos nada en el código que nos de oportunidad de refactorizar
 
 ## El cuarto test: seguimos generando números
 
-En realidad todavía no hemos verificado que el método generate nos da una lista de números, así que necesitamos seguir creando nuevos tests que nos fuercen a crear ese código.
+En realidad todavía no hemos verificado que el método `generate` nos da una lista de números, así que necesitamos seguir creando nuevos tests que nos fuercen a crear ese código.
 
 Vamos a asegurarnos de que en la segunda posición aparece el número '2' que es el siguiente más sencillo que no es múltiplo de 3 o de 5:
 
@@ -398,7 +398,7 @@ class FizzBuzz:
 
 Si ejecutamos el test, vemos que sigue pasando sin problemas.
 
-Claro que existen formas más pythónicas y compactas, como esta:
+Claro que existen formas más pythonicas y compactas, como esta:
 
 ```python
 class FizzBuzz:
@@ -411,9 +411,9 @@ class FizzBuzz:
 
 Pero debemos tener cuidado, probablemente estamos adelantándonos demasiado con este refactor y seguramente nos generará problemas cuando intentemos avanzar. Por eso, es preferible mantener una implementación más directa e ingenua y dejar las optimizaciones y estructuras más avanzadas para cuando el comportamiento del método esté completamente definido.
 
-## El sexto test: aprendiendo a decir Fizz
+## El sexto test: aprendiendo a decir "Fizz"
 
-Es hora de que nuestro FizzBuzz sea capaz de convertir el 3 en Fizz. Un test mínimo para especificarlo sería el siguiente:
+Es hora de que nuestro `FizzBuzz` sea capaz de convertir el 3 en "Fizz". Un test mínimo para especificarlo sería el siguiente:
 
 ```python
 import unittest
@@ -455,7 +455,7 @@ if __name__ == '__main__':
 
 ```
 
-Teniendo un test que falla, veamos qué código de producción mínimo añadir para que pase:
+Teniendo un test que falla, veamos qué código de producción mínimo podríamos añadir para que pase:
 
 ```python
 class FizzBuzz:
@@ -472,7 +472,7 @@ class FizzBuzz:
         return number_list
 ```
 
-Hemos añadido un if que hace pasar el test. Vemos que hay una pequeña oportunidad de refactorizar. 
+Hemos añadido un `if` que hace pasar el test. Vemos que hay una pequeña oportunidad de refactorizar. 
 
 Por un lado, podemos usar una forma más *pythónica* de gestionar una lista, inicializándola como objeto `list` y añadiendo elementos en cada iteración del rango. Esto nos obliga a cambiar un poco la estructura del código.
 
@@ -514,9 +514,9 @@ class FizzBuzz:
         return number_list
 ```
 
-## El séptimo test: diciendo Fizz cuando toca
+## El séptimo test: diciendo "Fizz" cuando toca
 
-Ahora queremos que nos ponga un Fizz cuando el número es múltiplo de 3 y no sólo cuando es exactamente 3. Por supuesto, nos toca añadir un test para especificarlo:
+Ahora queremos que nos ponga un "Fizz" cuando el número es múltiplo de 3 y no sólo cuando es exactamente 3. Por supuesto, nos toca añadir un test para especificarlo:
 
 ```python
 import unittest
@@ -577,9 +577,9 @@ class FizzBuzz:
         return num_list
 ```
 
-En el código de producción no tenemos nada muy interesante que hacer, pero resulta incómoda la forma en que hacemos el test. A medida que introducimos números se hace un poco difícil de leer y rato consultar el número por su posición (que es el número - 1). Así que vamos a hacer un cambio en el test que nos hará verlo de forma más sencilla.
+En el código de producción no tenemos nada muy interesante que hacer, pero resulta incómoda la forma en que hacemos el test. A medida que introducimos números se hace un poco difícil de leer y raro consultar el número por su posición (que es el número menos 1). Así que vamos a hacer un cambio en el test que nos hará verlo de forma más sencilla.
 
-Crearemos un método que verifique que un número aparece en la lista sin cambios, una especie de assert personalizado.
+Crearemos un método que verifique que un número aparece en la lista sin cambios, una especie de `assert` personalizado.
 
 ```python
 import unittest
@@ -680,7 +680,7 @@ if __name__ == '__main__':
 
 Con estos cambios, el test es ahora mucho más legible, evitándonos la carga cognitiva de traducir sobre la marcha entre números y posiciones.
 
-## El octavo test: aprendiendo a decir Buzz
+## El octavo test: aprendiendo a decir "Buzz"
 
 Con el cambio que acabamos de hacer nos damos cuenta de que realmente no necesitamos probar más casos de múltiplos de tres porque no nos darían nueva información. Este test nos permite especificar el nuevo comportamiento. Fíjate que hemos añadido también un método para testear que devuelve 'Buzz':
 
@@ -762,7 +762,7 @@ class FizzBuzz:
 
 No hay mucho más que podamos hacer ahora, salvo pasar al siguiente test.
 
-## El noveno test: diciendo Buzz cuando toca
+## El noveno test: diciendo "Buzz" cuando toca
 
 A estas alturas el test es bastante obvio, el siguiente múltiple de 5 es 10:
 
@@ -849,7 +849,7 @@ class FizzBuzz:
 
 Llegados a esta punto, podemos ver similitudes en la estructura del código al tratar cada caso. Esto apunta a una posibilidad de refactor bastante potente. Sin embargo, aún nos queda un caso por especificar e implementar como son el 15 y sus múltiplos, que tendrían que salir representados en la lista como *FizzBuzz*.
 
-## El décimo test: aprender a decir FizzBuzz
+## El décimo test: aprender a decir "FizzBuzz"
 
 La estructura es exactamente igual. Empecemos por el caso más sencillo: 15 debe devolver FizzBuzz (añadimos también el método assertFizzBuzz):
 
@@ -968,7 +968,7 @@ class FizzBuzz:
         return number_list
 ```
 
-## El décimo primer test: decir FizzBuzz cuando toca
+## El décimo primer test: decir "FizzBuzz" cuando toca
 
 Necesitamos un test:
 
@@ -1066,7 +1066,7 @@ class FizzBuzz:
         return number_list
 ```
 
-¡Y ya tenemos nuestro FizzBuzz!
+¡Y ya tenemos nuestro "FizzBuzz"!
 
 ## Finalizando
 
@@ -1102,4 +1102,4 @@ class FizzBuzz:
         return self.number_list
 ```
 
-
+¿Se podría haber realizado este refactor antes? Seguramente sí, pero es nuestra primera kata y nuestro objetivo era habituarnos a los ciclos fundamentales de TDD. Si ahora repites la kata es posible que tomas otras decisiones en algunas puntos y que encuentres mejores soluciones.

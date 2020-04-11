@@ -4,13 +4,13 @@
 
 Esta kata demuestra que a medida que los tests se hacen más específicos, el algoritmo se vuelve más general. Pero, aparte de eso, es una kata estupenda para reflexionar sobre la elección de ejemplos y por qué no nos sirven los test que pasan en cuanto los escribimos.
 
-Por otro lado, la kata revela un concepto bastante más intrigante: la premisa de la prioridad de las transformaciones, según la cual, del mismo modo que hay *refactors* que son cambios en la estructura de un código que no alteran su comportamiento, existirían *transformaciones* que son cambios en código que producen cambios en su comportamiento. 
+Por otro lado, la kata revela un concepto bastante más intrigante: la premisa de prioridad de las transformaciones, según la cual, del mismo modo que hay *refactors* que son cambios en la estructura de un código que no alteran su comportamiento, existirían *transformaciones* que son cambios en código que producen cambios en su comportamiento. 
 
 Estas transformaciones tendrían un orden, desde las más sencillas a las más complejas, y una prioridad en su aplicación que dicta que deberíamos aplicar antes las más sencillas.
 
 ## Historia
 
-La kata fue creada por [Robert C. Martin](http://butunclebob.com/ArticleS.UncleBob.ThePrimeFactorsKata) al escribir un programa para su hijo que calculase los factores primos de un número. Pensando sobre su desarrollo, le llamó la atención el modo en que el algoritmo evoluciona y se simplifica a medida que se hace más general.
+La kata fue creada por [Robert C. Martin](http://butunclebob.com/ArticleS.UncleBob.ThePrimeFactorsKata) cuando escribía un programa para su hijo que calculase los factores primos de un número. Pensando sobre su desarrollo, le llamó la atención el modo en que el algoritmo evoluciona y se simplifica a medida que se hace más general.
 
 ## Enunciado
 

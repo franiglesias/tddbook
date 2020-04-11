@@ -4,10 +4,10 @@ Desde la introducción de la metodología TDD por Kent Beck se ha intentado defi
 
 Inicialmente, Kent Beck propuso dos reglas muy básicas:
 
-* No escribir una línea de código sin antes tener un test automático que falle
-* Eliminar la duplicación
+* No escribir una línea de código sin antes tener un test automático que falle.
+* Eliminar la duplicación.
 
-Es decir, para poder escribir código de producción, primero debemos tener un test que no pase y, por tanto, requiera que escribamos ese código.
+Es decir, para poder escribir código de producción, primero debemos tener un test que no pase y que requiera que escribamos ese código, precisamente porque eso es lo necesario para que el test pase.
 
 Una vez que lo hemos escrito y viendo que el test pasa, nuestro esfuerzo se centra en revisar el código escrito y eliminar en lo posible la duplicación. Esto es muy genérico, porque por una parte se refiere al *refactoring* y, por otra parte, al acoplamiento entre el test y el código de producción. Y al ser tan genérico resulta difícil bajarlo en acciones prácticas.
 
@@ -42,7 +42,7 @@ Ahora bien, ¿cómo tiene que ser el test que escribamos?
 
 La segunda ley nos dice que el test debe ser suficiente para fallar y que tenemos que considerar fallos los errores de compilación o su equivalente en lenguajes interpretados. Por ejemplo, entre estos errores estarían algunos tan obvios como que la clase o función no existe o no ha sido definida.
 
-Debemos evitar la tentación de escribir un esqueleto de la clase o la función antes de escribir el primer test. Recuerda que estamos hablando de Test Driven Development. Por tanto, son los tests los que nos dicen qué código de producción escribir y no al revés.
+Debemos evitar la tentación de escribir un esqueleto de la clase o la función antes de escribir el primer test. Recuerda que estamos hablando de *Test Driven Development*. Por tanto, son los tests los que nos dicen qué código de producción escribir y no al revés.
 
 Que el test sea suficiente para fallar quiere decir que el test ha de ser muy pequeño en diversos sentidos y es algo que al principio resulta bastante difícil de definir. Con frecuencia se habla del test "más sencillo", del caso más simple, pero no es exactamente así.
 
@@ -84,7 +84,7 @@ Aplicando las tres leyes, lo que viene a continuación es:
 * Que ese test sea el mínimo posible para obligarnos a hacer un cambio en el código de producción
 * Escribir el código de producción mínimo y suficiente que hace pasar el test
 
-¿Cuál podría ser el próximo comportamiento que necesitamos definir? Si en el primer test nos hemos forzado a escribir el código minimo necesario para instanciar la clase, el segundo test puede llevarnos por dos caminos:
+¿Cuál podría ser el próximo comportamiento que necesitamos definir? Si en el primer test nos hemos forzado a escribir el código mínimo necesario para instanciar la clase, el segundo test puede llevarnos por dos caminos:
 
 * Forzarnos a escribir el código necesario para validar parámetros del constructor y, por tanto, poder instanciar un objeto con todo lo necesario.
 * Forzarnos a introducir el método que ejecuta el comportamiento deseado.
@@ -109,33 +109,32 @@ Escribir un único test que define un salto de comportamiento demasiado grande t
 
 ### Tercera ley: escribir más del código de producción necesario para que pase el test
 
-Se trata quizá de la más frecuente de todas. Llega un momento en que "vemos" el algoritmo con tanta claridad que nuestro impulso es escribirlo ya y terminar el proceso. Sin embargo, esto nos puede lleva a obviar algunas situaciones. Por ejemplo, en el ciclo que acabamos de realizar podríamos haber intentado implementar ya todo el algoritmo que no sería más que comparar el importe pasado al método con el límite de importe mínimo. Pero hacer eso podría habernos llevado a olvidar el caso de que el importe fuese cero o menor, lo que una vez incorporado a la aplicación y desplegado podría llevarnos a errores en producción, incluso con pérdidas económicas.
+Se trata quizá de la más frecuente de todas. Llega un momento en que "vemos" el algoritmo con tanta claridad que nuestro impulso es escribirlo ya y terminar el proceso. Sin embargo, esto nos puede lleva a obviar algunas situaciones. Por ejemplo, en una aplicación podríamos "ver" el algoritmo general e implementarlo. Sin embargo, eso podría habernos distraído de un o varios casos particulares y no contemplarlos, lo que una vez incorporado a la aplicación y desplegado podría llevarnos a errores en producción, incluso con pérdidas económicas.
 
 ## El ciclo red-green-refactor
 
 Las tres leyes establecen un framework que podríamos llamar "de bajo nivel". Martin Fowler, por su parte, define el ciclo TDD en estas tres fases que estarían en un nivel superior de abstracción:
 
-* Escribe un test para el siguiente fragmento de funcionalidad que deseas añadir
-* Escribe el código de producción necesario para que el test pase
-* Refactoriza el código, tanto el nuevo como el anterior, para que esté bien estructurado
+* Escribe un test para el siguiente fragmento de funcionalidad que deseas añadir.
+* Escribe el código de producción necesario para que el test pase.
+* Refactoriza el código, tanto el nuevo como el anterior, para que esté bien estructurado.
 
 Estas tres fases define lo que se suele conocer como el ciclo "red-green-refactor", nombrado así en relación al estado de los tests en cada una de las fases del ciclo:
 
-* Red: la creación de un tests que falla (está en rojo) y que describe la funcionalidad o comportamiento que queremos introducir en el software de producción.
-* Green: la escritura del código de producción necesario para hacer pasar el test (ponerlo en verde) con lo cual se verifica que se ha añadido el comportamiento especificado.
-* Refactor: manteniendo los tests en verde, reorganizar el código para estructurarlo mejor, haciéndolo más legible y sostenible sin perder la funcionalidad desarrollada hasta el momento.
+* **Red**: la creación de un test que falla (está en rojo) y que describe la funcionalidad o comportamiento que queremos introducir en el software de producción.
+* **Green**: la escritura del código de producción necesario para hacer pasar el test (ponerlo en verde) con lo cual se verifica que se ha añadido el comportamiento especificado.
+* **Refactor**: manteniendo los tests en verde, reorganizar el código para estructurarlo mejor, haciéndolo más legible y sostenible sin perder la funcionalidad desarrollada hasta el momento.
 
-En la práctica los ciclos de refactor surgen después de un cierto número de ciclos de las tres leyes. Los pequeños cambios impulsados por éstas se acumulan hasta llegar al punto de 
-
+En la práctica los ciclos de refactor surgen después de un cierto número de ciclos de las tres leyes. Los pequeños cambios impulsados por éstas se acumulan hasta llegar a un punto en el que comienzan a aparecer *smells* de código que requieren el refactor.
 
 ## Qué significa que un test pasa nada más escribirlo
 
 Cuando escribimos un test y pasa sin añadir código de producción puede ser por alguno de esos motivos:
 
-* El algoritmo que hemos escrito es lo bastante general como para cubrir todos los casos posibles: hemos terminado nuestro desarrollo
+* El algoritmo que hemos escrito es lo bastante general como para cubrir todos los casos posibles: hemos terminado nuestro desarrollo.
 * El ejemplo que hemos elegido no es cualitativamente diferente de otros que ya hemos usado y por lo tanto no nos fuerza a escribir código de producción. tenemos que encontrar otro ejemplo.
 
-En el problema que estamos tratando, podemos comprobar que se cumple el primer caso. No hay una combinación de límite/importe concebible que nos permita hacer un test que falle y, por tanto, nos fuerce a escribir más código de producción. En este punto, un nuevo test nos puede servir como test de aceptación o para verificar algunos edge cases en los que podamos tener dudas. 
+En la kata FizzBuzz, por ejemplo, llega un momento en que no hay forma de escribir un test que falle porque el algoritmo cubre todos los casos.
 
 La otra posibilidad es que el ejemplo escogido no sea representativo de un nuevo comportamiento, lo que puede venir dado por una mala definición de la tarea o bien por no haber analizado bien los posibles escenarios.
 

@@ -2,14 +2,15 @@
 
 Test Driven Development es una metodología de desarrollo de software en la que se escriben tests para guiar la escritura del código de producción.
 
-Los tests especifican de manera formal, ejecutable y mediante ejemplos los comportamientos que debe realizar el software que estamos programando, definiendo pequeños objetivos que, al ir siendo superados, nos permiten construir el software de forma progresiva, segura y bien estructurada.
+Los tests especifican de manera formal, ejecutable y mediante ejemplos, los comportamientos que debe realizar el software que estamos programando, definiendo pequeños objetivos que, al ir siendo superados, nos permiten construir el software de forma progresiva, segura y bien estructurada.
 
-Aunque hablemos de tests, no estamos hablando de Quality Assurance (en adelante: QA), aunque al trabajar con metodología TDD conseguimos el efecto secundario de hacernos con una suite de tests unitarios que es válida y que tiene la máxima cobertura posible. De hecho, lo normal es que una parte de los tests creados en TDD sean innecesarios para una buena cobertura de test de regresión.
+Aunque hablemos de tests, no estamos hablando de *Quality Assurance* (en adelante: QA), aunque al trabajar con metodología TDD conseguimos el efecto secundario de hacernos con una suite de tests unitarios que es válida y que tiene la máxima cobertura posible. De hecho, lo normal es que una parte de los tests creados en TDD sean innecesarios para una buena cobertura de test de regresión.
 
 Es decir, tanto TDD como QA se basan en la utilización de los tests como herramientas, pero este uso se diferencia en varios aspectos. Específicamente, en TDD:
 
-* El primer test se escribe antes de que el software siquiera exista
-* Los tests son muy pequeños y su objetivo es forzar que sea necesario escribir código de producción
+* El primer test se escribe antes de que el software siquiera exista.
+* Los tests son muy pequeños y su objetivo es forzar que sea necesario escribir código de producción.
+* Los tests guían el desarrollo del código y el proceso contribuye al diseño.
 
 En TDD los tests se definen como especificaciones ejecutables del comportamiento de la unidad de software considerada, mientras que en QA el test es una herramienta de verificación de ese mismo comportamiento.
 
@@ -34,7 +35,6 @@ Varios estudios han mostrado evidencias que apuntan a favor de que la aplicació
 Es bastante difícil cuantificar el beneficio de usar TDD en cuanto a productividad o velocidad, sin embargo subjetivamente se pueden experimentar varios beneficios.
 
 Uno de ellos es que la metodología TDD puede bajar la cargar cognitiva del desarrollo. Esto es así porque favorece dividir el problema en tareas pequeñas con un foco muy definido, lo que nos permite ahorrar la limitada capacidad de nuestra memoria de trabajo.
-
 
 ## Referencias
 

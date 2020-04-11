@@ -2,7 +2,7 @@
 
 ## La fase de refactor
 
-En las katas anteriores, por lo general, los ciclos de TDD se ejecutaban de forma bastante fluída.
+En las katas anteriores, por lo general, los ciclos de TDD se ejecutaban de forma bastante fluida.
 
 Sin embargo, es posible que hayas notado que, en algún momento, hacer pasar un nuevo test implicaba un cierto refactor del código de producción 
 antes de poder afrontar los cambios necesarios para hacer pasar el test.
@@ -25,26 +25,26 @@ La kata consiste en crear un programa para calcular las puntuaciones del juego d
 
 Si no tienes familiaridad con el juego y su sistema de puntuación, aquí van las reglas que es necesario conocer:
 
-* En cada juego, el jugador o jugadora tiene 10 frames o turnos.
-* Dentro de cada frame, se dispone de dos intentos para tumbar los 10 bolos (eso hace un total de 20 intentos o lanzamientos de bola).
+* En cada juego, el jugador o jugadora tiene 10 turnos, llamados *frames*.
+* Dentro de cada *frame*, se dispone de dos intentos para tumbar los 10 bolos (eso hace un total de 20 intentos o lanzamientos de bola en todo el juego).
 * En cada intento, se cuentan los bolos tumbados y la puntuación del frame es la suma de ambos intentos.
 * Si no se tira ningún bolo es un *Gutter*.
-* Si no se han podido tumbar todos los bolos en los dos intentos, esa será la puntuación. Por ejemplo 3 + 5 = 8 puntos en el frame.
-* Si se han tumbado los 10 bolos en el frame (por ejemplo 4 + 6), a eso se le llama "spare" y se obtiene un bonus que es la puntuación del siguiente lanzamiento, que se dará en el siguiente frame (10 del frame + 3 del siguiente lanzamiento = 13). Esto es, la puntuación final de un spare se calcula después del siguiente lanzamiento y, por así decir, ese lanzamiento se cuenta dos veces (una como bonus y otra normal).
-* Si se han tumbado los 10 bolos en un sólo lanzamiento es un "strike" y en ese caso, el bonus es la puntuación del siguiente frame (por ejemplo, 10 + (3 + 4) = 17). 
-* En el caso de que esto se produzca en el último frame, se hacen uno ó dos lanzamientos extras.
+* Si no se han tirado todos los bolos en los dos intentos esa será la puntuación. Por ejemplo 3 + 5 = 8 puntos en el frame.
+* Si se han tumbado los 10 bolos en el frame (por ejemplo 4 + 6), a eso se le llama *spare* y se obtiene un *bonus* que será la puntuación del siguiente lanzamiento, el primero del siguiente *frame* (10 del *frame* actual + 3 del siguiente lanzamiento = 13). Esto es, la puntuación final de un spare se calcula **después** del siguiente lanzamiento y, por así decir, ese lanzamiento se cuenta dos veces (una como bonus y otra normal).
+* Si se han tumbado los 10 bolos en un sólo lanzamiento es un *strike* y en ese caso, el *bonus* es la puntuación del siguiente frame (por ejemplo, 10 + (3 + 4) = 17). 
+* En el caso de que esto se produzca en el último frame, se hacen uno ó dos lanzamientos extras según sea necesario.
 
 ## Orientaciones para resolverla
 
-La Bowling Game es una kata interesante por el reto que plantea el tratamiento de los spares y strikes. Cuando detectamos uno de estos casos, tenemos que consultar el resultado de los siguientes lanzamientos.
+La Bowling Game es una kata interesante por el reto que plantea el tratamiento de los *spares* y *strikes*. Cuando detectamos uno de estos casos, tenemos que consultar el resultado de los siguientes lanzamientos por lo que necesitamos conservar la historia de la partida.
 
 Esto nos obligará a cambiar el algoritmo varias veces de una forma un tanto radical, lo que nos pone ante el problema de cómo gestionar estos cambios sin romper los ciclos de TDD, es decir, refactorizando el código de producción mientras se mantienen los tests pasando.
 
 Para entender mejor lo que queremos decir, la situación sería la siguiente:
 
-Después de un par de ciclos comenzamos a testear por el caso "spare". En ese punto nos damos cuenta de que necesitamos hacer un cambio relativamente grande al modo en que estábamos calculando la puntuación total. En último término, lo que ocurre es que tenemos que refactorizar mientras tenemos un test que no pasa.
+Después de un par de ciclos comenzamos a testear por el caso *spare*. En ese punto nos damos cuenta de que necesitamos hacer un cambio relativamente grande al modo en que estábamos calculando la puntuación total. En último término, lo que ocurre es que tenemos que refactorizar mientras un test no pasa. Pero es es contradictorio con la definición de la fase de refactor que exige que todos los tests estén pasando.
 
-La solución, por suerte, es muy sencilla: dar un paso atrás.
+La solución, por suerte, es muy sencilla: **dar un paso atrás**.
 
 Una vez que sabemos que queremos refactorizar el algoritmo, nos basta comentar el nuevo test para desactivarlo y, con el test anterior pasando, refactorizar el código de producción. Cuando lo tengamos, volvemos a traer a la vida el nuevo test y desarrollamos el nuevo comportamiento.
 

@@ -1,4 +1,4 @@
-# Prefacio
+# Prólogo
 
 ## Cómo usar este libro
 

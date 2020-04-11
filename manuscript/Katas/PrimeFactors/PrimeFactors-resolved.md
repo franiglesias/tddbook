@@ -9,7 +9,7 @@ Nuestro objetivo será escribir un programa que descomponga un número natural e
 Esta kata la vamos a hacer en Javascript, con el framework de testing Jest. Crearemos una función `primeFactors`, a la que le pasamos el número que queremos descomponer y nos devolverá un array con los factores primos, ordenadores de menor a mayor.
 
 ```js
-var primes = primeFactors(18);
+var primesOf18 = primeFactors(18);
 // -> [2, 3, 3]
 ```
 
@@ -32,7 +32,6 @@ describe('Calculate prime factors', function () {
 Para hacer pasar el test necesitamos una implementación mínima de la función:
 
 ```js
-
 function primefactors() {
     return [];
 }
@@ -69,7 +68,6 @@ function primefactors(numberToDecompose) {
     }
 
     return [2];
- 
 }
 
 export default primefactors;
@@ -94,7 +92,6 @@ describe('Calculate prime factors', function () {
     it ('3 is also a prime number', () => {
         expect(primefactors(3)).toEqual([3])
     })
-    
 });
 ```
 
@@ -181,7 +178,6 @@ describe('Calculate prime factors', function () {
     it ('4 is 2 * 2', () => {
         expect(primefactors(4)).toEqual([2, 2])
     })
-    
 });
 ```
 
@@ -225,7 +221,7 @@ export default primefactors;
 
 ## Quinto test: descubriendo los múltiplos de 2
 
-El siguiente número que podemos descomponer es el 6. Una cosa buena de esta kata es que cada nuevo número no primo nos da una respuesta diferente y eso quiere decir que cada tests nos aportará información. Helo aquí
+El siguiente número que podemos descomponer es el 6. Una cosa buena de esta kata es que cada nuevo número no primo nos da una respuesta diferente y eso quiere decir que cada test nos aportará información. Helo aquí
 
 ```js
 import primefactors from "../src/primefactors";
@@ -250,7 +246,6 @@ describe('Calculate prime factors', function () {
     it ('6 is 2 * 3', () => {
         expect(primefactors(6)).toEqual([2, 3])
     })
-
 });
 ```
 
@@ -363,7 +358,7 @@ Esta nueva implementación hace pasar todos los tests y estamos listos para forz
 
 Dentro de los números no primos podríamos considerar varias agrupaciones a la hora de seleccionar ejemplos. Tenemos casos en que los números se descomponen en el producto de dos factores primos, y casos en los que se descomponen en el producto de 3 ó más factores. Esto viene a cuenta porque nuestros próximos ejemplos son 8 y 9. El 8 es 2 * 2 * 2, mientras que 9 es 3 * 3. El caso del 8 nos obliga a considerar los casos en que podemos descomponer un número en más de dos factores, y el del 9, aquellos casos en los que se introducen nuevos divisores.
 
-En principio puede darnos igual empezar por cualquiera de los dos. Quizá la clave sea escoger el caso que te parezca más fácil de abordar. Aquí vamos a empezar por descomponer el número 8. De este modo, mantenemos el divisor 2 que, en este momento, nos parece algo más complicado de abordar.
+En principio puede darnos igual empezar por cualquiera de los dos. Quizá la clave sea escoger el caso que te parezca más fácil de abordar. Aquí vamos a empezar por descomponer el número 8. De este modo, mantenemos el divisor 2 que, en este momento, nos parece algo más fácil de abordar.
 
 Hagamos un test:
 
@@ -457,7 +452,6 @@ describe('Calculate prime factors', function () {
     it ('9 is 3 * 3', () => {
         expect(primefactors(9)).toEqual([3, 3])
     })
-
 });
 ```
 

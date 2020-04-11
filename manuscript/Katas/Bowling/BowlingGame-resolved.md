@@ -7,7 +7,7 @@ La kata consiste en crear un programa para calcular las puntuaciones de un jugad
 Un breve recordatorio de las reglas:
 
 * Cada juego tiene 10 turnos de 2 lanzamientos cada uno.
-* En cada lanzamiento se cuentan los bolos que han caído y ese número es la puntuación
+* En cada turno se cuentan los bolos que han caído y ese número es la puntuación
 * 0 puntos en un *gutter*
 * Si se tiran todos los bolos entre los dos intentos es un *spare*, y se suma como bonus la puntuación del siguiente lanzamiento
 * Si se tiran todos los bolos en el primer lanzamiento es un *strike*, y se suma como bonus la puntuación de los siguientes dos lanzamientos
@@ -60,7 +60,7 @@ Y ya estamos en verde, con todo listo para el siguiente test.
 
 ## Segundo test: lanzando la bola
 
-Para que nuestro BowlingGame sea útil necesitaremos al menos dos cosas:
+Para que nuestro `BowlingGame` sea útil necesitaremos al menos dos cosas:
 
 * Una forma de indicar el resultado de un lanzamiento, pasando el número de bolos derribado, que sería un command. Un command provoca un efecto en el estado de un objeto, pero no devuelve nada por lo que necesitamos una vía alternativa de observar ese efecto.
 * Una forma de obtener la puntuación en un momento dado, que sería una query. Una query devuelve una respuesta, por lo que podemos verificar que es la que esperamos.
@@ -864,11 +864,11 @@ RSpec.describe 'A Bowling Game' do
   end
 
   it 'should score an spare' do
-      roll_spare
-      @game.roll 3
-      roll_many 17, 0
-      expect(@game.score).to eq(16)
-    end
+    roll_spare
+    @game.roll 3
+    roll_many 17, 0
+    expect(@game.score).to eq(16)
+  end
 
   def roll_many(times, pins_down)
     times.times do

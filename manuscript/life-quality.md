@@ -114,7 +114,7 @@ Repetiremos el ciclo hasta tener la funcionalidad completamente implementada. No
 
 No es magia, es TDD. Por supuesto, para lograr esto se necesita entrenamiento. TDD es una herramienta intelectual, y el uso de una herramienta debe automatizarse. Por tanto, deberías hacer ejercicios, como las katas, tanto individualmente, como con la ayuda de colegas, en una comunidad de práctica, de la forma que mejor te convenga a ti o a tu equipo. Practicar, practicar y practicar. Una vez que seas capaz de proceder paso a paso, descubrirás que estás más feliz y menos estresada en el medio y largo plazo.
 
-## Un consejo final:
+## Un consejo final
 
 Almacena la mayor cantidad de conocimiento que necesites en el mundo: usa un backlog, usa post-its, escribe una lista de tareas, dibujas esquemas, modelos, mapas conceptuales… Liberta tu cabeza y deja espacio para trabajar en una cosa cada vez.
 
