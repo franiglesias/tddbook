@@ -1,4 +1,4 @@
-# TDD y calidad de vida (la tuya)
+# Epílogo: TDD y calidad de vida (la tuya)
 
 Ya sea como empleados o freelance vendemos nuestro tiempo y trabajo a empresas y clientes. Una cosa que distingue nuestra profesión de ortas es el hecho de que vendemos trabajo intelectual. Incluso, a veces, trabajo intelectual de alto nivel.
 

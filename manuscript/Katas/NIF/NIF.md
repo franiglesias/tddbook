@@ -2,7 +2,7 @@
 
 ## Comienza por los *sad paths* y aplaza las soluciones
 
-Esta kata consiste en crear un Value Object para representar el NIF, o número de identificación fiscal español. Su forma habitual es una cadena de ocho caracteres numéricos y una letra de control, que nos ayuda a asegurar su validez.
+Esta kata consiste originalmente en crear un Value Object para representar el NIF, o número de identificación fiscal español. Su forma habitual es una cadena de ocho caracteres numéricos y una letra de control, que nos ayuda a asegurar su validez.
 
 Al tratarse de un Value Object queremos poder instanciarlo a partir de un `string` y garantizar que sea válido para poder utilizarlo sin problemas en cualquier lugar del código de una aplicación.
 
@@ -12,7 +12,7 @@ El algoritmo para validarlo es relativamente sencillo, como veremos, pero el int
 
 ## Historia
 
-La kata surgió por casualidad al preparar un pequeño taller de introducción a TDD y como parte de un live coding acerca de los beneficios de utilizar la metodología en el trabajo cotidiano.
+Esta kata es original y surgió por casualidad al preparar un pequeño taller de introducción a TDD y *live coding* acerca de los beneficios de utilizar la metodología en el trabajo cotidiano.
 
 Al profundizar en este ejemplo se fueron poniendo de manifiesto dos cuestiones que resultan muy interesantes:
 
@@ -25,27 +25,54 @@ Crear un clase Nif, que será un Value Object para representar el Número de Ide
 
 Esta letra de control se obtiene calculando el resto de dividir la parte numérica del NIF entre 23 (mod 23). El resultado nos indica la fila en la que consultar la letra de control de la siguiente tabla:
 
--- Tabla de letras de control del nif
+| Resto | Letra |
+|------|-------|
+| 0 | T |
+| 1 | R |
+| 2 | W |
+| 3 | A |
+| 4 | G |
+| 5 | M |
+| 6 | Y |
+| 7 | F |
+| 8 | P |
+| 9 | D |
+| 10 | X |
+| 11 | B |
+| 12 | N |
+| 13 | J |
+| 14 | Z |
+| 15 | S |
+| 16 | Q |
+| 17 | V |
+| 18 | H |
+| 19 | L |
+| 20 | C |
+| 21 | K |
+| 22 | E |
 
 Existe un caso especial de NIF que es el NIE o Número de Identificación para Extranjeros. En este caso, el primer carácter será una letra X, Y ó Z. Para el cálculo del mod 23 se reemplazan por los valores 0, 1 y 2, respectivamente.
 
 ## Orientaciones para resolverla
 
-Al tratarse de un Value Object intentaremos crear una clase a la que se le pasa la cadena candidata en el constructor. Si la cadena resulta ser inválida para un NIF el constructor lanzará una excepción, impidiendo que se puedan instanciar objetos con valores inadecuados. Fundamentalmente, nuestros primeros tests esperarán excepciones.
+Esta kata nos puede aportar varios aprendizajes tanto de TDD como de tipos de datos y validación.
+
+En las katas es habitual obviar temas como la validación de datos para simplificar el ejercicio y centrarnos en el desarrollo del algoritmo. En un desarrollo real no podemos hacer esto, sino justamente poner mucho énfasis en validar los datos a distintos niveles, tanto por razones de seguridad como para evitar errores en los cálculos.
+
+Así que hemos incluido esta kata precisamente para practicar cómo desarrollar mediante TDD algoritmos que primero gestionan todos los valores que no pueden manejar tanto desde el punto de vista estructural como de dominio.
+
+En concreto este ejemplo se baja en el hecho de que el comportamiento efectivo del constructor que vamos a crear es asignar el valor que le pasamos. Todo lo demás que hace es comprobar que ese valor es adecuado para eso, por lo que actúa como barrera de valores indeseados.
+
+Al tratarse de un Value Object intentaremos crear una clase a la que se le pasa la cadena candidata en el constructor. Si la cadena resulta ser inválida para un NIF el constructor lanzará una excepción, impidiendo que se puedan instanciar objetos con valores inadecuados. Fundamentalmente, nuestros primeros tests esperarán excepciones o errores.
 
 De todas las infinitas cadenas que podría recibir este constructor sólo unas pocas serán NIF válidos, por lo que nuestro primer objetivo podría ser eliminar las más obvias: las que nunca podrían serlo porque tienen el número de caracteres inadecuado.
 
-En una segunda fase, buscaremos controlar aquellas que no podrían ser un NIF por su estructura, básicamente porque no siguen el esquema de ocho caracteres numéricos y una letra final, teniendo en cuanta la excepción de los NIE, que sí podrían tener una letra al principio.
+En una segunda fase, buscaremos controlar aquellas que no podrían nunca ser un NIF por su estructura, básicamente porque no siguen el esquema de ocho caracteres numéricos y una letra final, teniendo en cuanta la excepción de los NIE, que sí podrían tener una letra al principio.
 
-Con esto tendríamos todo preparado para implementar el algoritmo de validación ya que sólo tendríamos que manejar `strings` que "parecen" NIF.
+Con esto tendríamos todo preparado para implementar el algoritmo de validación ya que sólo tendríamos que manejar `strings` que estructuralmente podrían ser NIF.
 
-Una cosa que los pasos anteriores nos garantizan es que los tests no empezarán a fallar cuando introduzcamos el algoritmo ya que **nunca** podrían ser válidos. Si comenzamos usando `string` que estructuralmente podrían ser NIFs, aunque los hayamos escrito al azar, podríamos encontrarnos con alguno que casualmente fuese válido y al implementar la parte correspondiente del algoritmo ese test fallaría por la razón equivocada.
-
-Por cierto, encontrar casos validos e inválidos es relativamente fácil. Puesto que se trata de un mod 23, cualquier cadena de siete u ocho `0` acabada en un número de 0 a 22 te servirá, acompañada de la letra correspondiente para casos válidos y de otra cualquiera para casos no válidos.
-
-00000000T es válido
-00000000S no es válido
+Una cosa que los pasos anteriores nos garantizan es que los tests no empezarán a fallar cuando introduzcamos el algoritmo ya que **nunca** podrían ser válidos. Si comenzásemos usando `string` que estructuralmente podrían ser NIFs, aunque los hayamos escrito al azar, podríamos encontrarnos con alguno que casualmente fuese válido y al implementar la parte correspondiente del algoritmo ese test fallaría por la razón equivocada.
 
 ## Enlaces de interés sobre la kata
 
-
+* [La kata del NIF para aprender TDD](https://franiglesias.github.io/iniciacion-tdd/)

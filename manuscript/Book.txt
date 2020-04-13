@@ -1,7 +1,6 @@
 preface.md
 tdd-intro.md
 tdd-schools.md
-life-quality.md
 Katas/FizzBuzz/tdd-rules.md
 Katas/FizzBuzz/FizzBuzz.md
 Katas/FizzBuzz/FizzBuzz-resolved.md
@@ -10,8 +9,9 @@ Katas/PrimeFactors/PrimeFactors-resolved.md
 Katas/NIF/first-test.md
 Katas/NIF/NIF.md
 Katas/NIF/NIF-resolved.md
+Katas/Bowling/refactor.md
 Katas/Bowling/BowlingGame.md
 Katas/Bowling/BowlingGame-resolved.1md
-Katas/Bowling/refactor.md
 Katas/Greetings/Greetings.md
 Katas/Greetings/Greetings-resolved.md
+life-quality.md

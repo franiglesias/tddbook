@@ -13,10 +13,9 @@ Por otro lado, cada una de las katas se desarrolla en un lenguaje diferente.
 * [Prólogo](manuscript/preface.md)
 * [¿Qué es TDD y por qué debería importarme?](manuscript/tdd-intro.md)
 * [Enfoques de TDD](manuscript/tdd-schools.md)
-* [Calidad de vida y TDD](manuscript/life-quality.md)
-* [Conceptos básicos](manuscript/basic-concepts.md)
-* [Coding-dojo y katas](manuscript/coding-dojo-katas.md)
 * Katas
+  * [Conceptos básicos](manuscript/basic-concepts.md)
+  * [Coding-dojo y katas](manuscript/coding-dojo-katas.md)
   * FizzBuzz (Python, unittest, OOP)
       * [Las leyes de TDD](manuscript/Katas/FizzBuzz/tdd-rules.md)
       * [Fizz Buzz](manuscript/Katas/FizzBuzz/FizzBuzz.md)
@@ -24,7 +23,7 @@ Por otro lado, cada una de las katas se desarrolla en un lenguaje diferente.
   * Prime Factors (Javascript, JEST, procedural)
       * [Prime Factors](manuscript/Katas/PrimeFactors/PrimeFactors.md)
       * [Resolviendo la kata Prime Factors](manuscript/Katas/PrimeFactors/PrimeFactors-resolved.md)
-  * NIF
+  * NIF (Go, )
       * [Sad path based tdd](manuscript/Katas/NIF/first-test.md)
       * [NIF](manuscript/Katas/NIF/NIF.md)
       * [Resolviendo la kata NIF](manuscript/Katas/NIF/NIF-resolved.md)
@@ -35,9 +34,22 @@ Por otro lado, cada una de las katas se desarrolla en un lenguaje diferente.
   * Greetings (Scala, FunSuite, FP)
      *  [Greetings](manuscript/Katas/Greetings/Greetings.md)
      *  [Resolviendo la kata Greetings](manuscript/Katas/Greetings/Greetings-resolved.md)
+  * Bank
+     *  [Outside-in]
+     *  [Bank]
+     *  [Resolviendo la kata Bank]
+* [Epílogo: Calidad de vida y TDD](manuscript/life-quality.md)
 
-## Repositorios con soluciones a las katas
+## Repositorios con los ejemplos del libro
 
 * [Ruby](https://github.com/franiglesias/tddbook-ruby)
 * [JS](https://github.com/franiglesias/tddbook-js)
 * [Scala](https://github.com/franiglesias/tddbook-scala)
+
+## Repositorios de katas
+
+* [Katalyst](https://katalyst.codurance.com)
+* [Kata-log](https://kata-log.rocks/index.html)
+* [Coding dojo](http://codingdojo.org)
+* [Codekata](http://codekata.com)
+* [Agile kata](http://agilekatas.co.uk)
