@@ -21,10 +21,11 @@ Por otro lado, cada una de las katas se desarrolla en un lenguaje diferente.
       * [Fizz Buzz](manuscript/Katas/FizzBuzz/FizzBuzz.md)
       * [Resolviendo la kata Fizz Buzz](manuscript/Katas/FizzBuzz/FizzBuzz-resolved.md)
   * Prime Factors (Javascript, JEST, procedural)
+      * [Evolución del algoritmo mediante tests]
       * [Prime Factors](manuscript/Katas/PrimeFactors/PrimeFactors.md)
       * [Resolviendo la kata Prime Factors](manuscript/Katas/PrimeFactors/PrimeFactors-resolved.md)
-  * NIF (Go, )
-      * [Sad path based tdd](manuscript/Katas/NIF/first-test.md)
+  * NIF (Go, testing, mixed)
+      * [Elección del primer test](manuscript/Katas/NIF/first-test.md)
       * [NIF](manuscript/Katas/NIF/NIF.md)
       * [Resolviendo la kata NIF](manuscript/Katas/NIF/NIF-resolved.md)
   * Bowling Game (Ruby, RSpec, OOP)
