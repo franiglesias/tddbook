@@ -8,29 +8,29 @@ Esta letra de control se obtiene calculando el resto de dividir la parte numéri
 
 | Parte numérica | Resto | Letra | Ejemplo NIF válido |
 |----|------|-------|----|
-| 00000000 | 0 | T | 00000000T |
-| 00000001 | 1 | R | 00000001R |
-| 00000002 | 2 | W | 00000002W |
-| 00000003 | 3 | A | 00000003A |
-| 00000004 | 4 | G | 00000004G |
-| 00000005 | 5 | M | 00000005M |
-| 00000006 | 6 | Y | 00000006Y |
-| 00000007 | 7 | F | 00000007F |
-| 00000008 | 8 | P | 00000008P |
-| 00000009 | 9 | D | 00000009D |
-| 00000010 | 10 | X | 00000010X |
-| 00000011 | 11 | B | 00000011B |
-| 00000012 | 12 | N | 00000012N |
-| 00000013 | 13 | J | 00000013J |
-| 00000014 | 14 | Z | 00000014Z |
-| 00000015 | 15 | S | 00000015S |
-| 00000016 | 16 | Q | 00000016Q |
-| 00000017 | 17 | V | 00000017V |
-| 00000018 | 18 | H | 00000018H |
-| 00000019 | 19 | L | 00000019L |
-| 00000020 | 20 | C | 00000020C |
-| 00000021 | 21 | K | 00000021K |
-| 00000022 | 22 | E | 00000022E |
+| 00000000 | 0 | T | 00000023T |
+| 00000001 | 1 | R | 00000024R |
+| 00000002 | 2 | W | 00000025W |
+| 00000003 | 3 | A | 00000026A |
+| 00000004 | 4 | G | 00000027G |
+| 00000005 | 5 | M | 00000028M |
+| 00000006 | 6 | Y | 00000029Y |
+| 00000007 | 7 | F | 00000030F |
+| 00000008 | 8 | P | 00000031P |
+| 00000009 | 9 | D | 00000032D |
+| 00000010 | 10 | X | 00000033X |
+| 00000011 | 11 | B | 00000034B |
+| 00000012 | 12 | N | 00000035N |
+| 00000013 | 13 | J | 00000036J |
+| 00000014 | 14 | Z | 00000037Z |
+| 00000015 | 15 | S | 00000038S |
+| 00000016 | 16 | Q | 00000039Q |
+| 00000017 | 17 | V | 00000040V |
+| 00000018 | 18 | H | 00000041H |
+| 00000019 | 19 | L | 00000042L |
+| 00000020 | 20 | C | 00000043C |
+| 00000021 | 21 | K | 00000044K |
+| 00000022 | 22 | E | 00000045E |
 
 Puedes crear NIF inválidos simplemente escogiendo una parte numérica y la letra que no le corresponde.
 
@@ -53,11 +53,11 @@ Un cadena que empieza por una letra distinta de X, Y, Z, o que contenga caracter
 
 Esta kata la vamos a resolver en Go, por lo que vamos a matizar un poco su resultado. 
 
-Go es un lenguaje orientado a objetos pero de una manera diferente a la que puedas estar acostumbrada si vienes de Java o PHP, aunque te resultará vagamente familiar si vienes de JS. Se ha optado por admitir algunas cosas mientras que se han rechazado otras. Go es también un lenguaje funcional, con funciones que son *first class citizens*.
+Go es un lenguaje orientado a objetos pero de una manera diferente a la que puedas estar acostumbrada si vienes de Java o PHP, aunque te podría resultar familiar si vienes de JS. Se ha optado por admitir algunas cosas mientras que se han rechazado otras. Go es también un lenguaje funcional, con funciones como *first class citizens*.
 
 Los métodos no se definen explícitamente en los tipos, sino que son funciones que se asocian a los tipos deseados. Al definir una función se le puede asociar un objeto de un tipo o *receiver*, de modo que la puedes usar como si fuese un método usando *dot notation*.
 
-El caso más llamativo es la herencia, que en Go no existe y, por tanto, sólo admite la composición de objetos. Las interfaces se implementan de forma implícita: si un tipo tiene los métodos de una interfaz entonces es que la implementa.
+Por cierto, las interfaces se implementan de forma implícita: si un tipo tiene los métodos de una interfaz entonces es que la implementa. Además, en Go no existe el concepto de herencia, así que la forma de extender el comportamiento de los objetos sería a través de composición.
 
 Por otro lado, el testing en Go es también un poco particular.
 
@@ -65,9 +65,9 @@ En este ejemplo vamos a crear un tipo de dato Nif que será un string y una func
 
 ### Disclaimer
 
-Basar tests en mensajes de error no es una buena práctica, porque los mensajes de error pueden cambiar con facilidad haciendo fallar los tests aunque no haya realmente una alteración de la funcionalidad.
+Para resolver esta kata me voy a aprovechar de la forma en que Go gestiona los errores. Estos se pueden devolver como una de las respuestas de una función, lo que te obliga a gestionarlos siempre de manera explícita.
 
-Sin embargo, en esta kata vamos a usar los mensajes de error como una especie de comodín temporal en el que apoyarnos. Al acabar el ejercicio manejaremos únicamente dos errores posibles.
+Basar tests en mensajes de error no es una buena práctica, porque pueden cambiar con facilidad haciendo fallar los tests aunque no haya realmente una alteración de la funcionalidad. Sin embargo, en esta kata vamos a usar los mensajes de error como una especie de comodín temporal en el que apoyarnos haciendo que cambien de más específicos a más generales. Al acabar el ejercicio manejaremos únicamente dos errores posibles.
 
 ## Primer test: creando la función constructora
 
@@ -981,17 +981,673 @@ func NewNif(candidate string) error {
 }
 ```
 
-Con esto terminamos la validación de la estructura y nos quedaría implementar el algoritmo mod 23. Peo para eso necesitamos un pequeño cambio de enfoque.
+Con esto terminamos la validación de la estructura y nos quedaría implementar el algoritmo mod 23. Pero para eso necesitamos un pequeño cambio de enfoque.
 
 ## Séptimo test: seamos optimistas
 
 El algoritmo es, de hecho, muy sencillo: obtener un resto (mod 23) y buscar con el resultado en una tabla. Es fácil de implementar en una sola iteración. Sin embargo, vamos a hacerlo más lentamente.
 
- 
 Hasta ahora nuestros tests eran pesimistas porque esperaban ejemplos incorrectos de Nif para poder pasar. Nuestros tests ahora tienen que ser optimistas, es decir, van a esperar que le pasemos ejemplos de NIF válidos.
 
+En este punto introduciremos un cambios. Si recuerdas, de momento sólo estamos devolviendo el error y la interfaz final de la función devolverá el string validado como un tipo Nif que vamos a crear para la ocasión.
 
-## Referencias
+Es decir, tenemos que cambiar el código para que devuelva algo, y que ese algo sea de un tipo que todavía no existe.
+
+Para hacer este cambio sin romper los tests vamos a hacer una técnica de refactor un tanto rebuscada.
+
+## Sexto refactor: cambiando la interfaz pública
+
+En primer lugar, extraemos el cuerpo de `NewNif` a otra función:
+
+```go
+package nif
+
+import (
+	"errors"
+	"regexp"
+)
+
+func NewNif(candidate string) error {
+	return FullNewNif(candidate)
+}
+
+func FullNewNif(candidate string) error {
+	valid := regexp.MustCompile(`(?i)^[0-9XYZ]\d{7}[^UIOÑ0-9]$`)
+
+	if !valid.MatchString(candidate) {
+		return errors.New("bad format")
+	}
+
+	return errors.New("bad control letter")
+}
+```
+
+Los tests siguen pasando. Ahora introducimos una variable:
+
+```go
+package nif
+
+import (
+	"errors"
+	"regexp"
+)
+
+func NewNif(candidate string) error {
+	err := FullNewNif(candidate)
+	return err
+}
+
+func FullNewNif(candidate string) error {
+	valid := regexp.MustCompile(`(?i)^[0-9XYZ]\d{7}[^UIOÑ0-9]$`)
+
+	if !valid.MatchString(candidate) {
+		return errors.New("bad format")
+	}
+
+	return errors.New("bad control letter")
+}
+```
+
+Ahora podemos hacer que FullNewNif devuelva el string sin afectar al test porque queda encapsulado dentro de NewNif.
+
+```go
+package nif
+
+import (
+	"errors"
+	"regexp"
+)
+
+func NewNif(candidate string) error {
+	_, err := FullNewNif(candidate)
+	return err
+}
+
+func FullNewNif(candidate string) (string, error) {
+	valid := regexp.MustCompile(`(?i)^[0-9XYZ]\d{7}[^UIOÑ0-9]$`)
+
+	if !valid.MatchString(candidate) {
+		return "", errors.New("bad format")
+	}
+
+	return candidate, errors.New("bad control letter")
+}
+```
+
+Los tests siguen pasando y casi hemos acabado. En el test cambiamos el uso de NewNif por FullNewNif.
+
+```go
+package nif
+
+import "testing"
+
+func TestShouldFailIfCandidateIsInvalid(t *testing.T) {
+	tests := []struct {
+		name string
+		example string
+		expected string
+	}{
+		{"should fail if too long", "01234567891011", "bad format"},
+		{"should fail if too short", "01234", "bad format"},
+		{"should fail if starts with a letter other than X, Y, Z", "A12345678", "bad format"},
+		{"should fail if doesn't have 7 digit in the middle", "0123X567R", "bad format"},
+		{"should fail if doesn't end with a valid control letter", "01234567U", "invalid end format"},
+		{"should fail if doesn't end with the right control letter", "00000000S", "bad control letter"},
+
+	}
+	for _, test := range tests {
+		t.Run(test.name, func(t *testing.T) {
+			_, err := FullNewNif(test.example)
+
+			if err.Error() != test.expected  && err.Error() != "bad format" {
+				t.Errorf("Expected %s, got %s", test.expected, err.Error())
+			}
+		})
+	}
+}
+```
+
+Siguen pasando los tests. Ahora la función devuelve los dos parámetros que queríamos y no hemos roto los tests. Podemos eliminar la función NewNif original.
+
+```go
+package nif
+
+import (
+	"errors"
+	"regexp"
+)
+
+func FullNewNif(candidate string) (string, error) {
+	valid := regexp.MustCompile(`(?i)^[0-9XYZ]\d{7}[^UIOÑ0-9]$`)
+
+	if !valid.MatchString(candidate) {
+		return "", errors.New("bad format")
+	}
+
+	return candidate, errors.New("bad control letter")
+}
+```
+
+Y usar las herramientas del IDE para cambiar el nombre de la función `FullNewNif` a `NewNif`.
+
+```go
+package nif
+
+import (
+	"errors"
+	"regexp"
+)
+
+func NewNif(candidate string) (string, error) {
+	valid := regexp.MustCompile(`(?i)^[0-9XYZ]\d{7}[^UIOÑ0-9]$`)
+
+	if !valid.MatchString(candidate) {
+		return "", errors.New("bad format")
+	}
+
+	return candidate, errors.New("bad control letter")
+}
+```
+
+## Séptimo test: ahora sí
+
+Nuestro objetivo ahora es empujar la implementación el algoritmo mod 23. Esta vez los tests esperan que la cadena sea válida. Además, queremos forzar que se devuelva el tipo Nif en lugar de string.
+
+```go
+func TestShouldCreateNifTypeWithValidCandidate(t *testing.T) {
+	tests := []struct {
+		name string
+		example string
+	}{
+		{"should accept mod23 being 0", "00000023T"},
+	}
+	for _, test := range tests {
+		t.Run(test.name, func(t *testing.T) {
+			nif, err := NewNif(test.example)
+			
+			if nif != Nif(test.example) {
+				t.Errorf("Expected Nif(%s), got %s", test.example, nif)
+			}
+			
+			if err != nil {
+				t.Errorf("Unexècted error %s", err.Error())
+			}
+		})
+	}
+}
+```
+
+En un primer paso cambiamos el código de producción para introducir y usar el tipo Nif:
+
+```go
+package nif
+
+import (
+	"errors"
+	"regexp"
+)
+
+type Nif string
+
+func NewNif(candidate string) (Nif, error) {
+	valid := regexp.MustCompile(`(?i)^[0-9XYZ]\d{7}[^UIOÑ0-9]$`)
+
+	if !valid.MatchString(candidate) {
+		return "", errors.New("bad format")
+	}
+
+	return "", errors.New("bad control letter")
+}
+```
+
+Ahora el test estará fallando porque no hemos validado nada todavía. Para hacerlo pasar añadimos un condicional:
+
+```go
+package nif
+
+import (
+	"errors"
+	"regexp"
+)
+
+type Nif string
+
+func NewNif(candidate string) (Nif, error) {
+	valid := regexp.MustCompile(`(?i)^[0-9XYZ]\d{7}[^UIOÑ0-9]$`)
+
+	if !valid.MatchString(candidate) {
+		return "", errors.New("bad format")
+	}
+
+	if candidate == "00000023T" {
+		return Nif(candidate), nil
+	}
+
+	return "", errors.New("bad control letter")
+}
+```
+
+Una nota sobre Go es que los tipos custom no pueden tener valor nil, sino vacío. Por eso en caso de error devolvemos `string` vacío.
+
+## Octavo test: avanzando el algoritmo
+
+De momento no hay muchos motivos para hacer refactor, así que vamos a introducir un test que nos ayude a avanzar un poco. En principio, queremos lograr que nos impulse a separar la parte numérica de la letra de control.
+
+Una posibilidad sería testear otro Nif que acabe con la letra T, como el 00000023T.
+
+```go
+func TestShouldCreateNifTypeWithValidCandidate(t *testing.T) {
+	tests := []struct {
+		name string
+		example string
+	}{
+		{"should accept mod23 being 0", "00000023T"},
+		{"should accept mod23 being 0 letter T", "00000046T"},
+	}
+	for _, test := range tests {
+		t.Run(test.name, func(t *testing.T) {
+			nif, err := NewNif(test.example)
+
+			if nif != Nif(test.example) {
+				t.Errorf("Expected Nif(%s), got %s", test.example, nif)
+			}
+
+			if err != nil {
+				t.Errorf("Unexècted error %s", err.Error())
+			}
+		})
+	}
+}
+```
+
+Para hacer pasar el test, podemos hacer esta implementación sencilla:
+
+```go
+package nif
+
+import (
+	"errors"
+	"regexp"
+)
+
+type Nif string
+
+func NewNif(candidate string) (Nif, error) {
+	valid := regexp.MustCompile(`(?i)^[0-9XYZ]\d{7}[^UIOÑ0-9]$`)
+
+	if !valid.MatchString(candidate) {
+		return "", errors.New("bad format")
+	}
+
+	if candidate == "00000023T" {
+		return Nif(candidate), nil
+	}
+
+	if candidate == "00000046T" {
+		return Nif(candidate), nil
+	}
+
+	return "", errors.New("bad control letter")
+}
+```
+
+Y ahora empezamos a refactorizar.
+
+## Séptimo refactor
+
+En el código de producción podemos ver lo que hay de diferente y de común entre los ejemplos. En ambos la letra de control es T y la parte numérica es divisible entre 23, por lo que su mod23 será 0.
+
+Ahora podemos hacer el refactor. Un primer paso.
+
+```go
+package nif
+
+import (
+	"errors"
+	"regexp"
+)
+
+type Nif string
+
+func NewNif(candidate string) (Nif, error) {
+	valid := regexp.MustCompile(`(?i)^[0-9XYZ]\d{7}[^UIOÑ0-9]$`)
+
+	if !valid.MatchString(candidate) {
+		return "", errors.New("bad format")
+	}
+
+	control := string(candidate[8])
+
+	if control == "T" {
+		return Nif(candidate), nil
+	}
+
+	return "", errors.New("bad control letter")
+}
+```
+
+Y, después de ver pasar los tests, el segundo:
+
+```go
+package nif
+
+import (
+	"errors"
+	"regexp"
+	"strconv"
+)
+
+type Nif string
+
+func NewNif(candidate string) (Nif, error) {
+	valid := regexp.MustCompile(`(?i)^[0-9XYZ]\d{7}[^UIOÑ0-9]$`)
+
+	if !valid.MatchString(candidate) {
+		return "", errors.New("bad format")
+	}
+
+	control := string(candidate[8])
+
+	numeric, _ := strconv.Atoi(candidate[0:8])
+
+	modulus := numeric % 23
+	
+	if control == "T" && modulus == 0 {
+		return Nif(candidate), nil
+	}
+
+	return "", errors.New("bad control letter")
+}
+```
+
+Con este cambio los tests pasan y acepta todos los Nif válidos acabados en T.
+
+## Noveno test: validar más letras de control
+
+En este tipo de algoritmos no tiene mucho sentido intentar validar todas las letras de control, pero podemos introducir una más para forzarnos a entender cómo debería evolucionar el código ahora. Probaremos con una nueva letra:
+
+```go
+package nif
+
+import "testing"
+
+func TestShouldFailIfCandidateIsInvalid(t *testing.T) {
+	tests := []struct {
+		name string
+		example string
+		expected string
+	}{
+		{"should fail if too long", "01234567891011", "bad format"},
+		{"should fail if too short", "01234", "bad format"},
+		{"should fail if starts with a letter other than X, Y, Z", "A12345678", "bad format"},
+		{"should fail if doesn't have 7 digit in the middle", "0123X567R", "bad format"},
+		{"should fail if doesn't end with a valid control letter", "01234567U", "invalid end format"},
+		{"should fail if doesn't end with the right control letter", "00000000S", "bad control letter"},
+
+	}
+	for _, test := range tests {
+		t.Run(test.name, func(t *testing.T) {
+			_, err := NewNif(test.example)
+
+			if err.Error() != test.expected  && err.Error() != "bad format" {
+				t.Errorf("Expected %s, got %s", test.expected, err.Error())
+			}
+		})
+	}
+}
+
+func TestShouldCreateNifTypeWithValidCandidate(t *testing.T) {
+	tests := []struct {
+		name string
+		example string
+	}{
+		{"should accept mod23 being 0", "00000000T"},
+		{"should accept mod23 being 0 letter T", "00000023T"},
+		{"should accept mod23 being 1 letter R", "00000024R"},
+	}
+	for _, test := range tests {
+		t.Run(test.name, func(t *testing.T) {
+			nif, err := NewNif(test.example)
+
+			if nif != Nif(test.example) {
+				t.Errorf("Expected Nif(%s), got %s", test.example, nif)
+			}
+
+			if err != nil {
+				t.Errorf("Unexècted error %s", err.Error())
+			}
+		})
+	}
+}
+```
+
+Ya tenemos este test fallando, así que vamos a hacer una implementación muy sencilla:
+
+```go
+package nif
+
+import (
+	"errors"
+	"regexp"
+	"strconv"
+)
+
+type Nif string
+
+func NewNif(candidate string) (Nif, error) {
+	valid := regexp.MustCompile(`(?i)^[0-9XYZ]\d{7}[^UIOÑ0-9]$`)
+
+	if !valid.MatchString(candidate) {
+		return "", errors.New("bad format")
+	}
+
+	control := string(candidate[8])
+
+	numeric, _ := strconv.Atoi(candidate[0:8])
+
+	modulus := numeric % 23
+
+	if control == "T" && modulus == 0 {
+		return Nif(candidate), nil
+	}
+
+	if control == "R" && modulus == 1 {
+		return Nif(candidate), nil
+	}
+
+	return "", errors.New("bad control letter")
+}
+```
+
+Esto ya nos da una idea de por dónde van los tiros: un mapa entre letras de control y el resto al dividir por 23. Sin embargo, es frecuente que los strings puedan funcionar como arrays en muchos lenguajes, por lo que nos basta tener un string con todas las letras de control ordenadas y acceder a la letra en la posición indicada por el módulo para saber cual es la correcta.
+
+## Octavo refactor
+
+Primero implementamos una versión simple de esta idea:
+
+```go
+package nif
+
+import (
+	"errors"
+	"regexp"
+	"strconv"
+)
+
+type Nif string
+
+func NewNif(candidate string) (Nif, error) {
+	valid := regexp.MustCompile(`(?i)^[0-9XYZ]\d{7}[^UIOÑ0-9]$`)
+
+	if !valid.MatchString(candidate) {
+		return "", errors.New("bad format")
+	}
+
+	controlMap := "TR"
+
+	control := candidate[8]
+
+	numeric, _ := strconv.Atoi(candidate[0:8])
+
+	modulus := numeric % 23
+
+	if control == controlMap[modulus] {
+		return Nif(candidate), nil
+	}
+
+	return "", errors.New("bad control letter")
+}
+```
+
+Ya tenemos una primera versión. Luego añadiremos la lista completa de letras, pero podemos intentar arreglar un poco el código actual. Primero hacemos que controlMap sea constante:
+
+```go
+package nif
+
+import (
+	"errors"
+	"regexp"
+	"strconv"
+)
+
+type Nif string
+
+func NewNif(candidate string) (Nif, error) {
+	valid := regexp.MustCompile(`(?i)^[0-9XYZ]\d{7}[^UIOÑ0-9]$`)
+
+	if !valid.MatchString(candidate) {
+		return "", errors.New("bad format")
+	}
+
+	const controlMap = "TR"
+
+	control := candidate[8]
+
+	numeric, _ := strconv.Atoi(candidate[0:8])
+
+	modulus := numeric % 23
+
+	if control == controlMap[modulus] {
+		return Nif(candidate), nil
+	}
+
+	return "", errors.New("bad control letter")
+}
+```
+
+En realidad podríamos extraer toda la parte del cálculo del módulo a otra función. Primero reorganizamos el código para controlar mejor la extracción:
+
+```go
+package nif
+
+import (
+	"errors"
+	"regexp"
+	"strconv"
+)
+
+type Nif string
+
+func NewNif(candidate string) (Nif, error) {
+	valid := regexp.MustCompile(`(?i)^[0-9XYZ]\d{7}[^UIOÑ0-9]$`)
+
+	if !valid.MatchString(candidate) {
+		return "", errors.New("bad format")
+	}
+
+	control := candidate[8]
+	
+	const controlMap = "TR"
+	numeric, _ := strconv.Atoi(candidate[0:8])
+	modulus := numeric % 23
+	shouldBe := controlMap[modulus]
+	
+	if control == shouldBe {
+		return Nif(candidate), nil
+	}
+
+	return "", errors.New("bad control letter")
+}
+```
+
+Recuerda verificar que pasan los tests. Ahora extraemos la función:
+
+```go
+package nif
+
+import (
+	"errors"
+	"regexp"
+	"strconv"
+)
+
+type Nif string
+
+func NewNif(candidate string) (Nif, error) {
+	valid := regexp.MustCompile(`(?i)^[0-9XYZ]\d{7}[^UIOÑ0-9]$`)
+
+	if !valid.MatchString(candidate) {
+		return "", errors.New("bad format")
+	}
+
+	control := candidate[8]
+
+	if control == shouldHaveControl(candidate) {
+		return Nif(candidate), nil
+	}
+
+	return "", errors.New("bad control letter")
+}
+
+func shouldHaveControl(candidate string) uint8 {
+	const controlMap = "TR"
+	numeric, _ := strconv.Atoi(candidate[0:8])
+	modulus := numeric % 23
+	
+	return controlMap[modulus]
+}
+```
+
+Y podemos compactar el código un poco más, mientras que añadimos las demás letras de control:
+
+```go
+package nif
+
+import (
+	"errors"
+	"regexp"
+	"strconv"
+)
+
+type Nif string
+
+func NewNif(candidate string) (Nif, error) {
+	valid := regexp.MustCompile(`(?i)^[0-9XYZ]\d{7}[^UIOÑ0-9]$`)
+
+	if !valid.MatchString(candidate) {
+		return "", errors.New("bad format")
+	}
+
+	if candidate[8] == shouldHaveControl(candidate) {
+		return Nif(candidate), nil
+	}
+
+	return "", errors.New("bad control letter")
+}
+
+func shouldHaveControl(candidate string) uint8 {
+	const controlMap = "TRWAGMYFPDXBNJZSQVHLCKE"
+
+	numeric, _ := strconv.Atoi(candidate[0:8])
+	modulus := numeric % 23
+
+	return controlMap[modulus]
+}
+```
+
+Con esto ya podemos validar todos los NIF, excepto los NIE, que empiezan por las letras `X`, `Y` ó `Z`.
+
+## Referencias
 
 * [Is Go object oriented?](https://flaviocopes.com/golang-is-go-object-oriented/)
 

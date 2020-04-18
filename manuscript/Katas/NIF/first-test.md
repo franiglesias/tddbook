@@ -1,7 +1,151 @@
 # La elección del primer test
 
-## Happy path
+En TDD la elección del primer test es un problema interesante. En algunos trabajos y tutoriales sobre TDD se suele hablar del "caso más sencillo" y ahí se queda la recomendación. Pero en realidad deberíamos acostumbrarnos a buscar el test más pequeño que pueda fallar, que suele ser una cosa muy distinta.
 
-## Sad paths
+Con todo, no parece una definición muy práctica, así que posiblemente merece una explicación más detenida. ¿Hay una forma más o menos objetiva de decidir cuál es el test mínimo que pueda fallar?
+
+## A la búsqueda del primer test más sencillo que pueda fallar
+
+Supongamos la kata Roman Numerals. Consiste en crear una convertidor entre números decimales y romanos. Supongamos que la clase va a ser `RomanNumeralsConverter` y la función se llama `toRoman`, de modo que se utilizaría más o menos así:
+
+```php
+$roman = $romanNumeralsConverter->toRoman(54)
+```
+
+Según el enfoque del "caso más sencillo" podríamos hacer un test más o menos como éste:
+
+```php
+public function testShouldConvertOne(): void
+{
+    $converter = new RomanNumeralsConverter();
+    
+    $this->assertEquals("I", $converter->toRoman(1));
+}
+```
+
+Parece correcto, ¿verdad? Sin embargo, éste no es el test más sencillo que pueda fallar. En realidad hay como mínimo dos aún más sencillos que pueden fallar y ambos nos forzarán a crear código de producción.
+
+– Pensemos un momento sobre el test que acabamos de escribir: ¿qué ocurrirá si lo ejecutamos.
+
+– Fallará.
+
+– Pero, ¿por qué fallará?
+
+– Obvio: porque ni siquiera tenemos la clase definida. Al intentar ejecutar el test, no encuentra la clase.
+
+– ¿Podemos decir que el test falla por la razón que esperamos que falle?
+
+– Humm. ¿Qué quieres decir?
+
+– Quiero decir que el test establece que esperamos que pueda convertir el decimal 1 en el romano I. Debería fallar porque no hace la conversión, no porque no encuentre la clase. En realidad el test puede fallar por, como mínimo, tres causas: que la clase no exista, que la clase no tenga el método `toRoman` y que no devuelva el resultado "I". Y sólo debería fallar por una.
+
+– ¿Me estás diciendo que el primer test debería ser simplemente instanciar la clase?
+
+– Sí.
+
+– ¿Y qué sentido tiene?
+
+– Que el test, al fallar, sólo puede fallar por la razón que esperamos que falle.
+
+– Tengo que pensar en eso un momento.
+
+– Sin problema, te espero en el párrafo siguiente.
+
+Esta es la cuestión. Para ser el caso más sencillo, este primer test puede fallar por tres motivos diferentes que consideramos como que el test no pasa (recuerda, la segunda ley: no compilar es fallar), por tanto, deberíamos reducirlo para que sólo falle por una causa.
+
+Como nota al margen: es cierto que podría fallar por otras muchas causas, como equivocarnos de nombre al escribir, poner la clase en el namespace incorrecto, etc. Asumimos que esos errores son involuntarios. Además, al ejecutar el test nos dirá el error. De ahí la importancia de lanzar los tests, ver cómo fallan y asegurarnos de que fallan como es debido.
+
+Vayamos más despacio, entonces.
+
+El primer test sólo debería pedir que exista la clase y se pueda instanciar.
+
+```php
+public function testShouldInstantiate(): void
+{
+    $this->expectNotToPerformAssertions();
+    
+    new RomanNumeralsConverter();
+}
+```
+
+En PhpUnit un test sin aserciones falla o al menos se considera *risky*. Para hacer que pase claramente especificamos que no vamos a realizar aserciones. En otros lenguajes esto es innecesario.
+
+Para pasar el test tengo que crear la clase. Una vez creada veré que el test pasa y entonces podré afrontar el siguiente paso.
+
+El segundo test debería obligarme a definir el método deseado en la clase, aunque todavía no sepamos qué hacer con él o qué parámetros necesitará. 
+
+```php
+public function testShouldBeAbleToConvertToRoman(): void
+{
+    $this->expectNotToPerformAssertions();
+    
+    $converter = new RomanNumeralsConverter();
+    $converter->toRoman();
+}
+```
+
+De nuevo, este test es un poco especial en PHP. Por ejemplo, en PHP y otros lenguajes podemos ignorar el retorno de un método si no está tipado. Otros lenguajes nos exigirán tipar el método de manera explícita, cosa que en este paso podría hacerse con `void` para que no devuelva nada. Otra estrategia sería devolver un valor vacío del tipo adecuado (en este caso `string`). Hay lenguajes, por su parte, que requieren que se use el resultado del método si es que se devuelve, pero también permiten ignorarlo.
+
+Un asunto interesante es que una vez que hemos hecho pasar este segundo test, el primero es redundante: el caso está cubierto por este segundo test y si un cambio en el código lo hace fallar, el segundo test fallará también. En la fase de refactor puedes borrarlo.
+
+Y es ahora cuando el "caso más sencillo" tiene sentido porque este test, tras los anteriores fallará por la razón adecuada:
+
+```php
+public function testShouldConvertOne(): void
+{
+    $converter = new RomanNumeralsConverter();
+    
+    $this->assertEquals("I", $converter->toRoman(1));
+}
+```
+
+Este ya es un test que fallaría por la razón esperada: la clase no tiene nada definido que realice la conversión.
+
+De nuevo, una vez hagas pasar este test y estés en fase de refactor, el anterior puedes borrarlo. Ha cumplido su función de forzarnos a añadir un cambio en el código. Además, en caso de que ese segundo test falle por un cambio en el código, nuestro test actual también fallará. Por tanto, puedes borrarlo también.
+
+Supongo que ahora te haces dos preguntas:
+
+* Por qué hacer tres tests para quedarme con el que había pensado al principio
+* Por qué puedo borrar esos tests
+
+Vayamos por partes, entonces.
+
+### Por qué empezar con pasos tan pequeños
+
+Un test sólo debería tener una razón para fallar. Imagínalo como una aplicación del Single Responsibility Principle. Si un test tiene más de una razón para fallar lo más posible es que estemos queriendo hacer que un test provoque muchos cambios a la vez en el código.
+
+Es cierto que en testing existe una técnica llamada **triangulación** en la que justamente se verifican varios posibles aspectos que deben ocurrir juntos para considerar que el test pasa o falla. Pero, como hemos dicho al principio del libro TDD no es QA, por lo que no son aplicables las mismas técnicas.
+
+En TDD lo que queremos es que los tests nos digan cuál es el cambio que tenemos que producir en el software y éste cambio debería ser lo más pequeño posible y lo menos ambiguo posible.
+
+Cuando no tenemos nada de código de producción escrito, lo más pequeño que podemos hacer es crear un archivo en el que se defina la función o clase que estamos desarrollando. Es el primer paso. Y aún así, hay posibilidades de que no lo hagamos correctamente:
+
+* nos equivocamos en el nombre del archivo
+* nos equivocamos en su ubicación en el proyecto
+* nos equivocamos al teclear el nombre de la clase o función
+* nos equivocamos al situarla en un name space
+* ...
+
+Tenemos que evitar todos estos problemas sólo para conseguir instanciar una clase o poder usar una función, pero ese test mínimo fallará si pasa cualquiera de esas cosas. Al corregir todas las que puedan suceder haremos que el test pase.
+
+Sin embargo, si el test puede fallar por más razones, se multiplicarán las potenciales fuentes de errores porque hay que hacer más cosas para hacerlo pasar. Además, algunas de ellas pueden depender y entremezclarse entre sí. En general, el cambio necesario en el código de producción será demasiado grande con el test en rojo y, por tanto, hacerlo pasar a verde será más costoso y menos obvio.
+
+### Por qué borrar estos primeros tests
+
+En TDD muchos tests son redundantes. Desde el punto de vista de QA en TDD se testea demasiado. En primer lugar, porque muchas veces se utilizan varios ejemplos de la misma clase. Por otro lado, hay tests que hacemos en TDD que están incluidos en otros.
+
+Es el caso de estos primeros tests que hemos mostrado hace un momento.
+
+El test que nos fuerza a definir la clase o la función por primera vez está incluido en cualquier otro test que podamos imaginar por la simple razón de que para que se puedan ejecutar esos otros tests necesitamos la clase. Dicho de otro modo, si falla el primer test, fallarán todos los demás.
+
+En esta situación el test es redundante y lo podemos borrar.
+
+No siempre es fácil identificar tests redundantes. En algunas etapas de TDD usamos ejemplos de la misma clase para mover el desarrollo, con lo cual puede llegar un punto en que algunos de esos tests sean redundantes y podamos borrarlos por innecesarios.
+
+Por otro lado, otra posibilidad es refactorizar los tests con data providers o técnicas similares con las que abaratar la creación de nuevos ejemplos.
+
+## Happy path
+
+## Sad paths
 
 

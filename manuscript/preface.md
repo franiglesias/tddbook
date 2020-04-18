@@ -6,9 +6,9 @@ El corazón de este libro es una selección de katas, algunas muy conocidas y ot
 
 Cada una de las katas se organiza de la siguiente forma:
 
-* Una introducción a la kata, su origen, enunciado y una serie de recomendaciones o puntos de interés sobre la misma.
-* Una solución desarrollada en un lenguaje de programación diferente y explicada en detalle. Por si te interesa, publicaremos un repositorio con soluciones en varios lenguajes.
-* Un capítulo teórico dedicado a un aspecto destacado de TDD puesto de relieve por esa kata y sobre el que he incidido especialmente.
+* Un capítulo teórico dedicado a un aspecto destacado de TDD puesto de relieve por esa kata y sobre el que he incidido especialmente al resolverla.
+* Una introducción a la kata, su origen si es conocido, su enunciado y una serie de recomendaciones o puntos de interés sobre la misma.
+* Una solución desarrollada en un lenguaje de programación diferente y explicada en detalle. Hay un repositorio con soluciones a las katas en varios lenguajes.
 
 Puedes usar este libro de dos formas principales:
 
@@ -21,14 +21,14 @@ En el segundo caso, puedes empezar por cualquiera de las katas y seguir en el or
 
 ## Disclaimer
 
-Las soluciones propuestas a las katas se proporcionan como ejemplos explicados de los procesos de razonamiento que se podrían seguir. No son soluciones ideales. Cuando realices tu versión podrías seguir un proceso completamente diferente que podría ser tan válido o más.
+Las soluciones propuestas a las katas se proporcionan como ejemplos explicados de los procesos de razonamiento que se podrían seguir. No son soluciones ideales. Cuando realices tu versión podrías seguir un proceso completamente diferente que podría ser tan válido o más que el presentado aquí.
 
-Por otra parte, sucesivas ejecuciones de una misma kata por la misma persona podrían llevarnos a soluciones y recorridos diferentes. Ese es uno de sus beneficios: al acostumbrarnos a ciertos patrones de pensamiento y automatizarlos podemos prestar atención a más detalles cada vez y encontrar puntos de intervención más interesantes.
+Por otra parte, sucesivas ejecuciones de una misma kata por la misma persona podrían llevarla a soluciones y recorridos diferentes. Ese es uno de sus beneficios: al acostumbrarnos a ciertos patrones de pensamiento y automatizarlos podemos prestar atención a más detalles cada vez y encontrar puntos de intervención más interesantes.
 
-Por lo mismo, a medida que se incrementa nuestra fluidez en un lenguaje de programación, las implementaciones que logramos pueden ser más óptimas y elegantes.
+Igualmente, a medida que se incrementa nuestra fluidez en un lenguaje de programación, las implementaciones que logramos pueden ser más óptimas y elegantes.
 
 Al preparar las katas presentadas en este libro he realizado varias versiones, incluso en distintos lenguajes a fin de encontrar los recorridos más interesantes o incluso provocar algunos problemas que me interesaba poner de manifiesto. La solución que he decidido publicar en cada caso está cargada hacia algún punto que me interesaba acentuar del proceso de TDD por lo que podría no ser la más óptima.
 
-Es decir, en cierto modo las katas tienen trampa, pero justamente se trata de forzar las cosas hasta cierto punto para lograr un objetivo.
+Es decir, en cierto modo las katas tienen trampa, se trata de forzar las cosas hasta cierto punto para lograr un objetivo didáctico.
 
 En otro orden de cosas, he aprovechado este proyecto para forzarme a experimentar con lenguajes de programación diferentes. En algunos casos, son lenguajes nuevos para mi o con los que no estoy acostumbrado a trabajar, por lo que es posible que las implementaciones sean especialmente toscas o que no incluyan algunas de sus características más específicas y óptimas.
