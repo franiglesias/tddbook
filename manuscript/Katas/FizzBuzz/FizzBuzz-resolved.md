@@ -680,7 +680,7 @@ if __name__ == '__main__':
 
 Con estos cambios, el test es ahora mucho más legible, evitándonos la carga cognitiva de traducir sobre la marcha entre números y posiciones.
 
-## El octavo test: aprendiendo a decir "Buzz"
+## El octavo test: aprendiendo a decir "Buzz"
 
 Con el cambio que acabamos de hacer nos damos cuenta de que realmente no necesitamos probar más casos de múltiplos de tres porque no nos darían nueva información. Este test nos permite especificar el nuevo comportamiento. Fíjate que hemos añadido también un método para testear que devuelve 'Buzz':
 
@@ -762,7 +762,7 @@ class FizzBuzz:
 
 No hay mucho más que podamos hacer ahora, salvo pasar al siguiente test.
 
-## El noveno test: diciendo "Buzz" cuando toca
+## El noveno test: diciendo "Buzz" cuando toca
 
 A estas alturas el test es bastante obvio, el siguiente múltiple de 5 es 10:
 
@@ -1103,3 +1103,9 @@ class FizzBuzz:
 ```
 
 ¿Se podría haber realizado este refactor antes? Seguramente sí, pero es nuestra primera kata y nuestro objetivo era habituarnos a los ciclos fundamentales de TDD. Si ahora repites la kata es posible que tomas otras decisiones en algunas puntos y que encuentres mejores soluciones.
+
+## Qué hemos aprendido con esta kata
+
+* Con esta kata hemos introducido las leyes de TDD
+* También hemos introducir el ciclo red->green->refactor
+* Hemos aprendido a introducir tests mínimos para hacer avanzar el código de producción

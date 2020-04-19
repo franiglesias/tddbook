@@ -551,13 +551,13 @@ describe('Calculate prime factors', function () {
 
 Hemos añadido dos tests que pasan. Por lo que parece, hemos resuelto el problema. Pero, ¿no te queda la sensación de haber saltado demasiado en este último paso?
 
-## El camino más corto no siempre es el más rápido
+## El camino más corto no siempre es el más rápido
 
 El camino de desarrollo en TDD no siempre es fácil. El siguiente test a veces es bastante evidente y otras veces tenemos varias alternativas. Escoger mal el camino nos puede llevar a un callejón sin salida o, como en este caso, a un punto en que tengamos que implementar mucho de golpe. Y como hemos visto, los cambios que añadamos al código de producción deberían ser lo más pequeños posibles.
 
 En el sexto test preferimos explorar la vía de las repeticiones del mismo factor en lugar de forzar que aparecieran otros factores primos. ¿Hubiera sido mejor seguir esta ramificación del problema? Probémoslo, rebobinamos y volvemos a la situación antes del sexto test.
 
-## El sexto test (segunda parte): introduciendo nuevos factores
+## El sexto test (segunda parte): introduciendo nuevos factores
 
 Esta es la versión del código de producción en la que estábamos al llegar al sexto test:
 
