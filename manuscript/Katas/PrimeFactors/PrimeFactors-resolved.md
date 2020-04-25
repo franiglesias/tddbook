@@ -772,3 +772,4 @@ Cada una de estas categorías nos fuerza a implementar distintas partes del algo
 
 Sin embargo, nada nos impide volver atrás si nos quedamos estancados. Cuando tengamos una duda razonable de si tomar un curso u otro en TDD, lo mejor es tomar nota de cuál es el estado del desarrollo y ese punto, marcándolo como un punto de retorno en caso de que nos metamos en algún cenagal de código. Marcha atrás y pensar de nuevo. Haberse equivocado es también información.
 
+## Qué hemos aprendido con esta kata

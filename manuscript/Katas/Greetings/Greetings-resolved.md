@@ -23,7 +23,9 @@ Esta kata la vamos a resolver en Scala con el framework FunSite. Lo escribiremos
 
 ## Primer test: saludo básico
 
-La forma en que se presenta esta kata nos proporciona prácticamente los casos de test que necesitamos. A estas alturas creo que podemos dar un salto relativamente grande. Este es nuestro primer test en el que suponemos que la función será un método de la clase Greetings en el package greetings.
+La forma en que se presenta esta kata nos proporciona prácticamente los casos de test que necesitamos. A estas alturas creo que podemos dar un salto relativamente grande. Este es nuestro primer test en el que suponemos que la función será un método de la clase `Greetings` en el package `greetings`.
+
+En cualquier caso, al usar lenguajes que son muy estrictos en el tipado muchas veces no podemos empezar por tests más pequeños. Pero, por otra parte, el tipado estricto nos permite ignorar con seguridad esos mismos tests.
 
 ```scala
 import greetings.Greetings
@@ -48,7 +50,7 @@ object Greetings {
 }
 ```
 
-Scala no nos permite definir la función sin argumentos y usarla pasándole alguno, por lo que nos vemos obligadas a incorporarlo en la signatura. Por lo demás, devolvemos el `string` esperado por el test para que se ponga en verde.
+**Scala** no nos permite definir la función sin argumentos y usarla pasándole alguno, por lo que nos vemos obligadas a incorporarlo en la signatura. Por lo demás, devolvemos el `string` esperado por el test para que se ponga en verde.
 
 ## Segundo test: saludo genérico
 
@@ -69,13 +71,13 @@ class GreetingTest extends FunSuite {
 }
 ```
 
-Lo primero que observamos es que el test fallará porque greet espera un parámetro que no le pasamos. Esto nos está indicando que el parámetro debería ser opcional.
+Lo primero que observamos es que el test fallará debido a que `greet` espera un parámetro que no le pasamos. Esto nos está indicando que debería ser opcional.
 
 Nuestra primera intención sería corregir eso y permitir que se pueda pasar un parámetro opcional. Pero hay que tener en cuenta que si lo hacemos, el test seguirá fallando.
 
 Por tanto, lo que vamos a hacer es descartar de momento este último test y refactorizar el código que tenemos mientras mantenemos el primer test pasando.
 
-## Primer refactor: usar el parámtro
+## Primer refactor: usar el parámetro
 
 Desactivamos el test:
 
@@ -93,7 +95,7 @@ class GreetingTest extends FunSuite {
 }
 ```
 
-Y hacemos el refactor. En Scala es posible poner valores por defecto eliminando la necesidad de pasar un parámetro.
+Y hacemos el refactor. En **Scala** es posible poner valores por defecto eliminando la necesidad de pasar un parámetro.
 
 ```scala
 package greetings
@@ -117,9 +119,9 @@ object Greetings {
 }
 ```
 
-## Segundo test: saludo genérico
+## Segundo test: un saludo genérico
 
-Volvemos a activar el segundo test para poder implementar el requisito 2 que consiste en permitir un saludo genérico si no se pasan valores:
+Volvemos a activar el segundo test para poder implementar el requisito número dos que consiste en permitir un saludo genérico si no se pasan valores:
 
 ```scala
 import greetings.Greetings
@@ -188,7 +190,7 @@ object Greetings {
 }
 ```
 
-Llegadas a este punto vamos a ver qué oportunidades tenemos de hacer  refactor. Esto nos lleva a esta solución tan sencilla:
+Llegadas a este punto vamos a ver qué oportunidades tenemos de hacer refactor. Esto nos lleva a esta solución tan sencilla:
 
 ```scala
 package greetings
@@ -274,7 +276,7 @@ object Greetings {
 }
 ```
 
-Esta es una reimplementación ingenua, suficiente para permitirnos pasar el test, pero que podríamos desarrollar a un estilo más propio del lenguaje. Una de las mejores cosas que nos proporciona TDD es justamente esta facilidad para permitirnos bosquejar implementaciones funcionales, aunque sean toscas, pero que nos ayudan a reflexionar sobre el problema y experimentar otras soluciones alternativas.
+Esta es una reimplementación ingenua, suficiente para permitirnos pasar el test, pero que podríamos desarrollar a un estilo más propio del lenguaje. Una de las mejores cosas que nos proporciona TDD es justamente esta facilidad para que podamos bosquejar implementaciones funcionales, aunque sean toscas, pero que nos ayudan a reflexionar sobre el problema y experimentar soluciones alternativas.
 
 Para mejorarla un poco vamos primero a extraer la condición del `if` a una función anidada, con lo que no sólo es más expresiva sino también más fácil de reutilizar llegado el caso:
 
@@ -299,11 +301,11 @@ La cuestión ahora, ¿nos conviene retomar el cuarto test o deberíamos seguir c
 
 ## Tercer refactor
 
-El último refactor nos ha permitido dar soporte a una lista de nombres, pero necesitaríamos cambiar el enfoque para dar soporte a recibir una colección de nombres a los que saludar, pero no le damos soporte realmente
+El último refactor nos ha permitido dar soporte a una lista de nombres, pero necesitaríamos cambiar el enfoque para poder manejar listas de nombres gritando.
 
-Hasta ahora distinguimos si es hay que *gritar* cuando cuando montamos el saludo. Sin embargo, es posible que nos interese separar primero los nombres en función si son gritados o no.
+Hasta ahora distinguimos si hay que *gritar* cuando cuando montamos el saludo. Sin embargo, es posible que nos interese separar primero los nombres en función si han de ser gritados o no.
 
-Así que lo que hacemos es repartir la lista de nombres en dos, según si son gritados o no, y adaptamos el resto del código a eso. En Scala podemos interpolar expresiones muy fácilmente:
+Así que lo que hacemos es repartir la lista de nombres en dos, según si son gritados o no, y adaptamos el resto del código a eso.
 
 ```scala
 package greetings
@@ -326,11 +328,11 @@ object Greetings {
 }
 ```
 
-Con esto deberíamos estar mejor preparadas para afrontar el cuarto test, así que lo activamos.
+Con esto deberíamos estar mejor preparadas para afrontar el cuarto test, así que lo reactivamos.
 
 ## Reintroduciendo el cuarto test
 
-Al volver a activar el cuarto test ocurre lo que podíamos predecir: se hará el saludo a una sola persona, que será la precisamente la última de las dos.
+Al volver a activar el cuarto test ocurre lo que podíamos predecir: se hará el saludo a una sola persona, que será precisamente la última de las dos.
 
 ```scala
 import greetings.Greetings
@@ -362,7 +364,7 @@ Expected :"Hello, J[ill and J]ane."
 Actual   :"Hello, J[]ane."
 ```
 
-Es decir, el test falla por lo que debería fallar indicándonos que tenemos que introducir un cambio que se ocupe de procesar la lista de nombres y concatenarla. Gracias a los refactors anteriores es fácil de introducir:
+Es decir, el test falla por la razón correcta, indicándonos que tenemos que introducir un cambio que se ocupe de procesar la lista de nombres y concatenarla. Gracias a los refactors anteriores es fácil de introducir:
 
 ```scala
 package greetings
@@ -478,7 +480,7 @@ object Greetings {
 }
 ```
 
-Sin embargo, este cambio hace pasar el último test, pero hace que fallen el anterior y el primero. El problema es que en el caso del saludo normal y el del saludo a dos personas no pueden seguir el mismo patrón. Estamos destapando un agujero para tapar otro.
+Sin embargo, este cambio hace pasar el último test, a la ver que provocan que fallen el anterior y el primero. El problema es que en el caso del saludo normal y el del saludo a dos personas no pueden seguir el mismo patrón. Estamos destapando un agujero para tapar otro.
 
 Puesto que estamos haciendo fallar tests que ya estaban pasando lo mejor es que volvamos al punto del código en que los cuatro tests anteriores se cumplían.
 
@@ -508,7 +510,7 @@ Lo que nos indica este recorrido de ida y vuelta es que hay dos tipos de casos q
 * Listas de 2 o menos nombres.
 * Listas de más de 2 nombres.
 
-Lo más sencillo es reconocer eso y abrazarlo en el código:
+Lo más sencillo es reconocer eso y abrazarlo en el propio código:
 
 ```scala
 package greetings
@@ -534,7 +536,7 @@ object Greetings {
 }
 ```
 
-De nuevo, una implementación tosca e ingenua nos permite hacer pasar todos los tests, acudiendo a un mecanismo tan simple como es el de posponer la generalización. Es ahora, al haber logrado el comportamiento deseado cuando podemos intentar a analizar el problema y buscar un algoritmo más general.
+De nuevo, una implementación tosca e ingenua nos permite hacer pasar todos los tests, acudiendo a un mecanismo tan simple como es el de **posponer la generalización**. Es ahora, al haber logrado el comportamiento deseado cuando podemos intentar a analizar el problema y buscar un algoritmo más general.
 
 Como queremos centrarnos en la parte del algoritmo que concatena los nombres dentro del saludo vamos a hacer primero el siguiente refactor, extrayendo a una función inline el bloque de código que nos interesa:
 
@@ -660,7 +662,7 @@ object Greetings {
 }
 ```
 
-En Scala esto se puede expresar de manera más sucinta usando `match... case`:
+En **Scala** esto se puede expresar de manera más sucinta usando `match... case`:
 
 ```scala
 package greetings
@@ -830,7 +832,7 @@ class GreetingTest extends FunSuite {
 
 Ejecutamos el test para comprobar que no pasa y nos planteamos cómo resolver este nuevo caso.
 
-En principio, podríamos recorrer la lista de personas y hacer un split de cada una de ellas por la coma. Como esto generará una colección de colecciones, la aplanamos. En Scala hay métodos para todo eso:
+En principio, podríamos recorrer la lista de personas y hacer un `split` de cada una de ellas por la coma. Como esto generará una colección de colecciones, la aplanamos. En **Scala** hay métodos para todo eso:
 
 ```scala
 package greetings
@@ -1005,3 +1007,9 @@ object Greetings {
 ```
 
 Una de las cosas que llama la atención en esta kata es que el enfoque funcional hace que cambios de comportamiento relativamente grandes se puedan conseguir mediante cambios comparativamente pequeños en el código de producción.
+
+## Qué hemos aprendido con esta kata
+
+* En esta kata hemos aprendido a **posponer la generalización** hasta tener más información sobre el algoritmo que estamos desarrollando
+* Hemos aplicado las técnicas aprendidas en katas anteriores
+* Hemos comprobado que un sistema de tipos estrictos nos permite ahorrarnos algunos tests
