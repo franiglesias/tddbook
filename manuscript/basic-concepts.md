@@ -16,7 +16,7 @@ Un test que falla es una especificación que no se cumple todavía porque no se 
 
 ### Test que pasa
 
-Un test que pasa es una especificación que ejecuta un código de producción que genera el efecto o respuesta esperado.
+Un test que pasa es una especificación que ejecuta un código de producción que genera el efecto o respuesta esperado. Los frameworks de testing los suelen representar en color verde.
 
 ## Código de producción
 
@@ -28,4 +28,14 @@ Unidad es software es un concepto bastante flexible y que hay que interpretar en
 
 ## Subject under test
 
-La unidad de software que es ejercitada en un test.
+La unidad de software que es ejercitada en un test. Existe una discusión sobre cuál es el alcance de una unidad. En un extremo se encuentran quienes consideran que una unidad es una función, un método o incluso una clase. Sin embargo, también podemos considerar como unidad bajo test un conjunto de funciones o clases que son testeadas a través de la interfaz pública de una de ellas.
+
+## Refactor
+
+Refactor es un cambio en el código que no altera su comportamiento ni su interfaz. La mejor manera de asegurar esto es que exista al menos un test que ejercita el fragmento de código que se está modificando, de modo que tras cada cambio nos aseguremos de que el test sigue pasando.
+
+Algunas técnicas o patrones de refactor están descritos en recopilaciones como esta de [Refactoring Guru](https://refactoring.guru/refactoring/catalog) o el libro de [Martin Fowler](https://martinfowler.com/books/refactoring.html)
+
+### Refactor automático
+
+Precisamente porque algunos refactors están muy bien identificados y caracterizados ha sido posible desarrollar herramientas capaces de ejecutarlos automáticamente. Estas herramientas están disponibles en los IDE.

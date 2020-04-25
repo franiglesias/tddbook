@@ -41,12 +41,6 @@ Por otro lado, cada una de las katas se desarrolla en un lenguaje diferente.
      *  [Resolviendo la kata Bank]
 * [Epílogo: Calidad de vida y TDD](manuscript/life-quality.md)
 
-## Repositorios con los ejemplos del libro
-
-* [Ruby](https://github.com/franiglesias/tddbook-ruby)
-* [JS](https://github.com/franiglesias/tddbook-js)
-* [Scala](https://github.com/franiglesias/tddbook-scala)
-
 ## Repositorios de katas
 
 * [Katalyst](https://katalyst.codurance.com)
@@ -54,3 +48,11 @@ Por otro lado, cada una de las katas se desarrolla en un lenguaje diferente.
 * [Coding dojo](http://codingdojo.org)
 * [Codekata](http://codekata.com)
 * [Agile kata](http://agilekatas.co.uk)
+
+## Repositorios con los ejemplos del libro
+
+* [Ruby](https://github.com/franiglesias/tddbook-ruby)
+* [JS](https://github.com/franiglesias/tddbook-js)
+* [Scala](https://github.com/franiglesias/tddbook-scala)
+* [Go](https://github.com/franiglesias/tddbook-go)
+
