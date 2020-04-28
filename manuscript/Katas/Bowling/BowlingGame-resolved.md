@@ -718,7 +718,7 @@ end
 
 Añadiendo un bloque `if` es suficiente para volver a pasar el test.
 
-## Sexto refactor
+## Sexto refactor
 
 En este punto en que ya tenemos los tests pasando podemos hacer varias mejoras en el código. Vamos por partes:
 

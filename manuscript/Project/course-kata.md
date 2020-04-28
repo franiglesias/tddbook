@@ -59,8 +59,10 @@ El objetivo de la kata es escribir un programa capaz de generar este informe tra
 
 En esta ocasión vamos a resolver las kata usando tres enfoques distintos:
 
-* **TDD clásico**. Desarrollamos una clase Use Case a partir del cual iremos extrayendo colaboradores especializados mediante refactoring.
-* **TDD outside-in mockista**. Desarrollamos el mismo Use Case decidiendo en cada punto qué colaboradores necesitamos, introduciendo Dobles
+* **TDD clásico**. Desarrollamos una clase Use Case a partir del cual iremos extrayendo colaboradores especializados mediante *refactoring*.
+* **TDD outside-in mockista**. Desarrollamos el mismo Use Case decidiendo en cada punto qué colaboradores necesitamos e introduciéndolos primero mediante dobles.
 * **TDD outside-in iterativa**. Es un planteamiento similar al anterior, pero en lugar de usar Mocks utilizaremos implementaciones reales de los colaboradores necesarios que se irán desarrollando de forma iterativa. En cierto modo, es un planteamiento mixto.
+
+
 
 

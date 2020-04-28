@@ -36,6 +36,6 @@ Refactor es un cambio en el código que no altera su comportamiento ni su interf
 
 Algunas técnicas o patrones de refactor están descritos en recopilaciones como esta de [Refactoring Guru](https://refactoring.guru/refactoring/catalog) o el libro de [Martin Fowler](https://martinfowler.com/books/refactoring.html)
 
-### Refactor automático
+### Refactor automático
 
 Precisamente porque algunos refactors están muy bien identificados y caracterizados ha sido posible desarrollar herramientas capaces de ejecutarlos automáticamente. Estas herramientas están disponibles en los IDE.

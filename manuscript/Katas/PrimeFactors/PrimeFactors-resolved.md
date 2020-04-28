@@ -4,7 +4,7 @@
 
 Nuestro objetivo será escribir un programa que descomponga un número natural en sus factores primeros. Por simplicidad, no agruparemos los factores en forma de potencias. Eso lo dejaremos para un ejemplo posterior.
 
-## Lenguaje y enfoque
+## Lenguaje y enfoque
 
 Esta kata la vamos a hacer en Javascript, con el framework de testing Jest. Crearemos una función `primeFactors`, a la que le pasamos el número que queremos descomponer y nos devolverá un array con los factores primos, ordenadores de menor a mayor.
 

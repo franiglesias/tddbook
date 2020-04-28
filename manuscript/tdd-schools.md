@@ -71,7 +71,7 @@ Inconvenientes
 
 * El coste del refactor es más alto porque se centran en interacciones y los tests tienden a ser más frágiles por acoplamiento a la implementación.
 
-## Behavior Driven Development
+## Behavior Driven Development
 
 Se podría decir que si empezamos desde aún más afuera con el Outside-in development nos encontramos con [Behavior Driven Development](https://franiglesias.github.io/bdd-business-devel/).
 

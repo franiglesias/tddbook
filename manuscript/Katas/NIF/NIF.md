@@ -10,7 +10,7 @@ Una de las dificultades para desarrollar este tipo de objetos en TDD es que a ve
 
 El algoritmo para validarlo es relativamente sencillo, como veremos, pero el interés está sobre todo en cómo librarnos de todas las cadenas de caracteres que no pueden formar un NIF válido.
 
-## Historia
+## Historia
 
 Esta kata es original y surgió por casualidad al preparar un pequeño taller de introducción a TDD y *live coding* acerca de los beneficios de utilizar la metodología en el trabajo cotidiano.
 
