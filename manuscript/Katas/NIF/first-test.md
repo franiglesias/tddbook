@@ -144,8 +144,53 @@ No siempre es fácil identificar tests redundantes. En algunas etapas de TDD usa
 
 Por otro lado, otra posibilidad es refactorizar los tests con data providers o técnicas similares con las que abaratar la creación de nuevos ejemplos.
 
-## Happy path
+## La felicidad de los *paths*
 
-## Sad paths
+### *Happy path testing*
+
+Denominamos *happy path* al flujo de un programa cuando no se producen problemas y puede ejecutar el algoritmo completo. El *happy path* ocurre cuando los datos de entrada son válidos y no se generan errores en el proceso porque todos los datos manejados están en sus rangos de valores aceptables y no se producen otros fallos que puedan afectar a la unidad de software que estamos desarrollando.
+
+El *happy path testing* en TDD consiste en escoger ejemplos que deberían dar como resultado valores predecibles, sobre los que podemos testear. Por ejemplo, en la kata Roman Numerals, un ejemplo de test de *happy path* sería:
+
+```php
+public function testShouldConvertFour(): void
+{
+    $converter = new RomanNumeralsConverter();
+    
+    $this->assertEquals("IV", $converter->toRoman(4));
+}
+```
+
+Con mucha frecuencia en las katas trabajamos con tests de *happy path*. Esto es así porque nos interesa centrarnos en el desarrollo del algoritmo y que el ejercicio no dure demasiado tiempo.
+
+### *Sad path testing*
+
+Por el contrario, los *sad paths* son aquellos flujos del programa que terminan mal. Cuando decimos que terminan mal queremos decir que se produce un error y no se puede terminar de ejecutar el algoritmo.
+
+Sin embargo, los errores y la forma en la que el código de producción se enfrenta a ellos, forman parte del comportamiento del software y en el trabajo real merecen ser considerados al utilizar la metodología TDD.
+
+En ese sentido, el *sad path testing* sería justamente la elección de casos de tests que describen situaciones en las que el código de producción tiene que manejar datos de entrada incorrectos o respuestas de sus colaboradores que debemos tratar también. Un ejemplo de esto sería algo así:
+
+```php
+public function testShouldFailWithInvalidInput(): void
+{
+    $converter = new RomanNumeralsConverter();
+    
+    $this->expectException(InvalidInput::class);
+    $converter->toRoman(-12.34);
+}
+```
+
+Esto es: nuestro conversor de números romanos no puede manejar números negativos ni números con decimales y, por tanto, en un programa real tendríamos que gestionar esta situación. En el ejemplo, la consecuencia es lanzar una excepción. Pero podría ser cualquier otra forma de reacción que nos convenga para los propósitos de la aplicación. Otra manera de manejar el mismo problema:
+
+```php
+public function testShouldFailWithInvalidInput(): void
+{
+    $converter = new RomanNumeralsConverter();
+    
+    $this->assertEquals('Non possum hic numerus converto', $converter->toRoman(-12.34));
+}
+```
+
 
 
