@@ -24,31 +24,178 @@ En TDD los tests se escriben en una forma que podríamos considerar como un diá
 
 Una vez que tenemos claro la pieza de software en la que vamos a trabajar y la funcionalidad que queremos implementar, lo primero es definir un primer test muy pequeño que fallará sin remedio porque ni siquiera existe un archivo que contenga el código de producción necesario para que se pueda ejecutar. Aunque es algo que trataremos en todas las katas, en la kata NIF profundizaremos en algunas estrategias para decidir los primeros tests.
 
-```
+```go
+// roman/roman_test.go
+package roman
 
+import "testing"
+
+func TestRomanNumeralsConversion(t *testing.T) {
+	roman := decToRoman(1)
+
+	if roman != "I" {
+		t.Errorf("Decimal %d should convert to %s, but found %s", 1, "I", roman)
+	}
+
+}
 ```
 
 Aunque podemos predecir que el test ni siquiera podrá compilarse o interpretarse, lo intentaremos ejecutar igualmente. En TDD es fundamental ver que los tests efectivamente fallan.
 
 ```
+# tddbook-go/roman [tddbook-go/roman.test]
+./roman_test.go:6:11: undefined: decToRoman
 
+Compilation finished with exit code 2
 ```
 
-El mensaje de error nos indicará qué es lo que tenemos que hacer a continuación. Nuestro objetivo a corto plazo es hacer desaparecer ese mensaje de error y los que vengan después uno por uno. 
+El mensaje de error nos indicará qué es lo que tenemos que hacer a continuación. Nuestro objetivo a corto plazo es hacer desaparecer ese mensaje de error y los que puedan venir después uno por uno. 
 
+```go
+package roman
+
+import "testing"
+
+func TestRomanNumeralsConversion(t *testing.T) {
+	roman := decToRoman(1)
+
+	if roman != "I" {
+		t.Errorf("Decimal %d should convert to %s, but found %s", 1, "I", roman)
+	}
+
+}
+
+func decToRoman(decimal int) string {
+	
+}
 ```
 
+Por ejemplo:
+
+```
+# tddbook-go/roman [tddbook-go/roman.test]
+./roman_test.go:16:1: missing return at end of function
+
+Compilation finished with exit code 2
 ```
 
 Podría ocurrir incluso que sea un mensaje inesperado, como que hemos querido cargar la clase `Book` y hemos creado un archivo `brok` por error. Por eso es tan importante lanzar el test y ver si falla y cómo falla exactamente.
 
+```go
+package roman
+
+import "testing"
+
+func TestRomanNumeralsConversion(t *testing.T) {
+	roman := decToRoman(1)
+
+	if roman != "I" {
+		t.Errorf("Decimal %d should convert to %s, but found %s", 1, "I", roman)
+	}
+
+}
+
+func decToroman(decimal int) string {
+	
+}
 ```
 
+Este código da lugar al siguiente mensaje:
+
 ```
+# tddbook-go/roman [tddbook-go/roman.test]
+./roman_test.go:6:11: undefined: decToRoman
+./roman_test.go:16:1: missing return at end of function
+
+Compilation finished with exit code 2
+```
+
+Este error nos indica que hemos escrito incorrectamente el nombre de la función, así que primero lo corregimos:
+
+```go
+package roman
+
+import "testing"
+
+func TestRomanNumeralsConversion(t *testing.T) {
+	roman := decToRoman(1)
+
+	if roman != "I" {
+		t.Errorf("Decimal %d should convert to %s, but found %s", 1, "I", roman)
+	}
+
+}
+
+func decToRoman(decimal int) string {
+	
+}
+```
+
+Y podemos continuar. Como el test dice que espera que al pasar 1 a la función nos devuelva "I" el test fallido debería indicarnos que no coincide el resultado recibido con el esperado. Pero, de momento, el test nos está diciendo que la función no devuelve nada. Todavía es un fallo de compilación.
+
+```
+# tddbook-go/roman [tddbook-go/roman.test]
+./roman_test.go:16:1: missing return at end of function
+
+Compilation finished with exit code 2
+```
+
+Para conseguir que el test falle por la razón que esperamos, tenemos que hacer que la función devuelva un string, aunque sea vacío:
+
+```go
+package roman
+
+import "testing"
+
+func TestRomanNumeralsConversion(t *testing.T) {
+	roman := decToRoman(1)
+
+	if roman != "I" {
+		t.Errorf("Decimal %d should convert to %s, but found %s", 1, "I", roman)
+	}
+
+}
+
+func decToRoman(decimal int) string {
+	return ""
+}
+```
+
+Y este cambio hace que el error sea el que viene definido por el propio test:
+
+```
+=== RUN   TestRomanNumeralsConversion
+--- FAIL: TestRomanNumeralsConversion (0.00s)
+    roman_test.go:9: Decimal 1 should convert to I, but found 
+FAIL
+
+Process finished with exit code 1
+```
+
+Con lo cual estamos listas para dar el siguiente paso:
 
 ### Escribir el código de producción necesario para hacer pasar el test
 
-Como respuesta, se escribe el código de producción necesario para que el test pase, pero nada más.
+Como respuesta, se escribe el código de producción necesario para que el test pase, pero nada más. Siguiendo con nuestro ejemplo:
+
+```go
+package roman
+
+import "testing"
+
+func TestRomanNumeralsConversion(t *testing.T) {
+	roman := decToRoman(1)
+
+	if roman != "I" {
+		t.Errorf("Decimal %d should convert to %s, but found %s", 1, "I", roman)
+	}
+
+}
+
+func decToRoman(decimal int) string {
+	return "I"
+}
+```
 
 Tras el primer test podemos empezar creando el archivo que contendrá la unidad bajo test. Podríamos incluso volver a lanzar el test ahora, lo cual seguramente provocará que el compilador o intérprete nos devuelva un mensaje de error distinto. Aquí ya dependemos un poco de circunstancias, como las convenciones del lenguaje en que estamos desarrollando, el IDE con el que trabajamos, etc.
 
@@ -64,15 +211,64 @@ Con la kata Prime Factors estudiaremos el modo en que puede cambiar el código d
 
 Cuando se ha logrado hacer pasar cada test debemos examinar el trabajo realizado hasta el momento y comprobar si es posible refactorizar tanto el código de producción como el de test. Aquí aplicamos los principios habituales: si detectamos cualquier *smell*, dificultad para entender lo que ocurre, duplicación de conocimiento, etc. debemos refactorizar el código para ponerlo en mejor estado antes de continuar.
 
+En el fondo, las preguntas en este momento son:
+
+* ¿Hay alguna manera mejor de organizar el código que he escrito? 
+* ¿Hay alguna manera mejor de expresar lo que que este código hace y que sea más fácil de entender?
+* ¿Puedo encontrar alguna regularidad y hacer que el algoritmo sea más general?
+
 Para ello debemos mantener todos los tests que puede haber pasando. Si alguno alguno de los tests se pone en rojo tendríamos una regresión y habríamos, por así decir, estropeado la funcionalidad.
 
 Tras el primer ciclo es normal no encontrar oportunidades de refactor, pero no te fíes: siempre hay otra manera de ver y hacer las cosas. Por regla general, cuanto antes detectes oportunidades de reorganizar y limpiar el código y lo hagas, más fácil será el desarrollo.
+
+Por ejemplo, nosotros hemos creado la función bajo test en el propio archivo del test.
+
+```go
+package roman
+
+import "testing"
+
+func TestRomanNumeralsConversion(t *testing.T) {
+	roman := decToRoman(1)
+
+	if roman != "I" {
+		t.Errorf("Decimal %d should convert to %s, but found %s", 1, "I", roman)
+	}
+
+}
+
+func decToRoman(decimal int) string {
+	return "I"
+}
+```
+
+Resulta que hay una forma mejor de organizar ese código y es crear un archivo que la contenga. 
+
+```go
+//roman/roman.go
+
+package roman
+
+func decToRoman(decimal int) string {
+	return "I"
+}
+```
+
+Y, en el caso de Go, podemos convertirla en una función *exportable* si su nombre comienza con mayúsculas.
+
+```go
+package roman
+
+func DecToRoman(decimal int) string {
+	return "I"
+}
+```
 
 Para profundizar en todo lo que tiene que ver con el refactor al trabajar con la kata Bowling Game.
 
 ### Repetir el ciclo varias veces hasta terminar
 
-Una vez que el código de producción hace pasar el test y está lo mejor organizado posible, es el turno de escoger un nuevo aspecto de la funcionalidad y crear un nuevo test que falle para describirlo.
+Una vez que el código de producción hace pasar el test y está lo mejor organizado posible en esa fase, es el turno de escoger un nuevo aspecto de la funcionalidad y crear un nuevo test que falle para describirlo.
 
 Este nuevo test falla porque el código existente no realiza la nueva funcionalidad deseada y es necesario introducir un cambio. Por tanto, nuestra misión ahora es poner este nuevo test en verde haciendo las transformaciones necesarias en el código que serán pequeñas si hemos sabido dimensionar correctamente nuestros tests anteriores.
 
@@ -88,13 +284,23 @@ La respuesta obvia podría ser: cuando toda la funcionalidad está implementada.
 
 Pero, ¿cómo sabemos esto?
 
-Kent Beck proponía hacer una lista con todos los aspectos que habría que conseguir para considerar completa la funcionalidad. Cada vez que se consigue alguno se tacha de la lista. Es una buena recomendación.
+Kent Beck proponía hacer una lista con todos los aspectos que habría que conseguir para considerar completa la funcionalidad. Cada vez que se consigue alguno se tacha de la lista. A veces, al progresar en el desarrollo nos damos cuenta de la necesidad de añadir elementos en la lista. Es una buena recomendación.
 
-Existe una forma más formal de asegurarnos de que una funcionalidad está completa. Básicamente consiste en no ser capaz de crear un nuevo test que falle. En efecto, si un algoritmo está completamente implementado será imposible crear un test nuevo que pueda fallar.
+Existe una manera más formal de asegurarnos de que una funcionalidad está completa. Básicamente consiste en **no ser capaz** de crear un nuevo test que falle. En efecto, si un algoritmo está completamente implementado será imposible crear un test nuevo que pueda fallar.
 
 ## Qué no es Test Driven Development
 
 El resultado o outcome de Test Driven Development no es crear un software libre de defectos, aunque se previenen muchos de ellos; ni generar una suite de tests unitarios, aunque en la práctica se obtiene una con una gran cobertura que puede llegar al 100%, aunque como contrapartida puede presentar redundancia. Pero nada de esto es el objetivo de TDD, en todo caso es un efecto colateral.
+
+### TDD no reemplaza el diseño
+
+TDD es una herramienta para guiar el diseño de software, pero no lo reemplaza. 
+
+Cuando desarrollamos unidades pequeñas y con una funcionalidad muy bien definida, TDD nos ayuda a establecer el diseño del algoritmo gracias a la red de seguridad proporcionada por los tests existentes.
+
+Pero cuando la unidad considerada es mayor, un análisis previo que nos lleve a un "boceto" de los elementos principales de la solución nos permite tener un marco de desarrollo.
+
+### En qué nos ayuda TDD
 
 Los que TDD nos proporciona es una herramienta que:
 
@@ -112,7 +318,7 @@ Varios estudios han mostrado evidencias que apuntan a favor de que la aplicació
 
 Es bastante difícil cuantificar el beneficio de usar TDD en cuanto a productividad o velocidad, sin embargo subjetivamente se pueden experimentar varios beneficios.
 
-Uno de ellos es que la metodología TDD puede bajar la cargar cognitiva del desarrollo. Esto es así porque favorece dividir el problema en tareas pequeñas con un foco muy definido, lo que nos permite ahorrar la limitada capacidad de nuestra memoria de trabajo.
+Uno de ellos es que la metodología TDD puede bajar la cargar cognitiva del desarrollo. Esto es así porque favorece dividir el problema en tareas pequeñas con un foco muy definido, lo que nos permite ahorrar la limitada capacidad de nuestra memoria de trabajo. 
 
 ## Referencias
 
