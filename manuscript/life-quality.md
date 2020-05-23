@@ -1,6 +1,6 @@
 # Epílogo: TDD y calidad de vida (la tuya)
 
-Ya sea como empleados o freelance vendemos nuestro tiempo y trabajo a empresas y clientes. Una cosa que distingue nuestra profesión de ortas es el hecho de que vendemos trabajo intelectual. Incluso, a veces, trabajo intelectual de alto nivel.
+Ya sea como empleados o freelance vendemos nuestro tiempo y trabajo a empresas y clientes. Una cosa que distingue nuestra profesión de otras es el hecho de que vendemos trabajo intelectual. Incluso, a veces, trabajo intelectual de alto nivel.
 
 Así que cuidar de nuestra mente e inteligencia parece ser una actividad razonable que deberíamos practicar con frecuencia.
 

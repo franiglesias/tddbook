@@ -17,7 +17,7 @@ Este enunciado parece dar por sentado que el refactor es, por así decir, el fin
 
 ## La función del refactor en TDD
 
-Por lo general, en *Test Driven Development* se favorece que tanto los tests como los cambios en el código de producción sean lo más pequeños posibles. Este enfoque minimalista es beneficioso porque nos permite trabajar con poca carga cognitiva en cada ciclo, mientras aprendemos y alcanzamos mayor y más profunda comprensión del problema, aplazando decisiones de modo que estemos mejor informadas cuando nos toca afrontarlas.
+Por lo general, en *Test Driven Development* se favorece que tanto los tests como los cambios en el código de producción sean lo más pequeños posibles. Este enfoque minimalista es beneficioso porque nos permite trabajar con poca carga cognitiva en cada ciclo, mientras aprendemos y alcanzamos una mayor y más profunda comprensión del problema, aplazando decisiones de modo que estemos mejor informadas cuando nos toca afrontarlas.
 
 Normalmente, los pequeños pasos en TDD nos permiten hacer cambios de código muy sencillos cada vez. Muchas veces estos cambios son obvios y nos llevan a implementaciones que podríamos considerar ingenuas. Sin embargo, por muy sencillas o bastas que nos parezcan, estas implementaciones hacen pasar los tests y, por tanto, cumplen las especificaciones. Podríamos entregar ese código si es el caso.
 
@@ -82,7 +82,7 @@ end
 
 Las tres variantes hacen pasar los tests, pero cada una de ellas nos coloca en una posición ligeramente distinta de cara a los futuros requerimientos.
 
-Por ejemplo, supongamos que nuestro próximo requerimiento nos pide poder introducir varios nombres. Una posible solución para eso es usar *splat parámeters*, es decir, que la función admita un número indefinido de parámetros que luego se presentarán dentro del método como un `array`. En Ruby esto se expresa así:
+Por ejemplo, supongamos que nuestro próximo requerimiento nos pide poder introducir varios nombres. Una posible solución para eso es usar *splat parameters*, es decir, que la función admita un número indefinido de parámetros que luego se presentarán dentro del método como un `array`. En Ruby esto se expresa así:
 
 ```ruby
 def greet(*name)
@@ -263,5 +263,5 @@ def greet(name = nil)
 end
 ```
 
-En cierto modo, resulta que la *información del futuro*, o sea, el nuevo test que planteamos para introducir la siguiente funcionalidad, *afecta al pasado*, es decir al estado adecuado del código para poder conitnuar, y nos obliga a considerar la profundidad del refactor necesario antes de afrontar el nuevo ciclo. En esta situación, lo mejor es volver al último test que pasaba, anulando el nuevo, y trabajar en el refactor hasta estar mejor preparadas para continuar avanzando.
+En cierto modo, resulta que la *información del futuro*, o sea, el nuevo test que planteamos para introducir la siguiente funcionalidad, *afecta al pasado*, es decir al estado adecuado del código para poder continuar, y nos obliga a considerar la profundidad del refactor necesario antes de afrontar el nuevo ciclo. En esta situación, lo mejor es volver al último test que pasaba, anulando el nuevo, y trabajar en el refactor hasta estar mejor preparadas para continuar avanzando.
 

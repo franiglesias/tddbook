@@ -2,11 +2,11 @@
 
 Test Driven Development es una metodología de desarrollo de software en la que se escriben tests para guiar la escritura del código de producción.
 
-Los tests especifican de manera formal, ejecutable y mediante ejemplos, los comportamientos que debe realizar el software que estamos programando, definiendo pequeños objetivos que, al ir siendo superados, nos permiten construir el software de forma progresiva, segura y bien estructurada.
+Los tests especifican de manera formal, ejecutable y mediante ejemplos, los comportamientos que debe realizar el software que estamos programando, definiendo pequeños objetivos que, al ir siendo superados, nos permiten construir el software de forma progresiva, segura y estructurada.
 
-Aunque hablemos de tests, no estamos hablando de *Quality Assurance* (en adelante: QA), aunque al trabajar con metodología TDD conseguimos el efecto secundario de hacernos con una suite de tests unitarios que es válida y que tiene la máxima cobertura posible. De hecho, lo normal es que una parte de los tests creados en TDD sean innecesarios para una buena cobertura de test de regresión.
+Aunque hablemos de tests, no estamos hablando de *Quality Assurance* (en adelante: QA), aunque al trabajar con metodología TDD conseguimos el efecto secundario de hacernos con una suite de tests unitarios que es válida y que tiene la máxima cobertura posible. De hecho, lo normal es que una parte de los tests creados en TDD sean innecesarios para una buena cobertura de test de regresión, por lo que es habitual eliminarlos a medida que se convierten en redundantes.
 
-Es decir, tanto TDD como QA se basan en la utilización de los tests como herramientas, pero este uso se diferencia en varios aspectos. Específicamente, en TDD:
+Es decir, tanto **TDD** como **QA** se basan en la utilización de los **tests como herramientas**, pero este uso se diferencia en varios aspectos. Específicamente, en TDD:
 
 * El primer test se escribe antes de que el software siquiera exista.
 * Los tests son muy pequeños y su objetivo es forzar que sea necesario escribir código de producción.
@@ -18,11 +18,11 @@ En TDD los tests se definen como especificaciones ejecutables del comportamiento
 
 Aunque a lo largo del libro vamos a desarrollar este apartado en profundidad vamos a presentar brevemente lo esencial de la metodología.
 
-En TDD los tests se escriben en una forma que podríamos considerar como un diálogo con el código de producción. Este diálogo, las normas que lo regulan y los ciclos que esta forma de interactuar con el código genera los practicaremos con la primera kata del libro: FizzBuzz.
+En TDD los tests se escriben en una forma que podríamos considerar como de **diálogo** con el código de producción. Este diálogo, las normas que lo regulan y los ciclos que esta forma de interactuar con el código genera los practicaremos con la primera kata del libro: [FizzBuzz](Katas/FizzBuzz/FizzBuzz.md).
 
 ### Escribir un test que falle
 
-Una vez que tenemos claro la pieza de software en la que vamos a trabajar y la funcionalidad que queremos implementar, lo primero es definir un primer test muy pequeño que fallará sin remedio porque ni siquiera existe un archivo que contenga el código de producción necesario para que se pueda ejecutar. Aunque es algo que trataremos en todas las katas, en la kata NIF profundizaremos en algunas estrategias para decidir los primeros tests.
+Una vez que tenemos claro la pieza de software en la que vamos a trabajar y la funcionalidad que queremos implementar, lo primero es definir un primer test muy pequeño que fallará sin remedio porque ni siquiera existe un archivo que contenga el código de producción necesario para que se pueda ejecutar. Aunque es algo que trataremos en todas las katas, en la kata [NIF](Katas/NIF/NIF.md) profundizaremos en estrategias que nos servirán para decidir los primeros tests.
 
 ```go
 // roman/roman_test.go
@@ -40,7 +40,7 @@ func TestRomanNumeralsConversion(t *testing.T) {
 }
 ```
 
-Aunque podemos predecir que el test ni siquiera podrá compilarse o interpretarse, lo intentaremos ejecutar igualmente. En TDD es fundamental ver que los tests efectivamente fallan.
+Aunque podemos predecir que el test ni siquiera podrá compilarse o interpretarse, lo intentaremos ejecutar igualmente. En TDD es fundamental **ver que los tests fallan**, no basta con suponerlo.
 
 ```
 # tddbook-go/roman [tddbook-go/roman.test]
@@ -294,7 +294,7 @@ El resultado o outcome de Test Driven Development no es crear un software libre 
 
 ### TDD no reemplaza el diseño
 
-TDD es una herramienta para guiar el diseño de software, pero no lo reemplaza. 
+TDD es una herramienta para contribuir al diseño de software, pero no lo reemplaza.
 
 Cuando desarrollamos unidades pequeñas y con una funcionalidad muy bien definida, TDD nos ayuda a establecer el diseño del algoritmo gracias a la red de seguridad proporcionada por los tests existentes.
 
@@ -307,6 +307,7 @@ Los que TDD nos proporciona es una herramienta que:
 * Guía el desarrollo del software de una forma sistemática y progresiva.
 * Nos permite realizar afirmaciones contrastables sobre si la funcionalidad requerida ha sido implementada o no.
 * Nos ayuda a evitar la necesidad de diseñar todos los detalles de implementación anticipadamente, ya que es sí misma es una herramienta de ayuda al diseño de los componentes del software. 
+* Nos permite posponer decisiones a varios niveles.
 
 ## Beneficios
 
@@ -327,3 +328,6 @@ Uno de ellos es que la metodología TDD puede bajar la cargar cognitiva del desa
 * [Test driven development: empirical body of evidence](https://pdfs.semanticscholar.org/ad0f/dd36aa09d25b739b1649bfa5e20c9e46eb65.pdf)
 * [Does Test-Driven Development Really Improve Software Design Quality](https://digitalcommons.calpoly.edu/cgi/viewcontent.cgi?referer=&httpsredir=1&article=1027&context=csse_fac)
 * [6 Misconceptions about TDD – Part 1. TDD Brings Little Business Value and Isn’t Worth it](https://www.thedroidsonroids.com/blog/pros-of-tdd-test-driven-development-for-business)
+* [TDD is about design, not testing](https://medium.com/@philborlin/tdd-is-about-design-not-testing-e42af0b28475)
+* [Does TDD really lead to good design?](https://codurance.com/2015/05/12/does-tdd-lead-to-good-design/)
+* [Using TDD to influence design](https://www.thoughtworks.com/insights/blog/using-tdd-influence-design)

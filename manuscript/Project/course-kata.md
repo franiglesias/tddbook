@@ -4,7 +4,7 @@
 
 La kata Course ha sido diseñada a propósito para este libro. 
 
-El enfoque outside-in se puede aplicar a varias katas que presenten un problema más o menos complejo en el que varios objetos interactúan para resolver el problema. Una de las katas más conocidas es la [Bank](https://katalyst.codurance.com/bank) y era la prevista inicialmente para incluir en esta parte.
+El enfoque outside-in se puede aplicar a varias katas que presenten un problema más o menos complejo en el que varios objetos interactúan para resolver el problema. Una de las katas más conocidas sobre este enfoque es la [Bank](https://katalyst.codurance.com/bank) y era la prevista inicialmente para incluir en esta parte.
 
 Sin embargo, después de considerarlo, parecía más conveniente inventar un nuevo ejercicio, de modo que fuese más fácil integrarlo en los objetivos del libro.
 
@@ -56,6 +56,14 @@ Si alguno de los dos requisitos no se cumple, se considera NO APTA. He aquí un 
 El objetivo de la kata es escribir un programa capaz de generar este informe tras recopilar los datos con las entregas y sus calificaciones.
 
 ## Orientaciones para resolverla
+
+Sería ideal plantear este ejercicio con el desarrollo de un endpoint de un API y empezar con un test end to end que lo invoque y verifique las respuestas. Lo malo es que eso puede introducir bastante ruido en el ejercicio y si el controlador es lo bastante "fino" no debería introducir ningún aspecto interesante en su resolución. 
+
+Por esa razón vamos a usar como punto de entrada un Use Case.
+
+En Domain Driven Design solemos llamar Use Case a un componente de la capa de aplicación que representa las intenciones de un usuario del sistema y que opera con el dominio para devolver una respuesta o ejecutar un comando.
+
+Por lo general, los UseCase se modelan usando el patrón Command + Command Handler. La parte Command es un objeto inmutable que lleva los datos necesarios y el Command Handler es capaz de recibirlo y usar sus para ejecutar la operación. 
 
 En esta ocasión vamos a resolver las kata usando tres enfoques distintos:
 

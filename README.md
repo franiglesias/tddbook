@@ -21,7 +21,7 @@ Por otro lado, cada una de las katas se desarrolla en un lenguaje diferente.
           * [Fizz Buzz](manuscript/Katas/FizzBuzz/FizzBuzz.md)
           * [Resolviendo la kata Fizz Buzz](manuscript/Katas/FizzBuzz/FizzBuzz-resolved.md)
       * Prime Factors (Javascript, JEST, procedural)
-          * [Evolución del algoritmo mediante tests]
+          * [Evolución del algoritmo mediante tests](manuscript/Katas/PrimeFactors/evolving.md)
           * [Prime Factors](manuscript/Katas/PrimeFactors/PrimeFactors.md)
           * [Resolviendo la kata Prime Factors](manuscript/Katas/PrimeFactors/PrimeFactors-resolved.md)
       * NIF (Go, testing, mixed)
@@ -59,4 +59,5 @@ Por otro lado, cada una de las katas se desarrolla en un lenguaje diferente.
 * [JS](https://github.com/franiglesias/tddbook-js)
 * [Scala](https://github.com/franiglesias/tddbook-scala)
 * [Go](https://github.com/franiglesias/tddbook-go)
+* [Kotlin](https://github.com/franiglesias/kotlinKata)
 
