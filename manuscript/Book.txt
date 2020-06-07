@@ -1,9 +1,11 @@
 preface.md
 tdd-intro.md
-tdd-schools.md
+basic-concepts.md
+coding-dojo-katas.md
 Katas/FizzBuzz/tdd-rules.md
 Katas/FizzBuzz/FizzBuzz.md
 Katas/FizzBuzz/FizzBuzz-resolved.md
+Katas/PrimeFactors/evolving.md
 Katas/PrimeFactors/PrimeFactors.md
 Katas/PrimeFactors/PrimeFactors-resolved.md
 Katas/NIF/first-test.md
@@ -14,4 +16,5 @@ Katas/Bowling/BowlingGame.md
 Katas/Bowling/BowlingGame-resolved.1md
 Katas/Greetings/Greetings.md
 Katas/Greetings/Greetings-resolved.md
+tdd-schools.md
 life-quality.md
