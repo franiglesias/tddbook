@@ -4,12 +4,12 @@ Test Driven Development es una metodología de desarrollo de software en la que 
 
 Los tests especifican de manera formal, ejecutable y mediante ejemplos, los comportamientos que debe realizar el software que estamos programando, definiendo pequeños objetivos que, al ir siendo superados, nos permiten construir el software de forma progresiva, segura y estructurada.
 
-Aunque hablemos de tests, no estamos hablando de *Quality Assurance* (en adelante: QA), aunque al trabajar con metodología TDD conseguimos el efecto secundario de hacernos con una suite de tests unitarios que es válida y que tiene la máxima cobertura posible. De hecho, lo normal es que una parte de los tests creados en TDD sean innecesarios para una buena cobertura de test de regresión, por lo que es habitual eliminarlos a medida que se convierten en redundantes.
+Aunque hablemos de tests, no estamos hablando de *Quality Assurance* (en adelante: QA), aunque al trabajar con metodología TDD conseguimos el efecto secundario de hacernos con una suite de tests unitarios que es válida y que tiene la máxima cobertura posible. De hecho, lo normal es que una parte de los tests creados en TDD sean innecesarios para una batería comprensiva de test de regresión, por lo que es habitual eliminarlos a medida que nuevos tests los convierten en redundantes.
 
-Es decir, tanto **TDD** como **QA** se basan en la utilización de los **tests como herramientas**, pero este uso se diferencia en varios aspectos. Específicamente, en TDD:
+Es decir: tanto **TDD** como **QA** se basan en la utilización de los **tests como herramientas**, pero este uso se diferencia en varios aspectos. Específicamente, en TDD:
 
 * El primer test se escribe antes de que el software siquiera exista.
-* Los tests son muy pequeños y su objetivo es forzar que sea necesario escribir código de producción.
+* Los tests son muy pequeños y su objetivo es forzar la escriture del código de producción mínimo necesario para que el test pase, implementando el comportamiento definido por el test.
 * Los tests guían el desarrollo del código y el proceso contribuye al diseño.
 
 En TDD los tests se definen como especificaciones ejecutables del comportamiento de la unidad de software considerada, mientras que en QA el test es una herramienta de verificación de ese mismo comportamiento.
@@ -23,6 +23,8 @@ En TDD los tests se escriben en una forma que podríamos considerar como de **di
 ### Escribir un test que falle
 
 Una vez que tenemos claro la pieza de software en la que vamos a trabajar y la funcionalidad que queremos implementar, lo primero es definir un primer test muy pequeño que fallará sin remedio porque ni siquiera existe un archivo que contenga el código de producción necesario para que se pueda ejecutar. Aunque es algo que trataremos en todas las katas, en la kata [NIF](Katas/NIF/NIF.md) profundizaremos en estrategias que nos servirán para decidir los primeros tests.
+
+He aquí un ejemplo en Go:
 
 ```go
 // roman/roman_test.go
@@ -49,7 +51,7 @@ Aunque podemos predecir que el test ni siquiera podrá compilarse o interpretars
 Compilation finished with exit code 2
 ```
 
-El mensaje de error nos indicará qué es lo que tenemos que hacer a continuación. Nuestro objetivo a corto plazo es hacer desaparecer ese mensaje de error y los que puedan venir después uno por uno. 
+El mensaje de error nos indicará qué es lo que tenemos que hacer a continuación. Nuestro objetivo a corto plazo es hacer desaparecer ese mensaje de error y los que puedan venir después, uno por uno. 
 
 ```go
 package roman
@@ -70,7 +72,7 @@ func decToRoman(decimal int) string {
 }
 ```
 
-Por ejemplo:
+Por ejemplo, al introducir la función `decToRoman`, el error cambiará. Ahora nos dice que debería devolver un valor:
 
 ```
 # tddbook-go/roman [tddbook-go/roman.test]
@@ -140,7 +142,7 @@ Y podemos continuar. Como el test dice que espera que al pasar 1 a la función n
 Compilation finished with exit code 2
 ```
 
-Para conseguir que el test falle por la razón que esperamos, tenemos que hacer que la función devuelva un string, aunque sea vacío:
+Para conseguir que el test falle por la razón que esperamos, tenemos que hacer que la función devuelva un `string`, aunque sea vacío:
 
 ```go
 package roman
@@ -201,11 +203,11 @@ Tras el primer test podemos empezar creando el archivo que contendrá la unidad 
 
 En todo caso, se trata de ir dando pequeños pasos hasta que el compilador o intérprete quede conforme y pueda ejecutar el test. En principio, el test debería ejecutarse y fallar indicando que el resultado recibido de la unidad de software no coincide con el esperado.
 
-En este punto hay que hacer una salvedad porque dependiendo del lenguaje, del framework y de algunas prácticas en testing, la forma concreta de este primer test puede ser un poco distinta. Por ejemplo, hay frameworks de test en los que basta conque la ejecución del test no arroje errores o excepciones para considerar que pasa, por lo que un test que simplemente instancia un objeto es suficiente. En otros casos, es necesario que el test incluya una aserción y si no se hace ninguna considera que el test no pasa.
+En este punto hay que hacer una salvedad porque dependiendo del lenguaje, del `framework` y de algunas prácticas en testing, la forma concreta de este primer test puede ser un poco distinta. Por ejemplo, hay frameworks de test en los que basta con que la ejecución del test no arroje errores o excepciones para considerar que pasa, por lo que un test que simplemente instancia un objeto es suficiente. En otros casos, es necesario que el test incluya una aserción y si no se hace ninguna considera que el test no pasa.
 
 En cualquier caso, el objetivo de esta fase es lograr que el test se ejecute con éxito.
 
-Con la kata Prime Factors estudiaremos el modo en que puede cambiar el código de producción para incorporar nueva funcionalidad.
+Con la kata [Prime Factors](Katas/PrimeFactors/PrimeFactors.md) estudiaremos el modo en que puede cambiar el código de producción para incorporar nueva funcionalidad.
 
 ### Refactorizar si es posible
 
@@ -217,9 +219,9 @@ En el fondo, las preguntas en este momento son:
 * ¿Hay alguna manera mejor de expresar lo que que este código hace y que sea más fácil de entender?
 * ¿Puedo encontrar alguna regularidad y hacer que el algoritmo sea más general?
 
-Para ello debemos mantener todos los tests que puede haber pasando. Si alguno alguno de los tests se pone en rojo tendríamos una regresión y habríamos, por así decir, estropeado la funcionalidad.
+Para ello debemos mantener todos los tests que pasando. Si alguno alguno de los tests se pone en rojo tendríamos una regresión y habríamos estropeado, por así decir, la funcionalidad ya creada.
 
-Tras el primer ciclo es normal no encontrar oportunidades de refactor, pero no te fíes: siempre hay otra manera de ver y hacer las cosas. Por regla general, cuanto antes detectes oportunidades de reorganizar y limpiar el código y lo hagas, más fácil será el desarrollo.
+Tras el primer ciclo es normal no encontrar muchas oportunidades de refactor, pero no te fíes: siempre hay otra manera de ver y hacer las cosas. Por regla general, cuanto antes detectes oportunidades de reorganizar y limpiar el código y lo hagas, más fácil será el desarrollo.
 
 Por ejemplo, nosotros hemos creado la función bajo test en el propio archivo del test.
 
@@ -264,13 +266,13 @@ func DecToRoman(decimal int) string {
 }
 ```
 
-Para profundizar en todo lo que tiene que ver con el refactor al trabajar con la kata Bowling Game.
+Para profundizar en todo lo que tiene que ver con el refactor al trabajar con la kata [Bowling Game](Katas/Bowling/BowlingGame.md).
 
-### Repetir el ciclo varias veces hasta terminar
+### Repetir el ciclo hasta terminar
 
 Una vez que el código de producción hace pasar el test y está lo mejor organizado posible en esa fase, es el turno de escoger un nuevo aspecto de la funcionalidad y crear un nuevo test que falle para describirlo.
 
-Este nuevo test falla porque el código existente no realiza la nueva funcionalidad deseada y es necesario introducir un cambio. Por tanto, nuestra misión ahora es poner este nuevo test en verde haciendo las transformaciones necesarias en el código que serán pequeñas si hemos sabido dimensionar correctamente nuestros tests anteriores.
+Este nuevo test falla porque el código existente no realiza la funcionalidad deseada y es necesario introducir un cambio. Por tanto, nuestra misión ahora es poner este nuevo test en verde haciendo las transformaciones necesarias en el código, las cuales serán pequeñas si hemos sabido dimensionar correctamente nuestros tests anteriores.
 
 Una vez que conseguimos que el nuevo test pase, buscamos las oportunidades de refactor para tener un mejor diseño del código. A medida que avancemos en el desarrollo de la pieza de software veremos que los refactors posibles van siendo más significativos.
 
@@ -290,7 +292,7 @@ Existe una manera más formal de asegurarnos de que una funcionalidad está comp
 
 ## Qué no es Test Driven Development
 
-El resultado o outcome de Test Driven Development no es crear un software libre de defectos, aunque se previenen muchos de ellos; ni generar una suite de tests unitarios, aunque en la práctica se obtiene una con una gran cobertura que puede llegar al 100%, aunque como contrapartida puede presentar redundancia. Pero nada de esto es el objetivo de TDD, en todo caso es un efecto colateral.
+El resultado o `outcome` de Test Driven Development no es crear un software libre de defectos, aunque se previenen muchos de ellos; ni generar una suite de tests unitarios, aunque en la práctica se obtiene una con gran cobertura que puede llegar al 100%, aunque como contrapartida puede presentar redundancia. Pero nada de esto es el objetivo de TDD, en todo caso es un efecto colateral ciertamente beneficioso.
 
 ### TDD no reemplaza el diseño
 
@@ -320,6 +322,8 @@ Varios estudios han mostrado evidencias que apuntan a favor de que la aplicació
 Es bastante difícil cuantificar el beneficio de usar TDD en cuanto a productividad o velocidad, sin embargo subjetivamente se pueden experimentar varios beneficios.
 
 Uno de ellos es que la metodología TDD puede bajar la cargar cognitiva del desarrollo. Esto es así porque favorece dividir el problema en tareas pequeñas con un foco muy definido, lo que nos permite ahorrar la limitada capacidad de nuestra memoria de trabajo. 
+
+La evidencia anecdótica apunta a que las desarrolladoras y equipos que introducen TDD reducen los defectos, reducen el tiempo dedicado a bugs, aumentan la confianza a la hora de desplegar y la productividad no se ve afectada negativamente.
 
 ## Referencias
 

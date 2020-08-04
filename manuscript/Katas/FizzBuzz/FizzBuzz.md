@@ -34,7 +34,7 @@ Este test debería definir el primer comportamiento que necesitamos implementar.
 
 Escribir un test que falle significa, en este momento, escribir un test que no va a funcionar porque no existe ningún código que ejecutar, cosa que nos van a decir los mensajes de error. Aunque te parezca absurdo debes intentar ejecutar el test y confirmar que no pasa. Son los mensajes del test los que te van a indicar qué hacer a continuación.
 
-Para conseguir hacer que el test falle tenemos que aplicar la segunda ley, que dice que no podemos escribir más tests del que sea suficiente para fallar. El test más pequeño posible debería obligarnos a definir la clase a través de, simplemente, instanciarla y poco más.
+Para conseguir hacer que el test falle tenemos que aplicar la segunda ley, que dice que no podemos escribir más tests del que sea suficiente para fallar. El test más pequeño posible debería obligarnos a definir la clase insanciándola y poco más.
 
 Por último, para hacer que el test pase, aplicaremos la tercera ley, que dice que no debemos escribir más código de producción que el necesario para que el test pase. Es decir: definir la clase, en su caso el método que vamos a ejercitar y hacer que éste devuelva alguna respuesta que finalmente haga pasar el test.
 

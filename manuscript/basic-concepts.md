@@ -1,14 +1,18 @@
 # Conceptos básicos
 
+A continuación definiremos algunos conceptos que se usan a lo largo del libro. Hay que entenderlos en el contexto de Test Driven Development.
+
 ## Test
 
 Un test es una pequeña pieza de software, normalmente una función, que ejecuta otra pieza de software y verifica si produce un resultado o efecto que esperamos.
 
+Muchos lenguajes utilizan la noción de TestCase, una clase que agrupa un cierto número de tests relacionados entre sí. En ese caso, cada método es un test.
+
 ### Test como especificación
 
-Un test como especificación utiliza ejemplos de uso de la pieza de software probada para describir cómo debería funcionar.
+Un test como especificación utiliza ejemplos de uso de la pieza de software probada para describir cómo debería funcionar. Se utilizan, sobre todo, ejemplos que sean significativos, pero no siempre se hace de manera formal.
 
-Se opone al test como verificación, propio de la QA, en el que se prueba la pieza de software de manera sistemática para verificar que cumple lo que se espera de ella.
+Se opone al test como verificación, propio de la QA, en el que se prueba la pieza de software eligiendo los casos de prueba de manera sistemática para verificar que cumple lo que se espera de ella.
 
 ### Test que falla
  
@@ -24,7 +28,7 @@ En TDD nos referimos con el nombre de código de producción al código que escr
 
 ## Unidad de software
 
-Unidad es software es un concepto bastante flexible y que hay que interpretar en un contexto, pero se refiere normalmente a una pieza de software que se puede ejecutar de forma unitaria y aislada incluso aunque esté compuesta de varios elementos.
+Unidad de software es un concepto bastante flexible y que hay que interpretar en un contexto, pero se refiere normalmente a una pieza de software que se puede ejecutar de forma unitaria y aislada, incluso aunque esté compuesta de varios elementos.
 
 ## Subject under test
 
@@ -32,7 +36,7 @@ La unidad de software que es ejercitada en un test. Existe una discusión sobre 
 
 ## Refactor
 
-Refactor es un cambio en el código que no altera su comportamiento ni su interfaz. La mejor manera de asegurar esto es que exista al menos un test que ejercita el fragmento de código que se está modificando, de modo que tras cada cambio nos aseguremos de que el test sigue pasando.
+Refactor es un cambio en el código que no altera su comportamiento ni su interfaz. La mejor manera de asegurar esto es que exista al menos un test que ejercita el fragmento de código que se está modificando, de modo que tras cada cambio nos aseguremos de que el test sigue pasando, lo que demostraría que no ha cambiado el comportamiento aunque se haya modificado la implementación.
 
 Algunas técnicas o patrones de refactor están descritos en recopilaciones como esta de [Refactoring Guru](https://refactoring.guru/refactoring/catalog) o el libro de [Martin Fowler](https://martinfowler.com/books/refactoring.html)
 

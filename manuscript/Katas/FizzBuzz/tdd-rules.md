@@ -11,9 +11,9 @@ Es decir, para poder escribir código de producción, primero debemos tener un t
 
 Una vez que lo hemos escrito y viendo que el test pasa, nuestro esfuerzo se centra en revisar el código escrito y eliminar en lo posible la duplicación. Esto es muy genérico, porque por una parte se refiere al *refactoring* y, por otra parte, al acoplamiento entre el test y el código de producción. Y al ser tan genérico resulta difícil bajarlo en acciones prácticas.
 
-Por otro lado, estas reglas no nos dicen nada acerca de cuan grandes son los saltos de códigos implicados en cada ciclo. Beck sugiere en su libro que los pasos o baby steps pueden ser tan pequeños o tan grandes como nos resulten útiles. En general, recomienda usar pasos pequeños cuando tenemos inseguridad o poco conocimiento del algoritmo, mientras que permite pasos más grandes si por experiencia y conocimientos tenemos claro qué hacer a continuación.
+Por otro lado, estas reglas no nos dicen nada acerca de cuan grandes son los saltos de códigos implicados en cada ciclo. Beck sugiere en su libro que los pasos o *baby steps* pueden ser tan pequeños o tan grandes como nos resulten útiles. En general, recomienda usar pasos pequeños cuando tenemos inseguridad o poco conocimiento del algoritmo, mientras que permite pasos más grandes si por experiencia y conocimientos tenemos claro qué hacer a continuación.
 
-Con el tiempo, y a partir de la metodología aprendida del propio Beck, Robert C. Martin estableció las "tres leyes", que no sólo definen el ciclo acciones en de TDD, sino que también proporcionan criterios sobre cómo de grandes deberían ser los pasos en cada ciclo:
+Con el tiempo, y a partir de la metodología aprendida del propio Beck, Robert C. Martin estableció las "tres leyes", que no sólo definen el ciclo de acciones en TDD, sino que también proporcionan criterios sobre cómo de grandes deberían ser los pasos en cada ciclo:
 
 * No se permite escribir ningún código de producción a menos que haga pasar un test unitario que falle
 * No se permite escribir más de un test unitario que sea suficiente para fallar; y los errores de compilación son fallos.
@@ -42,7 +42,7 @@ Ahora bien, ¿cómo tiene que ser el test que escribamos?
 
 La segunda ley nos dice que el test debe ser suficiente para fallar y que tenemos que considerar fallos los errores de compilación o su equivalente en lenguajes interpretados. Por ejemplo, entre estos errores estarían algunos tan obvios como que la clase o función no existe o no ha sido definida.
 
-Debemos evitar la tentación de escribir un esqueleto de la clase o la función antes de escribir el primer test. Recuerda que estamos hablando de *Test Driven Development*. Por tanto, son los tests los que nos dicen qué código de producción escribir y no al revés.
+Debemos evitar la tentación de escribir un esqueleto de la clase o la función antes de escribir el primer test. Recuerda que estamos hablando de *Test Driven Development*. Por tanto, son los tests los que nos dicen qué código de producción escribir y cuándo y no al revés.
 
 Que el test sea suficiente para fallar quiere decir que el test ha de ser muy pequeño en diversos sentidos y es algo que al principio resulta bastante difícil de definir. Con frecuencia se habla del test "más sencillo", del caso más simple, pero no es exactamente así.
 
@@ -72,7 +72,7 @@ Si no es así, nos fijaremos en el mensaje que nos ha mostrado el test fallido y
 
 ## El segundo test y las tres leyes
 
-Cuando hemos logrado hacer pasar el primer test aplicando las tres leyes podríamos pensar que no hemos conseguido realmente nada. Ni siquiera hemos abordado los posibles parámetros que podría necesitar la clase para ser construida, ya sean datos o colaboradores en el caso de servicios o use cases.
+Cuando hemos logrado hacer pasar el primer test aplicando las tres leyes podríamos pensar que no hemos conseguido realmente nada. Ni siquiera hemos abordado los posibles parámetros que podría necesitar la clase para ser construida, ya sean datos o colaboradores en el caso de servicios o *use cases*.
 
 Sin embargo, es importante ceñirse a la metodología, sobre todo en estas primeras fases. Con la práctica y la ayuda de un buen IDE el primer ciclo nos habrá llevado apenas unos pocos segundos. En esos pocos segundos hemos escrito un código, ciertamente muy pequeño, pero totalmente respaldado por un test.
 
@@ -109,7 +109,7 @@ Escribir un único test que define un salto de comportamiento demasiado grande t
 
 ### Tercera ley: escribir más del código de producción necesario para que pase el test
 
-Se trata quizá de la más frecuente de todas. Llega un momento en que "vemos" el algoritmo con tanta claridad que nuestro impulso es escribirlo ya y terminar el proceso. Sin embargo, esto nos puede lleva a obviar algunas situaciones. Por ejemplo, en una aplicación podríamos "ver" el algoritmo general e implementarlo. Sin embargo, eso podría habernos distraído de un o varios casos particulares y no contemplarlos, lo que una vez incorporado a la aplicación y desplegado podría llevarnos a errores en producción, incluso con pérdidas económicas.
+Se trata quizá de la más frecuente de todas. Llega un momento en que "vemos" el algoritmo con tanta claridad que nuestro impulso es escribirlo ya y terminar el proceso. Sin embargo, esto nos puede lleva a obviar algunas situaciones. Por ejemplo, en una aplicación podríamos "ver" el algoritmo general e implementarlo. Sin embargo, eso podría habernos distraído de uno o varios casos particulares y no contemplarlos, lo que una vez incorporado a la aplicación y desplegado podría llevarnos a errores en producción, incluso con pérdidas económicas.
 
 ## El ciclo red-green-refactor
 

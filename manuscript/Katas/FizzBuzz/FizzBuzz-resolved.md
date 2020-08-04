@@ -21,11 +21,11 @@ Para ello creo una carpeta `fizzbuzzkata` y en ella añado el archivo `fixzzbuzz
 
 ## Primer test: definir la clase
 
-Lo que nos pide el ejercicio es obtener una lista de los números 1 al 100 cambiando algunos de ellos por las palabras Fizz, Buzz o ambas en caso de cumplirse ciertas condiciones.
+Lo que nos pide el ejercicio es obtener una lista de los números 1 al 100 cambiando algunos de ellos por las palabras 'Fizz', 'Buzz' o ambas en caso de cumplirse ciertas condiciones.
 
 Fíjate que no nos pide una lista de cualquier cantidad de números, sino específicamente del 1 al 100. Volveremos a eso dentro de un momento.
 
-Ahora vamos a concentrarnos en ese primer test. Lo menos que podemos hacer es que se pueda instanciar un objeto del tipo FizzBuzz. He aquí un posible primer test:
+Ahora vamos a concentrarnos en ese primer test. Lo menos que podemos hacer es que se pueda instanciar un objeto del tipo `FizzBuzz`. He aquí un posible primer test:
 
 ```python
 import unittest
@@ -137,7 +137,7 @@ class FizzBuzz:
         return []
 ```
 
-Al hacer que generate devuelva una lista, hacemos que el test falle porque no se cumple lo que esperamos: que la lista tenga un cierto número de elementos:
+Al hacer que `generate` devuelva una lista, hacemos que el test falle porque no se cumple lo que esperamos: que la lista tenga un cierto número de elementos:
 
 ```
 AssertionError: 100 != 0
@@ -215,7 +215,7 @@ Para ellos podríamos esperar que la lista generada contiene los números del 1 
 
 Un enfoque más prometedor es: ¿qué números no se verán afectados por el algoritmo? Pues aquellos que no sean múltiplos de 3 o de 5, por lo que podríamos escoger algunos de ellos para verificar que se incluyen en la lista sin transformar.
 
-El más sencillo de todos es el 1, que debería figurar en la primera posición de la lista. Por razones de simetría vamos a hacer que los números se generen como strings.
+El más sencillo de todos es el 1, que debería figurar en la primera posición de la lista. Por razones de simetría vamos a hacer que los números se generen como `strings`.
 
 ```python
 import unittest
