@@ -11,7 +11,7 @@ Es decir, para poder escribir código de producción, primero debemos tener un t
 
 Una vez que lo hemos escrito y viendo que el test pasa, nuestro esfuerzo se centra en revisar el código escrito y eliminar en lo posible la duplicación. Esto es muy genérico, porque por una parte se refiere al *refactoring* y, por otra parte, al acoplamiento entre el test y el código de producción. Y al ser tan genérico resulta difícil bajarlo en acciones prácticas.
 
-Por otro lado, estas reglas no nos dicen nada acerca de cuan grandes son los saltos de códigos implicados en cada ciclo. Beck sugiere en su libro que los pasos o *baby steps* pueden ser tan pequeños o tan grandes como nos resulten útiles. En general, recomienda usar pasos pequeños cuando tenemos inseguridad o poco conocimiento del algoritmo, mientras que permite pasos más grandes si por experiencia y conocimientos tenemos claro qué hacer a continuación.
+Además, estas reglas no nos dicen nada acerca de cuan grandes son los saltos de código implicados en cada ciclo. Beck sugiere en su libro que los pasos o *baby steps* pueden ser tan pequeños o tan grandes como nos resulten útiles. En general, recomienda usar pasos pequeños cuando tenemos inseguridad o poco conocimiento del algoritmo, mientras que permite pasos más grandes si por experiencia y conocimientos tenemos claro qué hacer a continuación.
 
 Con el tiempo, y a partir de la metodología aprendida del propio Beck, Robert C. Martin estableció las "tres leyes", que no sólo definen el ciclo de acciones en TDD, sino que también proporcionan criterios sobre cómo de grandes deberían ser los pasos en cada ciclo:
 
@@ -119,7 +119,7 @@ Las tres leyes establecen un framework que podríamos llamar "de bajo nivel". Ma
 * Escribe el código de producción necesario para que el test pase.
 * Refactoriza el código, tanto el nuevo como el anterior, para que esté bien estructurado.
 
-Estas tres fases define lo que se suele conocer como el ciclo "red-green-refactor", nombrado así en relación al estado de los tests en cada una de las fases del ciclo:
+Estas tres fases definen lo que se suele conocer como el ciclo "red-green-refactor", nombrado así en relación al estado de los tests en cada una de las fases del ciclo:
 
 * **Red**: la creación de un test que falla (está en rojo) y que describe la funcionalidad o comportamiento que queremos introducir en el software de producción.
 * **Green**: la escritura del código de producción necesario para hacer pasar el test (ponerlo en verde) con lo cual se verifica que se ha añadido el comportamiento especificado.
@@ -136,7 +136,7 @@ Cuando escribimos un test y pasa sin añadir código de producción puede ser po
 
 En la kata FizzBuzz, por ejemplo, llega un momento en que no hay forma de escribir un test que falle porque el algoritmo cubre todos los casos.
 
-La otra posibilidad es que el ejemplo escogido no sea representativo de un nuevo comportamiento, lo que puede venir dado por una mala definición de la tarea o bien por no haber analizado bien los posibles escenarios.
+La otra posibilidad es que el ejemplo escogido no sea representativo de un nuevo comportamiento, lo que puede venir dado por una mala definición de la tarea o por no haber analizado bien los posibles escenarios.
 
 ## Referencias
 

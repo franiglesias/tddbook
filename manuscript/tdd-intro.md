@@ -219,7 +219,7 @@ En el fondo, las preguntas en este momento son:
 * ¿Hay alguna manera mejor de expresar lo que que este código hace y que sea más fácil de entender?
 * ¿Puedo encontrar alguna regularidad y hacer que el algoritmo sea más general?
 
-Para ello debemos mantener todos los tests que pasando. Si alguno alguno de los tests se pone en rojo tendríamos una regresión y habríamos estropeado, por así decir, la funcionalidad ya creada.
+Para ello debemos mantener todos los tests que hayamos escrito pasando. Si alguno de los tests se pone en rojo tendríamos una regresión y habríamos estropeado, por así decir, la funcionalidad ya creada.
 
 Tras el primer ciclo es normal no encontrar muchas oportunidades de refactor, pero no te fíes: siempre hay otra manera de ver y hacer las cosas. Por regla general, cuanto antes detectes oportunidades de reorganizar y limpiar el código y lo hagas, más fácil será el desarrollo.
 
@@ -244,7 +244,7 @@ func decToRoman(decimal int) string {
 }
 ```
 
-Resulta que hay una forma mejor de organizar ese código y es crear un archivo que la contenga. 
+Resulta que hay una forma mejor de organizar ese código y es crear un archivo que contenga la función. 
 
 ```go
 //roman/roman.go
@@ -292,13 +292,13 @@ Existe una manera más formal de asegurarnos de que una funcionalidad está comp
 
 ## Qué no es Test Driven Development
 
-El resultado o `outcome` de Test Driven Development no es crear un software libre de defectos, aunque se previenen muchos de ellos; ni generar una suite de tests unitarios, aunque en la práctica se obtiene una con gran cobertura que puede llegar al 100%, aunque como contrapartida puede presentar redundancia. Pero nada de esto es el objetivo de TDD, en todo caso es un efecto colateral ciertamente beneficioso.
+El resultado o `outcome` de Test Driven Development no es crear un software libre de defectos, aunque se previenen muchos de ellos; ni generar una suite de tests unitarios, aunque en la práctica se obtiene una con gran cobertura que puede llegar al 100%, con la contrapartida de que puede presentar redundancia. Pero nada de esto es el objetivo de TDD, en todo caso es un efecto colateral ciertamente beneficioso.
 
 ### TDD no reemplaza el diseño
 
 TDD es una herramienta para contribuir al diseño de software, pero no lo reemplaza.
 
-Cuando desarrollamos unidades pequeñas y con una funcionalidad muy bien definida, TDD nos ayuda a establecer el diseño del algoritmo gracias a la red de seguridad proporcionada por los tests existentes.
+Cuando desarrollamos unidades pequeñas y con una funcionalidad muy bien definida, TDD nos ayuda a establecer el diseño del algoritmo gracias a la red de seguridad proporcionada por los tests que vamos creando.
 
 Pero cuando la unidad considerada es mayor, un análisis previo que nos lleve a un "boceto" de los elementos principales de la solución nos permite tener un marco de desarrollo.
 
@@ -315,7 +315,7 @@ Los que TDD nos proporciona es una herramienta que:
 
 Varios estudios han mostrado evidencias que apuntan a favor de que la aplicación de TDD tiene beneficios en los equipos de desarrollo. No son evidencias concluyentes, pero las investigaciones realizadas tienden a coincidir en que con TDD:
 
-* Se escriben más cantidad de tests
+* Se escribe más cantidad de tests
 * El software tiene menos defectos
 * La productividad no se ve disminuida, incluso puede aumentar
 

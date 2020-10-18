@@ -2,7 +2,7 @@
 
 ## Entendiendo las leyes y ciclos de TDD
 
-La kata FizzBuzz es una de las katas más sencillas para empezar a practicar TDD. Plantea un problema muy sencillo y bien acotado, por lo que en una primera fase es muy fácil resolverla por completo en una sesión de una ó dos horas. Pero también es fácil ampliar sus requerimientos para lograr desarrollos más complejos, como poner el requisito de que las reglas o el tamaño de la lista sean configurables, que se puedan añadir nuevas reglas, etc.
+La kata FizzBuzz es una de las katas más sencillas para empezar a practicar TDD. Plantea un problema muy simple y bien acotado, por lo que en una primera fase es muy fácil resolverla por completo en una sesión de una ó dos horas. Pero también se pueden ampliar sus requerimientos y lograr desarrollos más complejos, como poner el requisito de que las reglas o el tamaño de la lista sean configurables, que se puedan añadir nuevas reglas, etc.
 
 En este caso, al tratarse de nuestra primera kata, seguiremos la versión más sencilla.
 
@@ -34,13 +34,13 @@ Este test debería definir el primer comportamiento que necesitamos implementar.
 
 Escribir un test que falle significa, en este momento, escribir un test que no va a funcionar porque no existe ningún código que ejecutar, cosa que nos van a decir los mensajes de error. Aunque te parezca absurdo debes intentar ejecutar el test y confirmar que no pasa. Son los mensajes del test los que te van a indicar qué hacer a continuación.
 
-Para conseguir hacer que el test falle tenemos que aplicar la segunda ley, que dice que no podemos escribir más tests del que sea suficiente para fallar. El test más pequeño posible debería obligarnos a definir la clase insanciándola y poco más.
+Para conseguir hacer que el test falle tenemos que aplicar la segunda ley, que dice que no podemos escribir más tests del que sea suficiente para fallar. El test más pequeño posible debería obligarnos a definir la clase instanciándola y poco más.
 
 Por último, para hacer que el test pase, aplicaremos la tercera ley, que dice que no debemos escribir más código de producción que el necesario para que el test pase. Es decir: definir la clase, en su caso el método que vamos a ejercitar y hacer que éste devuelva alguna respuesta que finalmente haga pasar el test.
 
 Los dos primeros pasos de esta fase son bastante obvios, pero el tercero no tanto.
 
-Con los dos primeros pasos intentamos conseguir que el test falle por los motivos adecuados. Es decir, primero falla porque no hemos escrito la clase y, en consecuencia la definimos. Luego fallará porque nos falta el método al que estamos llamando, así que lo definimos. Finalmente fallará porque no devuelve la respuesta que esperamos, que es lo que estamos testeando en sí.
+Con los dos primeros pasos intentamos llegar a conseguir que el test falle por los motivos adecuados. Es decir, primero falla porque no hemos escrito la clase y, en consecuencia la definimos. Luego fallará porque nos falta el método al que estamos llamando, así que lo definimos. Finalmente fallará porque no devuelve la respuesta que esperamos, que es lo que estamos testeando en sí.
 
 ¿Y qué respuesta deberíamos estar devolviendo? Pues ni más ni menos que la que espera el test.
 

@@ -4,7 +4,7 @@
 
 La kata Course ha sido diseñada a propósito para este libro. 
 
-El enfoque outside-in se puede aplicar a varias katas que presenten un problema más o menos complejo en el que varios objetos interactúan para resolver el problema. Una de las katas más conocidas sobre este enfoque es la [Bank](https://katalyst.codurance.com/bank) y era la prevista inicialmente para incluir en esta parte.
+El enfoque outside-in se puede aplicar a varias katas que presenten un problema más o menos complejo en el que varios objetos interactúan para resolverlo. Una de las katas más conocidas sobre este enfoque es la [Bank](https://katalyst.codurance.com/bank) y era la prevista inicialmente para incluir en esta parte.
 
 Sin embargo, después de considerarlo, parecía más conveniente inventar un nuevo ejercicio, de modo que fuese más fácil integrarlo en los objetivos del libro.
 

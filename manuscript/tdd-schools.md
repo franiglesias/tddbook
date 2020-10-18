@@ -1,6 +1,6 @@
 # Enfoques en TDD
 
-La metodología Test Driven Development se basa en un conjunto relativamente reducido de reglas o principios. Pero un aspecto cosa que no se define explícitamente es el modo en que esto puede aplicarse a diferentes situaciones de desarrollo.
+La metodología Test Driven Development se basa en un conjunto relativamente reducido de reglas o principios. Pero un aspecto que no se define explícitamente es el modo en que esto puede aplicarse a diferentes situaciones de desarrollo.
 
 Así, por ejemplo, es muy evidente la forma en que podemos dirigir mediante tests el desarrollo de una clase o una función. Una buena parte de las katas de este libro y, en general, las katas de iniciación a TDD, hacen exactamente eso. El problema viene con el salto al *mundo real*, un momento en el que muchas personas no consiguen encontrar rendimiento a la introducción de TDD en su proceso de desarrollo. 
 
@@ -18,7 +18,7 @@ Habitualmente desde este enfoque un proyecto complejo se abordaría definiendo l
 
 Por poner un ejemplo muy simplista. Imagina que nuestra tarea es diseñar un endpoint de un API.
 
-Esto supondría crear, al menos, un controlador, un use case, una o dos entidades y sus correspondientes repositorios.
+Esto supondría crear, al menos, un controlador, un caso de uso, una o dos entidades y sus correspondientes repositorios.
 
 En este enfoque clásico de TDD, una vez determinados los componentes necesarios iríamos creándolos en orden de dependencia, empezando por la entidades de dominio y avanzando hacia afuera. Es decir, si para construir una unidad, necesito usar otra unidad, construiré primero esta última. Puesto que las dependencias apuntan hacia el dominio, lo adecuado seria comenzar resolviendo el problema en la capa de dominio e ir "saliendo" hacia las capas más externas.
 

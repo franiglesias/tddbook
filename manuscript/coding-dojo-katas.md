@@ -8,7 +8,7 @@ El término es un préstamo de la palabra japonesa que designa los ejercicios de
 
 Aplicado a TDD, las katas persiguen entrenar los ciclos de test-producción-refactor y la capacidad de añadir comportamiento mediante pequeños incrementos de código.
 
-La idea es repetir una misma kata muchas veces. Además de adquirir soltura con el proceso, en cada una de las repeticiones existe la posibilidad de descubrir nuevas estrategias. Con la práctica repetida, podremos desarrollar el desarrollo de ciertos hábitos y el reconocimiento de patrones, automatizando hasta cierto punto nuestro proceso de desarrollo.
+La idea es repetir una misma kata muchas veces. Además de adquirir soltura con el proceso, en cada una de las repeticiones existe la posibilidad de descubrir nuevas estrategias. Con la práctica repetida, podremos favorecer el desarrollo de ciertos hábitos y el reconocimiento de patrones, automatizando hasta cierto punto nuestro proceso de desarrollo.
 
 Puedes ejercitarte con katas de forma individual o con otras personas. Una forma sistemática de hacerlo es mediante un *Coding Dojo*.
 

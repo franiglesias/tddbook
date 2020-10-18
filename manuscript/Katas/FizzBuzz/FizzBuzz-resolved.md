@@ -49,12 +49,46 @@ Así que lo lanzamos para ver si es verdad que falla. El resultado, como era de 
 NameError: name 'FizzBuzz' is not defined
 ```
 
-Para hacer que el test pase, tendremos que definir la clase FizzBuzz. Creamos el archivo `fizzbuzz.py` y definimos lo mínimo necesario para que el test pase:
+Para hacer que el test pase, tendremos que definir la clase FizzBuzz, cosa que haremos en el propio archivo del test.
+
 
 ```python
+import unittest
+
 class FizzBuzz:
     pass
+
+class FizzBuzzTestCase(unittest.TestCase):
+    def test_something(self):
+        fizzbuzz = FizzBuzz()
+        self.assertIsNotNone(fizzbuzz)
+
+
+if __name__ == '__main__':
+    unittest.main()
 ```
+
+
+Y con esto el test pasará. Ahora que estamos en verde podemos pensar en refactorizar. La clase no tiene código. Pero el test no tiene un nombre adecuado, ahora podríamos cambiarlo:
+
+```python
+import unittest
+
+class FizzBuzz:
+    pass
+
+class FizzBuzzTestCase(unittest.TestCase):
+    def test_can_instantiate(self):
+        fizzbuzz = FizzBuzz()
+        self.assertIsNotNone(fizzbuzz)
+
+
+if __name__ == '__main__':
+    unittest.main()
+```
+
+
+Normalmente, es mejor que las clases estén es un propio archivo (o módulo en Python) porque es más fácil gestionar el código y saber dónde está casa cosa, así que creamos el archivo `fizzbuzz.py` moviendo de paso la clase. 
 
 Y en el test, la importamos:
 
@@ -76,7 +110,7 @@ if __name__ == '__main__':
 
 Al introducir este cambio y ejecutar el test podemos ver que ahora sí pasa y ya estamos en verde.
 
-Hemos cumplido las tres leyes y cerrado nuestro primer ciclo test-código. No hay mucho más que podamos hacer aquí, salvo pasar al siguiente test.
+Hemos cumplido las tres leyes y cerrado nuestro primer ciclo test-código-refactor. No hay mucho más que podamos hacer aquí, salvo pasar al siguiente test.
 
 ## Segundo test: definir el método generate
 
@@ -764,7 +798,7 @@ No hay mucho más que podamos hacer ahora, salvo pasar al siguiente test.
 
 ## El noveno test: diciendo "Buzz" cuando toca
 
-A estas alturas el test es bastante obvio, el siguiente múltiple de 5 es 10:
+A estas alturas el test es bastante obvio, el siguiente múltiplo de 5 es 10:
 
 ```python
 import unittest
@@ -1096,8 +1130,8 @@ class FizzBuzz:
                 if number % divisor == 0:
                     self.number_list.append(self.rules[divisor])
                     break
-            else:
-                self.number_list.append(str(number))
+                else:
+                    self.number_list.append(str(number))
 
         return self.number_list
 ```
