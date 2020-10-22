@@ -56,7 +56,7 @@ Un cadena que empieza por una letra distinta de `X`, `Y`, `Z`, o que contenga ca
 
 ## Lenguaje y enfoque
 
-Esta kata la vamos a resolver en Go, por lo que vamos a matizar un poco su resultado.En este ejemplo vamos a crear un tipo de dato `Nif`, que será básicamente un `string`, y una función factoría `NewNif` que nos permitirá construir NIF validados a partir de un `string` que le pasamos.
+Esta kata la vamos a resolver en Go, por lo que vamos a matizar un poco su resultado. En este ejemplo vamos a crear un tipo de dato `Nif`, que será básicamente un `string`, y una función factoría `NewNif` que nos permitirá construir NIF validados a partir de un `string` que le pasamos.
 
 Por otro lado, el testing en Go es también un poco particular. Aunque el lenguaje incorpora de forma estándar soporte para realizar tests, no incluye utilidades habituales como `asserts`.
 
@@ -68,7 +68,7 @@ Basar tests en mensajes de error no es una buena práctica, porque pueden cambia
 
 ## Primer test: creando la función constructora
 
-En esta kata nos interesa empezar centrándonos en los sad paths, los casos en los que que no vamos a poder usar el argumento pasado a la función constructora. De todas las innumerables combinaciones de string que la función podría recibir vamos primero a dar una respuesta a las que sabemos con seguridad que no nos van a servir porque no se ajustan a los requisitos. Esta respuesta será un error.
+En esta kata nos interesa empezar centrándonos en los *sad paths*, los casos en los que que no vamos a poder usar el argumento pasado a la función constructora. De todas las innumerables combinaciones de string que la función podría recibir vamos primero a dar una respuesta a las que sabemos con seguridad que no nos van a servir porque no se ajustan a los requisitos. Esta respuesta será un error.
 
 Empezaremos rechazando aquellas cadenas que sean demasiado largas, las que tienen más de nueve caracteres. Esto lo podemos describir con este test:
 
@@ -221,7 +221,7 @@ package nif
 import "errors"
 
 func NewNif(candidate string) error {
-	if len(candidate) > 9{
+	if len(candidate) > 9 {
 		return errors.New("too long")
 	}
 

@@ -19,13 +19,14 @@ Seguidamente se van añadiendo requisitos que nos obligarán a extender el algor
 
 ## Lenguaje y enfoque
 
-Esta kata la vamos a resolver en Scala con el framework FunSite. Lo escribiremos usando un enfoque funcional.
+Esta kata la vamos a resolver en Scala con el framework FunSite. La escribiremos usando un enfoque funcional.
 
 ## Primer test: saludo básico
 
-La forma en que se presenta esta kata nos proporciona prácticamente los casos de test que necesitamos. A estas alturas creo que podemos dar un salto relativamente grande. Este es nuestro primer test en el que suponemos que la función será un método de la clase `Greetings` en el package `greetings`.
+La forma en que se presenta esta kata nos proporciona prácticamente todos los casos de test que necesitamos. A estas alturas creo que podemos dar un salto relativamente grande para empezar.
 
-En cualquier caso, al usar lenguajes que son muy estrictos en el tipado muchas veces no podemos empezar por tests más pequeños. Pero, por otra parte, el tipado estricto nos permite ignorar con seguridad esos mismos tests.
+Este es nuestro primer test en el que suponemos que la función será un método de la clase `Greetings` en el package `greetings`.
+
 
 ```scala
 import greetings.Greetings
@@ -37,6 +38,8 @@ class GreetingTest extends FunSuite {
   }
 }
 ```
+
+En cualquier caso, al usar lenguajes que son muy estrictos en el tipado muchas veces no podemos empezar por tests más pequeños. Pero, por otra parte, el tipado estricto nos permite ignorar con seguridad esos mismos tests.
 
 El test fallará, como era de esperar. En este caso crearemos el código mínimo necesario para hacerlo pasar de una sola vez:
 

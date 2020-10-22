@@ -31,11 +31,11 @@ Seguidamente se van añadiendo requisitos que nos obligarán a extender el algor
 
 ## Orientaciones para resolverla
 
-Parte del interés de esta kata reside en trabajar con un requerimiento cada vez por lo que es importante no adelantarse e ir uno por uno.
+Parte del interés de esta kata reside en trabajar con un requerimiento cada vez, por lo que es importante no adelantarse e ir uno por uno.
 
 La dificultad es resolverla sin crear unidades extra, sólo a través de la interfaz `greet()`. En realidad, cada uno de los requerimientos nos permite construir un test que nos fuerce a extender el algoritmo, aunque podemos crear cuantos tests nos parezcan necesarios.
 
-Por otro lado, es muy importante el paso atrás del que hablábamos en la kata Bowling. Al resolver un requisito, haciendo pasar el test correspondiente, nos veremos en la necesidad de preparar el terreno para poder implementar el siguiente, manteniendo todos los tests actuales pasando. 
+Por otro lado, es muy importante el paso atrás del que hablábamos en la kata **Bowling**. Al resolver un requisito, haciendo pasar el test correspondiente, nos veremos en la necesidad de preparar el terreno para poder implementar el siguiente, manteniendo todos los tests actuales pasando. 
 
 En resumen:
 

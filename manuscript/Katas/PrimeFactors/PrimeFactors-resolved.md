@@ -2,7 +2,7 @@
 
 ## Enunciado de la kata
 
-Nuestro objetivo será escribir un programa que descomponga un número natural en sus factores primeros. Por simplicidad, no agruparemos los factores en forma de potencias. Eso lo dejaremos para un ejemplo posterior.
+Nuestro objetivo será escribir un programa que descomponga un número natural en sus factores primos. Por simplicidad, no agruparemos los factores en forma de potencias. Eso lo dejaremos para un ejercicio posterior si te interesa avanzar un poco más.
 
 ## Lenguaje y enfoque
 
@@ -271,7 +271,7 @@ function primefactors(numberToDecompose) {
 export default primefactors;
 ```
 
-No hay nada de malo en hacerlo así. Al contrario, esta forma de resolver el problema nos empieza a poner de relieve regularidades. 4 y 6 son múltiplos de 2, por lo que queremos introducir ese conocimiento en forma de refactor. Y eso lo podemos hacer gracias a que tenemos tests que nos demuestran que la función ya los descompone correctamente. Así que vamos a modificar el código, sin cambiar ese comportamiento que ya hemos definido con los tests.
+No hay nada de malo en hacerlo así. Al contrario, esta forma de resolver el problema nos empieza a poner de relieve regularidades. 4 y 6 son múltiplos de 2, por lo que queremos introducir ese conocimiento en forma de refactor. Y eso lo podemos hacer gracias a que tenemos tests que nos demuestran que la función ya los descompone correctamente. Así que vamos a modificar el código sin cambiar ese comportamiento que ya hemos definido con los tests.
 
 Nuestro primer intento se basa en que el primer factor primo es 2 y es común. Es decir, podemos hacer un algoritmo que procese múltiplos de 2 y, de momento, asumimos que el número que queda es el segundo factor del compuesto.
 
@@ -760,7 +760,7 @@ Si añadimos nuevos tests veremos que podemos factorizar cualquier número sin p
 
 ## ¿Tenemos criterios para elegir buenos ejemplos?
 
-Desde el punto de vista de QA tradicional existen una serie de métodos para elegir los casos de test. Sin embargo, aunque estos métodos no son necesariamente aplicables en TDD. Recuerda cómo empezábamos este libro: QA y TDD no son lo mismo pese a usar las mismas herramientas y solaparse mucho ambas disciplinas. TDD es una metodología para guiar el desarrollo de software y los tests más adecuados para hacerlo pueden ser sutilmente diferentes de los que usaríamos para verificar el funcionamiento de un software.
+Desde el punto de vista de QA tradicional existen una serie de métodos para elegir los casos de test. Sin embargo, estos métodos no son necesariamente aplicables en TDD. Recuerda cómo empezábamos este libro: QA y TDD no son lo mismo pese a usar las mismas herramientas y solaparse mucho ambas disciplinas. TDD es una metodología para guiar el desarrollo de software y los tests más adecuados para hacerlo pueden ser sutilmente diferentes de los que usaríamos para verificar el funcionamiento de un software.
 
 Por ejemplo, la categorización que hemos hecho de los números en primos y no primos puede ser más que suficiente en QA, pero en TDD los casos de números no primos podrían subdividirse:
 

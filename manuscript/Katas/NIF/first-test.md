@@ -181,7 +181,7 @@ public function testShouldFailWithInvalidInput(): void
 }
 ```
 
-Esto es: nuestro conversor de números romanos no puede manejar números negativos ni números con decimales y, por tanto, en un programa real tendríamos que gestionar esta situación. En el ejemplo, la consecuencia es lanzar una excepción. Pero podría ser cualquier otra forma de reacción que nos convenga para los propósitos de la aplicación. Otra manera de manejar el mismo problema:
+Esto es: nuestro convertidor de números romanos no puede manejar números negativos ni números con decimales y, por tanto, en un programa real tendríamos que gestionar esta situación. En el ejemplo, la consecuencia es lanzar una excepción. Pero podría ser cualquier otra forma de reacción que nos convenga para los propósitos de la aplicación. Otra manera de manejar el mismo problema:
 
 ```php
 public function testShouldFailWithInvalidInput(): void

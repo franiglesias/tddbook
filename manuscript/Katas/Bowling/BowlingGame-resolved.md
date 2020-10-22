@@ -202,7 +202,7 @@ end
 
 ## Cuarto test: el peor lanzador del mundo
 
-Muchas soluciones de la kata van directamente a este punto donde vamos a empezar a definir el comportamiento de BowlingGame tras los 20 lanzamientos. Nosotros hemos escogido un camino con pasos más pequeños y vamos a ver qué implica.
+Muchas soluciones de la kata van directamente a este punto donde vamos a empezar a definir el comportamiento de `BowlingGame` tras los 20 lanzamientos. Nosotros hemos escogido un camino con pasos más pequeños y vamos a ver qué implica.
 
 Nuestro siguiente test intentará hacer posible obtener un marcador tras 20 lanzamientos. Una forma de hacerlo es simularlos y lo más sencillo sería que todos ellos fuesen fallidos, es decir, que no tirasen ningún bolo con lo que el marcador final sería 0.
 
@@ -523,9 +523,9 @@ end
 
 El test falla porque `score` nos devuelve 13 puntos cuando deberían ser 16. Ahora mismo no existe un mecanismo que cuente el lanzamiento posterior al *spare* como bonus.
 
-El problema es que nos hace falta contar los puntos no por lanzamiento, sino por frame, para poder saber si un frame ha dado un spare o no y actuar en consecuencia. Además, ya no nos basta con ir sumando los puntos, sino que debemos pasar la responsabilidad del recuento al método score, de modo que `roll` se limite a almacenar los parciales y sea `score` quien gestione la lógica de calcular por frame.
+El problema es que nos hace falta contar los puntos no por lanzamiento, sino por *frame*, para poder saber si un frame ha dado un spare o no y actuar en consecuencia. Además, ya no nos basta con ir sumando los puntos, sino que debemos pasar la responsabilidad del recuento al método `score`, de modo que `roll` se limite a almacenar los parciales y sea `score` quien gestione la lógica de calcular por *frame*.
 
-De nuevo nos vemos en la necesidad de cambiar primero la estructura del código sin cambiar el comportamiento antes de introducir el nuevo. Por tanto, anulamos este test y refactorizamos con el test anterior como red de seguridad para introducir el concepto de frame en el recuento.
+De nuevo nos vemos en la necesidad de cambiar primero la estructura del código sin cambiar el comportamiento antes de introducir el nuevo test. Por tanto, anulamos este test y refactorizamos con el anterior como red de seguridad para introducir el concepto de *frame* en el recuento.
 
 ## Quinto refactor: introduciendo el concepto de *frame*
 
@@ -613,7 +613,7 @@ class BowlingGame
 end
 ```
 
-Comprobamos que los tests siguen pasando. Puede ser buen momento para introducir el concepto de `frame`. Sabemos que hay un máximo de 10 frames.
+Comprobamos que los tests siguen pasando. Puede ser buen momento para introducir el concepto de *frame*. Sabemos que hay un máximo de 10 *frames*.
 
 ```ruby
 class BowlingGame
@@ -640,7 +640,7 @@ class BowlingGame
 end
 ```
 
-Con este cambio los tests siguen pasando y ya tenemos acceso a la puntuación por frame. Parece que estamos listos para reintroducir el test anterior.
+Con este cambio los tests siguen pasando y ya tenemos acceso a la puntuación por *frame*. Parece que estamos listos para reintroducir el test anterior.
 
 ## Quinto test (reprise): manejando un *spare*
 
@@ -716,7 +716,7 @@ class BowlingGame
 end
 ```
 
-Añadiendo un bloque `if` es suficiente para volver a pasar el test.
+Añadiendo un bloque `if` es suficiente para hacer pasar el test.
 
 ## Sexto refactor
 
@@ -755,7 +755,7 @@ class BowlingGame
 end
 ```
 
-El cálculo de la puntuación en el frame podría extraerse a un método y ahorrarnos la variable temporal de paso:
+El cálculo de la puntuación en el *frame* podría extraerse a un método y ahorrarnos la variable temporal de paso:
 
 ```ruby
 class BowlingGame
@@ -794,7 +794,7 @@ class BowlingGame
 end
 ```
 
-Podemos darle significado a la suma de los puntos en cada lanzamiento del frame, así como a la pregunta de si se trata de un *spare* o no, y *rubyficar* un poco el código:
+Podemos darle significado a la suma de los puntos en cada lanzamiento del *frame*, así como a la pregunta de si se trata de un *spare* o no, y *rubyficar* un poco el código:
 
 ```ruby
 class BowlingGame
@@ -835,7 +835,7 @@ class BowlingGame
 end
 ```
 
-Lo cierto es que esto nos está pidiendo a gritos extraer todo a una clase `Frame`, pero ahora no lo vamos a hacer pues podríamos caer en un smell por exceso de diseño. 
+Lo cierto es que esto nos está pidiendo a gritos extraer todo a una clase `Frame`, pero ahora no lo vamos a hacer pues podríamos caer en un *smell* por exceso de diseño. 
 
 Por otro lado, mirando el test, podemos detectar algunos puntos de mejora. Por ejemplo, ser más explícitos en el ejemplo:
 
@@ -883,11 +883,11 @@ RSpec.describe 'A Bowling Game' do
 end
 ```
 
-Y con esto terminamos damos por terminado el refactor. Queremos tratar el caso del `strike`.
+Y con esto damos por terminado el refactor. A continuación, queremos tratar el caso del `strike`.
 
 ## Sexto test: cómo gestionar un *strike*
 
-`Strike` es conseguir tumbar todos los bolos en un único lanzamiento. En ese caso, el bonus consiste en los puntos obtenidos en los siguientes dos lanzamientos. El siguiente test nos propone un ejemplo de eso:
+`Strike` es conseguir tumbar todos los bolos en un único lanzamiento. En ese caso, el *bonus* consiste en los puntos obtenidos en los siguientes dos lanzamientos. El siguiente test nos propone un ejemplo de eso:
 
 ```ruby
 require 'rspec'
@@ -1046,7 +1046,7 @@ end
 ```
 
 
-La estructura de cálculo de la puntuación del frame resulta poco clara, así que vamos a volver atrás y dejarlo también más claro:
+La estructura de cálculo de la puntuación del *frame* resulta poco clara, así que vamos a volver atrás y dejarlo también más expresivo:
 
 ```ruby
 class BowlingGame
@@ -1099,7 +1099,7 @@ class BowlingGame
 end
 ```
 
-Este refactor deja en evidencia que `strike?` y `spare?` tiene una estructura diferente, lo que dificulta su comprensión y su manejo. Cambiamos `spare` para igualarlos y de paso quitamos también números mágicos.
+Este refactor deja en evidencia que `strike?` y `spare?` tienen una estructura diferente, lo que dificulta su comprensión y su manejo. Cambiamos `spare` para igualarlos y de paso quitamos también números mágicos.
 
 ```ruby
 class BowlingGame

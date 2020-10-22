@@ -17,7 +17,7 @@ Esta kata es original y surgió por casualidad al preparar un pequeño taller de
 Al profundizar en este ejemplo se fueron poniendo de manifiesto dos cuestiones que resultan muy interesantes:
 
 * Empezar por tests que descarten los casos inválidos nos permite evitar atacar el desarrollo del algoritmo nada más empezar, quitándolos de en medio y reduciendo el espacio del problema. La consecuencia es que acabamos desarrollando objetos más resilientes, con algoritmos más limpios y contribuye a prevenir la aparición de bugs en el código de producción.
-* Se pone de manifiesto el mecanismo de aplazar la solución de cada problema hasta el siguiente test. Es decir, para hacer que cada nuevo test pase introducimos una implementación inflexible que nos permita pasar ese test, pero para que los anteriores sigan pasando nos vemos obligados a refactorizar el código que ya teníamos antes.
+* Se pone de manifiesto el mecanismo de aplazar la solución de cada problema hasta el siguiente test. Es decir: para hacer que cada nuevo test pase, introducimos una implementación inflexible que nos permita cumplir ese test, pero para que los anteriores sigan pasando nos vemos obligados a refactorizar el código que ya teníamos antes.
 
 ## Enunciado
 
@@ -71,7 +71,7 @@ En una segunda fase, buscaremos controlar aquellas que no podrían nunca ser un 
 
 Con esto tendríamos todo preparado para implementar el algoritmo de validación ya que sólo tendríamos que manejar `strings` que estructuralmente podrían ser NIF.
 
-Una cosa que los pasos anteriores nos garantizan es que los tests no empezarán a fallar cuando introduzcamos el algoritmo ya que **nunca** podrían ser válidos. Si comenzásemos usando `string` que estructuralmente podrían ser NIFs, aunque los hayamos escrito al azar, podríamos encontrarnos con alguno que casualmente fuese válido y al implementar la parte correspondiente del algoritmo ese test fallaría por la razón equivocada.
+Una cosa que los pasos anteriores nos garantizan es que los tests no empezarán a fallar cuando introduzcamos el algoritmo ya que sus ejemplos **nunca** podrían ser válidos. Si comenzásemos usando `string` que estructuralmente podrían ser NIFs, aunque los hayamos escrito al azar, podríamos encontrarnos con alguno que casualmente fuese válido y al implementar la parte correspondiente del algoritmo ese test fallaría por la razón equivocada.
 
 ## Enlaces de interés sobre la kata
 

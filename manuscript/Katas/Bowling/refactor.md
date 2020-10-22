@@ -35,7 +35,7 @@ Podemos hacer muchos tipos de refactors, entre otros:
 * Cambiar nombres de variables y parámetros para reflejar mejor sus intenciones.
 * Extraer métodos privados.
 * Extraer condicionales a métodos cuando se vuelvan complejas.
-* Aplanar estructuras condicionadas anidadas.
+* Aplanar estructuras condicionales anidadas.
 * Extraer ramas de condicionales a métodos privados.
 * Extraer funcionalidad a colaboradores.
 
@@ -193,7 +193,7 @@ El test falla en primer lugar porque el argumento no es opcional. Pero es que ad
 * Hacer opcional el parámetro `name`
 * Usar el parámetro en el valor de retorno
 
-El caso es que con el nuevo requerimiento tenemos nueva información que nos sería útil para refactorizar la solución del primer test. Sin embargo, como tenemos un nuevo test que falla, no deberíamos hacer refactor, por lo que eliminamos o anulamos el test anterior. Por ejemplo, comentándolo:
+El caso es que con el nuevo requerimiento tenemos nueva información que nos sería útil para refactorizar lo desarrollado gracias al primer test. Sin embargo, como tenemos un nuevo test que falla, no deberíamos hacer refactor, por lo que eliminamos o anulamos el test anterior. Por ejemplo, comentándolo:
 
 ```ruby
 require 'rspec'
@@ -231,7 +231,7 @@ def greet(name)
 end
 ```
 
-Esto nos ha permitido pasar de nuestra primera implementación tosca a una lo bastante flexible con la que el test sigue pasando y estamos en mejores condiciones para reintroducir el siguiente test:
+Esto nos ha permitido pasar de nuestra primera implementación tosca a una lo bastante flexible con la que el test sigue pasando y estamos en mejores condiciones para volver a introducir el siguiente test:
 
 ```ruby
 require 'rspec'
@@ -251,7 +251,7 @@ RSpec.describe 'A simple greeting' do
 end
 ```
 
-Obviamente, el test falla, pero la razón del fallo es justamente que nos falta código que resuelva el requerimiento. Lo único que tenemos que hacer es comprobar si recibimos un nombre o no y actuar en consecuencia.
+Obviamente, el test falla, pero la razón del fallo es justamente que nos falta código que resuelva el requerimiento. Lo único que tenemos que hacer es comprobar si recibimos un nombre o no, y actuar en consecuencia.
 
 ```ruby
 def greet(name = nil)

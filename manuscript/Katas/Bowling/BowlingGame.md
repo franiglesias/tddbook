@@ -17,7 +17,7 @@ En cierto modo, la información del futuro nos ayudará a cambiar el pasado.
 
 ## Historia
 
-La Bowling kata es muy conocida. Se la debemos a Robert C. Martin, aunque una versión muy popular es la de Ron Jeffreys en el libro Adventures in C#
+La Bowling kata es muy conocida. Se la debemos a Robert C. Martin, aunque una versión muy popular es la de Ron Jeffreys en el libro *Adventures in C#*
 
 ## Enunciado
 
