@@ -37,12 +37,8 @@ Por otro lado, cada una de las katas se desarrolla en un lenguaje diferente.
          *  [Resolviendo la kata Greetings](manuscript/Katas/Greetings/Greetings-resolved.md)
 * Segunda parte: TDD en el mundo real
     * [Enfoques de TDD](manuscript/tdd-schools.md)
-    * Course kata
-         *  [Outside-in]
-         *  [Course kata](manuscript/Project/course-kata.md)
-         *  [Resolviendo Course kata, modo clásico]
-         *  [Resolviendo Course kata, modo outside-in *mockista*]
-         *  [Resolviendo Course kata, modo mixto *iterativo*]
+    * Outside-in
+         *  [To-to list kata, London School](manuscript/OutsideIn/To-do-list-kata-resolved.md)
 * [Epílogo: Calidad de vida y TDD](manuscript/life-quality.md)
 
 ## Repositorios de katas
@@ -61,3 +57,6 @@ Por otro lado, cada una de las katas se desarrolla en un lenguaje diferente.
 * [Go](https://github.com/franiglesias/tddbook-go)
 * [Kotlin](https://github.com/franiglesias/kotlinKata)
 
+## Repositorio para prácticas en PHP
+
+* [PHP](https://github.com/franiglesias/tb)

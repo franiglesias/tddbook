@@ -53,8 +53,8 @@ Algunos rasgos que caracterizan este modelo son:
 
 * Se testean las interacciones entre las unidades, lo que conocemos como *white box testing*. Es decir las  aserciones verifican los mensajes que unos componentes envían a otros.
 * La fase de refactor es menos importante y el diseño se hace con el test en rojo.
-* Los dobles de tests se usan de manera generosa, en cada momento se decide qué colaboradores maneja una unidad y se crean dobles para descubrir y establecer sus interfaces. Las clases reales se implementan posteriormente mediante un proceso TDD clásico o aprovechando los tests existentes. Por esta razón también se conoce este enfoque como *Mockist TDD*.
-* El desarrollo va desde fuera hacia dentro.
+* Los dobles de tests se usan de manera generosa, en cada momento se decide qué colaboradores maneja una unidad y se crean dobles para descubrir y establecer sus interfaces. Las clases reales se implementan posteriormente mediante un proceso TDD clásico en el que las dependencias se doblan primero y se implementan después. Por esta razón también se conoce este enfoque como *Mockist TDD*.
+* El desarrollo va desde fuera hacia dentro, protegido por un test de aceptación.
 * Se centra en la comunicación entre objetos, por lo que se podría considerar incluso un enfoque más OOP, en el sentido original de Alan Kay.
 
 Beneficios
@@ -64,10 +64,11 @@ Beneficios
 * Reduce la probabilidad de escribir código innecesario, las interfaces son más compactas.
 * Introduce la consideración del diseño desde el principio del proceso de desarrollo.
 * Prestamos más atención a las interacciones entre objetos. Tener que usar primero los dobles para diseñar sus interfaces nos ayuda a que sean más concisas y fáciles de manejar.
+* Encaja muy bien en la metodología *Behavior Driven Development*.
 
 Inconvenientes
 
-* El coste del refactor es más alto porque se centran en interacciones y los tests tienden a ser más frágiles por acoplamiento a la implementación.
+* El coste del refactor es más alto porque se centra en interacciones y los tests tienden a ser más frágiles por acoplamiento a la implementación.
 
 ## Behavior Driven Development
 

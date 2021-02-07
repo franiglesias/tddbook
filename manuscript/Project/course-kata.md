@@ -1,4 +1,4 @@
-## Course kata
+# Course kata
 
 ## Historia
 
