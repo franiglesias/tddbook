@@ -37,6 +37,7 @@ El ejercicio consiste en desarrollar un API para una aplicación de listas to-do
 2. Write Production code that makes the test pass
 3. Refactor if there is opportunity
 
+```
 POST /api/todo
 [task:Write a test that fails]
 
@@ -53,6 +54,7 @@ GET /api/todo
 [√] 1. Write a test that fails
 [ ] 2. Write Production code that makes the test pass
 [ ] 3. Refactor if there is opportunity
+```
 
 To simplify the test we are expecting that the list of tasks will be a string with all data needed.
 
@@ -2096,8 +2098,292 @@ class FileTaskRepository implements TaskRepository
 }
 ```
 
-Y volvemos a lanzar el test de aceptación para ver por dónde seguir. En esta ocasión el test nos dice que tenemos que implementar el método `TaskListFormatter::format`. Realmente estamos a dos pasos, pero tenemos que crear un test unitario para esto.
+Y volvemos a lanzar el test de aceptación para ver por dónde seguir. En esta ocasión el test nos dice que tenemos que implementar el método `TaskListFormatter::format`. Realmente estamos a dos pasos, pero tenemos que crear un test unitario.
+
+En este punto podríamos plantear diversos diseños que eviten tratar temas de presentación en una entidad de dominio, pero para simplificar haremos que `Task` sea capaz de proporcionar su representación en forma de texto añadiendo un método `asString`.
+
+Cabe preguntarse si aquí sería adecuado usar un doble de `Task`, algo que ya hicimos en otro test y esperar a que el test de aceptación nos pida desarrollar Tasks, o si sería preferible usar la entidad tal cual y que el tests nos fuerce a introducir los métodos necesarios.
+
+En la práctica, llegadas a este punto creo que todo depende de la complejidad que pueda suponer. En este ejercicio, el comportamiento de `Task` es bastante trivial, por lo que podríamos avanzar con la entidad sin más complicaciones. Pero si el comportamiento es complejo, posiblemente sea mejor ir despacio, trabajar con el Mock y dedicarle el tiempo necesario después.
+
+Así que aquí también usaremos mocks para eso.
+
 
 ```php
+<?php
+
+declare(strict_types=1);
+
+namespace App\Tests\Infrastructure\EntryPoint\Api\Formatter;
+
+use App\Domain\Task;
+use App\Infrastructure\EntryPoint\Api\Formatter\TaskListFormatter;
+use PHPUnit\Framework\TestCase;
+
+class TaskListFormatterTest extends TestCase
+{
+
+    /** @test */
+    public function shouldFormatAListOfTasks(): void
+    {
+        $expected = [
+            '[√] 1. Task 1',
+            '[ ] 2. Task 2'
+        ];
+
+        $task1 = $this->createMock(Task::class);
+        $task1->method('asString')->willReturn('[√] 1. Task 1');
+
+        $task2 = $this->createMock(Task::class);
+        $task2->method('asString')->willReturn('[ ] 2. Task 2');
+
+        $formatter = new TaskListFormatter();
+        $formattedList = $formatter->format([$task1, $task2]);
+
+        self::assertEquals($expected, $formattedList);
+    }
+}
+```
+
+Lanzamos el test para ver que falla porque no tenemos el método `asString` en `Task`. Así que lo introducimos. Fíjate que todavía no hemos implementado `markCompleted`.
+
+```php
+<?php
+
+declare(strict_types=1);
+
+namespace App\Domain;
+
+
+class Task
+{
+
+    private int $id;
+    private string $description;
+
+    public function __construct(int $id, string $description)
+    {
+        $this->id = $id;
+        $this->description = $description;
+    }
+
+    public function id(): int
+    {
+        return $this->id;
+    }
+
+    public function markCompleted(): void
+    {
+    }
+
+    public function asString(): string
+    {
+        throw new \RuntimeException(sprintf('Implement %s::%s', __CLASS__, __METHOD__));
+    }
+}
+```
+
+Al relanzar el test ya protesta porque no está implementado el método `format`, así que vamos a ello:
+
+```php
+<?php
+
+declare(strict_types=1);
+
+namespace App\Infrastructure\EntryPoint\Api\Formatter;
+
+
+class TaskListFormatter
+{
+    public function format(array $tasks): array
+    {
+        $formatted = [];
+
+        foreach ($tasks as $task) {
+            $formatted[] = $task->asString();
+        }
+
+        return $formatted;
+    }
+}
+```
+
+Y ya estamos en verde. Turno de volver al bucle del test de aceptación.
+
+## Últimos pasos
+
+El test de aceptación, como cabía esperar, falla porque `Task::asString` no está implementado. También habíamos dejado `Task:markCompleted` sin implementar y no haciendo nada. Podría ser buena idea dejar que se queje de nuevo y así asegurarnos de que se llama y no olvidarnos de gestionarlo también.
+
+```php
+<?php
+
+declare(strict_types=1);
+
+namespace App\Domain;
+
+
+class Task
+{
+
+    private int $id;
+    private string $description;
+
+    public function __construct(int $id, string $description)
+    {
+        $this->id = $id;
+        $this->description = $description;
+    }
+
+    public function id(): int
+    {
+        return $this->id;
+    }
+
+    public function markCompleted(): void
+    {
+        throw new \RuntimeException(sprintf('Implement %s::%s', __CLASS__, __METHOD__));
+    }
+
+    public function asString(): string
+    {
+        throw new \RuntimeException(sprintf('Implement %s::%s', __CLASS__, __METHOD__));
+    }
+}
+```
+
+Y al volver a lanzar el test de aceptación vemos que se queja de eso exactamente y ahí es donde queríamos estar ahora.
+
+Tenemos que seguir con el desarrollo de `Task`, usando un test unitario. Como no queremos añadir métodos, de momento, para verificar el estado de `done`, lo haremos a través de `asString`.
+
+```php
+<?php
+
+declare(strict_types=1);
+
+namespace App\Tests\Domain;
+
+use App\Domain\Task;
+use PHPUnit\Framework\TestCase;
+
+class TaskTest extends TestCase
+{
+
+    /** @test */
+    public function shouldHaveTextualRepresentation(): void
+    {
+        $task = new Task(1, 'Task Description');
+        
+        $formatted = $task->asString();
+        
+        self::assertEquals('[ ] 1. Task Description', $formatted);
+    }
+}
+```
+
+Este test pasa. Por lo que hay que volver al test de aceptación.
+
+Ahora el mensaje del test ha cambiado. Nos pide implementar `markCompleted` en `Task`, pero el test en sí ahora falla porque las respuestas no coinciden. Espera esto:
 
 ```
+Array (
+    0 => '[√] 1. Write a test that fails'
+    1 => '[ ] 2. Write Production code ...t pass'
+    2 => '[ ] 3. Refactor if there is o...tunity'
+)
+``` 
+
+y obtiene esto:
+
+```
+Array (
+    0 => '[ ] 1. Write a test that fails'
+    1 => '[ ] 2. Write Production code ...t pass'
+    2 => '[ ] 3. Refactor if there is o...tunity'
+)
+```
+
+A estas alturas, el motivo es obvio. No hay nada implementado en `Task` que se ocupe de mantener el estado de done.
+
+Añadamos un caso más al test:
+
+```php
+<?php
+
+declare(strict_types=1);
+
+namespace App\Tests\Domain;
+
+use App\Domain\Task;
+use PHPUnit\Framework\TestCase;
+
+class TaskTest extends TestCase
+{
+
+    /** @test */
+    public function shouldHaveTextualRepresentation(): void
+    {
+        $task = new Task(1, 'Task Description');
+
+        $formatted = $task->asString();
+
+        self::assertEquals('[ ] 1. Task Description', $formatted);
+    }
+
+    /** @test */
+    public function shouldHaveTextualRepresentationWhenDone(): void
+    {
+        $task = new Task(1, 'Task Description');
+        $task->markCompleted();
+        
+        $formatted = $task->asString();
+
+        self::assertEquals('[√] 1. Task Description', $formatted);
+    }
+}
+```
+
+Ahora lo implementamos:
+
+```php
+<?php
+
+declare(strict_types=1);
+
+namespace App\Domain;
+
+
+class Task
+{
+
+    private int $id;
+    private string $description;
+    private bool $done;
+
+    public function __construct(int $id, string $description)
+    {
+        $this->id = $id;
+        $this->description = $description;
+        $this->done = false;
+    }
+
+    public function id(): int
+    {
+        return $this->id;
+    }
+
+    public function markCompleted(): void
+    {
+        $this->done = true;
+    }
+
+    public function asString(): string
+    {
+        $done = $this->done ? '√' : ' ';
+        return sprintf('[%s] %s. %s', $done, $this->id, $this->description);
+    }
+}
+```
+
+Con el test en verde, volvemos a lanzar el test de aceptación y... ¡Si! El test pasa sin ningún problema más: hemos terminado el desarrollo de nuestra aplicación.
+
+
