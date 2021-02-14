@@ -17,5 +17,6 @@ Katas/Bowling/BowlingGame-resolved.1md
 Katas/Greetings/Greetings.md
 Katas/Greetings/Greetings-resolved.md
 tdd-schools.md
-Outsidein/To-do-list-kata-resolved.md
+OutsideIn/To-do-list-kata-resolved.md
+OutsideIn/To-do-list-us-by-us.md
 life-quality.md

@@ -2,12 +2,16 @@
 
 ## Outside in mockist
 
-Outside-in TDD, también llamado mockista o escuela de Londres, es una aproximación al desarrollo dirigido por test que busca implementar *features* en el software partiendo de un test de aceptación y procediendo hacia el interior de software.
+Outside-in TDD, también llamado *mockist* o *London school*, es una aproximación al desarrollo dirigido por test que busca implementar *features* en el software partiendo de un test de aceptación y procediendo hacia el interior del software.
 
-En lugar de diseñar el sistema en la fase de refactoring, como hace el enfoque clásico, la aproximación outside-in lo hace durante la fase *en rojo*, es decir, cuando el test de aceptación todavía está fallando. Para hacerlo, la metodología se basa en dos ciclos:
+En lugar de diseñar el sistema en la fase de refactoring, como hace el enfoque clásico, la aproximación outside-in lo hace durante la fase *en rojo*, es decir, cuando el test de aceptación todavía no está fallando. 
+
+Así por ejemplo, en el desarrollo de un API, primero se escribiría un test de aceptación contra el API, como si el test fuese un consumidor más de ese API. El siguiente paso sería diseñar y testear el controlador, luego el caso de uso, y luego los servicios y entidades manejados por ese caso de uso, hasta llegar al dominio de la aplicación. En todos los casos haríamos mocks de las dependencias, de modo que estaríamos testeando los mensajes entre objetos de la aplicación.
+
+Para hacerlo, la metodología se basa en dos ciclos:
 
 * **Ciclo test de aceptación**. Se trata de un test que describe la feature completa en el nivel *end to end*, usando implementaciones reales de los componentes del sistema, excepto aquellas que definen límites del mismo. Los fallos de los test en este nivel nos sirven como guía para saber qué es lo próximo que tenemos que desarrollar.
-* **Ciclo de tests unitarios**. Una vez que tenemos un fallo en el test de aceptación que nos indica qué tenemos que desarrollar, daremos un paso hacia el interior del sistema y usaremos tests unitarios para desarrollar el componente correspondiente, *mockeando* aquellos colaboradores que éste pueda necesitar. Cuando terminamos, volvemos al ciclo del test de aceptación para encontrar cual será nuestro próximo objetivo.
+* **Ciclo de tests unitarios**. Una vez que tenemos un fallo en el test de aceptación que nos indica qué tenemos que desarrollar, daremos un paso hacia el interior del sistema y usaremos tests unitarios para desarrollar el componente correspondiente, *mockeando* aquellos colaboradores o dependencias que éste pueda necesitar. Cuando terminamos, volvemos al ciclo del test de aceptación para encontrar cual será nuestro próximo objetivo.
 
 ## Enunciado
 

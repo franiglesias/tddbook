@@ -1,0 +1,3025 @@
+# Lista de tareas, outside-in TDD por historias de usuario
+
+En esta versión del mismo ejercicio de crear una aplicación usando TDD trabajaremos con el proyecto organizado en historias de usuario. Esto es: hemos dividido el proyecto en funcionalidades que aporten valor. El objetivo es mostrar una metodología de trabajo que podemos llevar a la práctica en proyectos reales.
+
+Este proyecto también lo haremos en PHP, usando PHPUnit y algunos componentes del framework Symfony.
+
+## Añadir tareas a una lista
+
+Repasemos la definición.
+
+### US 1
+
+* As a User
+* I want to add tasks to a to-do list
+* So that, I can organize my tasks
+
+Para completar esta historia de usuario necesitaremos, aparte de un endpoint al que poder llamar y un controlador que lo gestione, un caso de uso para añadir tareas a la lista y un repositorio en el que guardarlas. Nuestro caso de uso va a ser un command, por lo que el resultado de la acción será una llamada al repositorio guardando cada nueva tarea.
+
+Para poder verificar esto en un test no queremos escribir código que no vaya a ser necesario en producción. Por ejemplo, no vamos a desarrollar métodos (todavía) para recuperar información del repositorio. Estrictamente hablando, de momento no sabemos siquiera si las vamos a necesitar (spoiler: sí, pero eso sería programar para un futuro que aún no conocemos). Así que, inicialmente, usaremos un mock del repositorio y verificaremos que se hacen las llamadas adecuadas.
+
+Así que una vez que tenemos esto claro, escribimos un test que enviará un POST al endpoint para crear una tarea nueva y verificará que, en algún momento, estamos llamando a un repositorio de tareas, confiando en que la implementación real lo gestionará correctamente cuando esté disponible.
+
+Suele ser buena idea, empezar el test por el final, es decir, por lo que esperamos, y construir el resto con las acciones necesarias. En este caso, esperamos la existencia de un `TaskRepository`, que será una interfaz por el momento. También introducimos el concepto de `Task`.
+
+```php
+<?php
+
+declare(strict_types=1);
+
+namespace App\Tests\Katas\TodoList;
+
+use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
+
+class TodoListAcceptanceTest extends WebTestCase
+{
+    /** @test */
+    public function asUserIWantToAddTaskToAToDoList(): void
+    {
+        $taskRepository = $this->createMock(TaskRepository::class);
+        $task = new Task(1, 'Write a test that fails');
+        $taskRepository
+            ->expects(self::once())
+            ->method('store')
+            ->with($task);
+
+        $client = self::createClient();
+
+        $client->getContainer()->set(TaskRepository::class, $taskRepository);
+
+        $client->request(
+            'POST',
+            '/api/todo',
+            [],
+            [],
+            ['CONTENT-TYPE' => 'json/application'],
+            json_encode(['task' => 'Write a test that fails'], JSON_THROW_ON_ERROR)
+        );
+    }
+
+
+    protected function setUp(): void
+    {
+        $this->resetRepositoryData();
+    }
+
+    protected function tearDown(): void
+    {
+        $this->resetRepositoryData();
+    }
+
+    private function resetRepositoryData(): void
+    {
+        if (file_exists('repository.data')) {
+            unlink('repository.data');
+        }
+    }
+}
+
+```
+
+
+Tendremos que ejecutar el test e implementar todo lo que nos vaya pidiendo hasta lograr que falle por la razón adecuada.
+
+El primer mensaje de error es que no tenemos definido TaskRepository, así que empezamos por ahí:
+
+```
+Cannot stub or mock class or interface "App\Tests\Katas\TodoList\TaskRepository" which does not exist
+```
+
+Este error en concreto es específico de PHP y PHPUnit. En otros lenguajes podrías encontrar un error diferente.
+
+De momento mi solución es iniciarlo en el mismo test, si el mensaje de error cambia, entonces lo moveré a su propio archivo.
+
+```php
+interface TaskRepository
+{
+
+}
+```
+
+Usamos el refactor *Move Class* para poner `TaskRepository` en `App\TodoList\Domain\TaskRepository` y lanzamos nuevamente los tests, obteniendo el siguiente error, que es:
+
+```
+Error : Class 'App\Tests\Katas\TodoList\Task' not found
+```
+
+Que nos está diciendo que no hemos definido la clase `Task`. De momento, crearemos Task en el mismo archivo, relanzando el test para ver si cambia el error.
+
+```php
+class Task
+{
+    
+}
+```
+
+Ahora el error nos indica que no existe un método store en `TaskRepository`, por lo que no se puede mockear. Tenemos que introducirlo, pero antes, moveremos `Task` a su lugar en `App\TodoList\Domain`. Como puedes ver, estamos organizando el código conforme a una arquitectura en capas.
+
+Tras mover `Task`, añadimos el método `store` en `TaskRepository`:
+
+```php
+<?php
+
+declare(strict_types=1);
+
+namespace App\TodoList\Domain;
+
+interface TaskRepository
+{
+    public function store(Task $task): void;
+}
+```
+
+
+El siguiente error es algo más extraño:
+
+```
+Symfony\Component\Config\Exception\LoaderLoadException : The file "../src/Controller" does not exist (in: /application/config) in /application/config/services.yaml (which is loaded in resource "/application/config/services.yaml").
+```
+
+Tiene que ver con la configuración de Symfony, el framework de PHP que estamos usando para este ejercicio. Este mensaje nos indica que no hay archivos que contengan controladores en el path y namespace indicados. De hecho, yo no los quiero tampoco ahí, sino en `App\TodoList\Infrastructure\EntryPoint\Api`. Esto es porque quiero mantener esa arquitectura limpia, con los componentes organizados en capas. Los controladores y los puntos de entrada a la aplicación están en la capa de infraestructura, dentro de una categoría `EntryPoint` que, en este caso, tiene un "puerto" relacionado con la comunicación mediante Api.
+
+Para lograr esto, no tenemos más que ir al archivo `config/services.yaml` y cambiar lo necesario:
+
+```yaml
+    # controllers are imported separately to make sure services can be injected
+    # as action arguments even if you don't extend any base controller class
+    App\TodoList\Infrastructure\EntryPoint\Api\:
+        resource: '../src/TodoList/Infrastructure/EntryPoint/Api'
+        tags: ['controller.service_arguments']
+```
+
+Al ejecutar el test, tendremos un error semejante:
+
+```
+Symfony\Component\Config\Exception\LoaderLoadException : The file "../src/TodoList/Infrastructure/EntryPoint/Api" does not exist (in: /application/config) in /application/config/services.yaml (which is loaded in resource "/application/config/services.yaml").
+```
+
+Es positivo porque refleja que hemos hecho el cambio de **services.yaml** correctamente, pero aún no hemos añadido un controlador en la ubicación deseada que se pueda cargar y evitar el error. Así que añadimos un archivo `TodoListController`, en la ubicación definida.
+
+```php
+<?php
+
+declare(strict_types=1);
+
+namespace App\TodoList\Infrastructure\EntryPoint\Api;
+
+
+class TodoListController
+{
+
+}
+```
+
+Al ejecutar el test obtenemos dos nuevos mensajes de error. Por un lado:
+
+```
+"No route found for "POST /api/todo""
+```
+
+Nos indica un problema en el framework, ya que el cliente Http del test está llamando a un endpoint que aún no hemos definido en ninguna parte. Lo resolvemos configurando lo necesario en `routes.yaml`:
+
+```yaml
+api_add_task:
+  path: /api/todo
+  controller: App\TodoList\Infrastructure\EntryPoint\Api\TodoListController::addTask
+  methods: ['POST']
+```
+
+Como hacemos después de un cambio, ejecutamos el test, que ahora se quejará de que no existe un método en el controlador encargado de responder a este endpoint. 
+
+```
+"The controller for URI "/api/todo" is not callable. Expected method "addTask" on class "App\TodoList\Infrastructure\EntryPoint\Api\TodoListController"...
+```
+
+Lo implementamos así:
+
+```php
+<?php
+
+declare(strict_types=1);
+
+namespace App\TodoList\Infrastructure\EntryPoint\Api;
+
+
+class TodoListController
+{
+    public function addTask()
+    {
+        throw new \RuntimeException(sprintf('Implement %s', __METHOD__));
+    }
+}
+```
+
+Es una simple línea que lanza una excepción para indicar que el método no está implementado. Esto lo hacemos para que el propio test nos indique que tenemos algo no implementado. En este caso concreto, un cuerpo vacío no nos indicaría nada y, en muchos casos, sería fácil perder la pista de lo que tenemos pendiente de escribir.
+
+De hecho, si lanzamos el test nos indica justamente ese error. 
+
+```
+RuntimeException: "Implement App\TodoList\Infrastructure\EntryPoint\Api\TodoListController::addTask"
+```
+
+Pero también este otro, que es propio del test:
+
+```
+Expectation failed for method name is equal to 'store' when invoked 1 time(s).
+Method was expected to be called 1 times, actually called 0 times.
+```
+
+Este error es el que esperaríamos del test tal como lo hemos definido. Ya no hay errores de configuración del framework. Nos dice que nunca llega a intentarse guardar una `Task` en el repositorio, que es como decir, que no hay código de producción que haga lo que deseamos.
+
+Estos dos errores juntos nos indican momento de implementar.
+
+Y para hacerlo, necesitamos avanzar un paso hacia el interior de nuestra aplicación, que en nuestro ejemplo es `TodoListController`. En este punto abandonamos el ciclo del test de aceptación y entramos en un ciclo de test unitarios para desarrollar `TodoListController::addTask`.
+
+## Diseñando en rojo
+
+El test de aceptación no está pasando, y nos está pidiendo que implementemos algo en `TodoListController`. Para hacerlo, lo que vamos a hacer es pensar cómo queremos que sea el controlador y si delegará en otros objetos el trabajo.
+
+En particular, queremos que el controlador sea una capa muy fina que se encargue de:
+
+* Obtener la información necesaria de la request
+* Pasársela a un UseCase para que haga lo que sea necesario
+* Obtener la respuesta del UseCase y enviarla como respuesta del endpoint
+
+En un enfoque clásico, implementaríamos la solución completa en el controlador y luego iríamos moviendo la lógica a los componentes necesarios.
+
+En lugar de eso, en el enfoque `mockista`, diseñamos cómo va a ser ese nivel de implementación y usamos dobles para los colaboradores que vayamos necesitando. Por ejemplo, este es nuestro test:
+
+```php
+<?php
+
+declare(strict_types=1);
+
+namespace App\Tests\TodoList\Infrastructure\EntryPoint\Api;
+
+use App\TodoList\Infrastructure\EntryPoint\Api\TodoListController;
+use PHPUnit\Framework\TestCase;
+use Symfony\Component\HttpFoundation\Request;
+
+class TodoListControllerTest extends TestCase
+{
+
+    /** @test */
+    public function shouldAddTask(): void
+    {
+        $addTaskHandler = $this->createMock(AddTaskHandler::class);
+        $addTaskHandler
+            ->expects(self::once())
+            ->method('execute')
+            ->with('Task Description');
+        
+        $todoListController = new TodoListController($addTaskHandler);
+
+        $request = new Request(
+            [],
+            [],
+            [],
+            [],
+            [],
+            ['CONTENT-TYPE' => 'json/application'],
+            json_encode(['task' => 'Task Description'], JSON_THROW_ON_ERROR)
+        );
+        
+        $response = $todoListController->addTask($request);
+
+        self::assertEquals(201, $response->getStatusCode());
+    }
+}
+```
+
+En este test se verifican dos cosas. Por un lado que devolvemos una respuesta con código 201 (recurso creado) y que tendremos un UseCase llamado `AddTaskHandler` que se encarga de procesar la creación de la tarea a partir de su descripción, que recibe como payload en la Request.
+
+Al ejecutar el test, empezamos a obtener los errores esperados. El primero es que no tenemos ningún `AddTaskHandler`. De nuevo, empezaré añadiéndolo en el archivo del test y lo moveré en el siguiente paso. De hecho, es literalmente lo que indica el error:
+
+```
+Cannot stub or mock class or interface "App\Tests\TodoList\Infrastructure\EntryPoint\Api\AddTaskHandler" which does not exist
+```
+
+Así que, añadimos:
+
+```php
+class AddTaskHandler
+{
+
+}
+```
+
+Al ejecutar ahora el test, nos pide incorporar el método `execute`, que aún no está definido. Antes de añadirlo, vamos a mover AddTaskHandler, que es el caso de uso, a su lugar en la capa de aplicación: `App\TodoList\Application`. A continuación, añadimos el método incluyendo nuestra excepción de `no implementado`.
+
+
+```php
+<?php
+
+declare(strict_types=1);
+
+namespace App\TodoList\Application;
+
+class AddTaskHandler
+{
+    public function execute(): void
+    {
+        throw new \RuntimeException(sprintf('Implement %s', __METHOD__));
+    }
+}
+```
+
+
+De este modo, lo que ocurrirá es lo siguiente: una vez que hayamos implementado el controlador, veremos que su test unitario pasa, puesto que estamos usando el doble de `AddTaskHandler` y no llamamos al código real. Esto ocurrirá al lanzar el test de aceptación, lo que nos estará indicando que deberíamos implementar `AddTaskHandler` y profundizar un nivel más en la aplicación.
+
+El siguiente fallo es conocido:
+
+```
+RuntimeException : Implement App\TodoList\Infrastructure\EntryPoint\Api\TodoListController::addTask
+```
+
+Lo que quiere decir es que el test ya está llamando al método `addTask`, que aún no está implementado. Es justo donde queríamos estar. En `TodoListController::addTask` implementaremos lógica que haga pasar el test:
+
+```php
+<?php
+
+declare(strict_types=1);
+
+namespace App\TodoList\Infrastructure\EntryPoint\Api;
+
+
+use App\TodoList\Application\AddTaskHandler;
+use Symfony\Component\HttpFoundation\JsonResponse;
+use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Response;
+
+class TodoListController
+{
+
+    /** @var AddTaskHandler */
+    private AddTaskHandler $addTaskHandler;
+
+    public function __construct(AddTaskHandler $addTaskHandler)
+    {
+        $this->addTaskHandler = $addTaskHandler;
+    }
+
+    public function addTask(Request $request): Response
+    {
+        $payload = json_decode($request->getContent(), true, 512, JSON_THROW_ON_ERROR);
+
+        $this->addTaskHandler->execute($payload['task']);
+        return new JsonResponse('', Response::HTTP_CREATED);
+    }
+}
+``` 
+
+¡El test pasa!
+
+Podríamos haber ido más despacio aquí para dirigir la implementación con pasos más pequeños, pero creo que es mejor hacerlo en uno sólo porque la lógica no es muy compleja y así no nos vamos mucho por las ramas. Lo importante, en todo caso, es que hemos cumplido con el objetivo de desarrollar este controlador con un test unitario que ahora mismo pasa.
+
+Como el test unitario ya pasa, no tenemos más que hacer en este nivel. En todo caso, voy a hacer un pequeño refactor para ocultar los detalles de la obtención del payload de la request, lo que deja el cuerpo del controlador un poco más limpio y fácil de seguir.
+
+```php
+<?php
+
+declare(strict_types=1);
+
+namespace App\TodoList\Infrastructure\EntryPoint\Api;
+
+
+use App\TodoList\Application\AddTaskHandler;
+use Symfony\Component\HttpFoundation\JsonResponse;
+use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Response;
+
+class TodoListController
+{
+    /** @var AddTaskHandler */
+    private AddTaskHandler $addTaskHandler;
+
+    public function __construct(AddTaskHandler $addTaskHandler)
+    {
+        $this->addTaskHandler = $addTaskHandler;
+    }
+
+    public function addTask(Request $request): Response
+    {
+        $payload = $this->obtainPayload($request);
+
+        $this->addTaskHandler->execute($payload['task']);
+
+        return new JsonResponse('', Response::HTTP_CREATED);
+    }
+
+    private function obtainPayload(Request $request): array
+    {
+        return json_decode($request->getContent(), true, 512, JSON_THROW_ON_ERROR);
+    }
+}
+```
+
+## Volviendo al test de aceptación
+
+Una vez que hemos hecho pasar el test unitario, tenemos que volver al nivel de aceptación para que nos diga como seguir. Lo ejecutamos y obtenemos lo siguiente:
+
+```
+RuntimeException: "Implement App\TodoList\Application\AddTaskHandler::App\TodoList\Application\AddTaskHandler::execute" 
+```
+
+Ahora nos toca internarnos un poco más en la aplicación y movernos al Use Case AddTaskHandler. Lo que esperamos de este UseCase es que use la información recibida para crear una tarea y la guarde en TaskRepository. 
+
+Para crear una tarea, necesitaremos asignarle un ID, el cual le vamos a pedir al propio repositorio que tendrá un método a propósito. 
+
+Esto lo podemos expresar con el siguiente test unitario.
+
+```php
+<?php
+
+declare(strict_types=1);
+
+namespace App\Tests\TodoList\Application;
+
+use App\TodoList\Application\AddTaskHandler;
+use App\TodoList\Domain\Task;
+use App\TodoList\Domain\TaskRepository;
+use PHPUnit\Framework\TestCase;
+
+class AddTaskHandlerTest extends TestCase
+{
+    /** @test */
+    public function shouldCreateAndStoreATask(): void
+    {
+        $task = new Task(1, 'Task Description');
+        
+        $taskRepository = $this->createMock(TaskRepository::class);
+        
+        $taskRepository
+            ->method('nextIdentity')
+            ->willReturn(1);
+        
+        $taskRepository
+            ->expects(self::once())
+            ->method('store')
+            ->with($task);
+        
+        $addTaskHandler = new AddTaskHandler($taskRepository);
+        
+        $addTaskHandler->execute('Task Description');
+    }
+}
+```
+
+
+Ejecutamos el test. Obtenemos primero este error:
+
+```
+Trying to configure method "nextIdentity" which cannot be configured because it does not exist, has not been specified, is final, or is static
+```
+
+Añadimos el método en la interfaz:
+
+```php
+<?php
+
+declare(strict_types=1);
+
+namespace App\TodoList\Domain;
+
+interface TaskRepository
+{
+    public function store(Task $task): void;
+    
+    public function nextIdentity(): int;
+}
+```
+
+Lo que genera este error:
+
+```
+RuntimeException : Implement App\TodoList\Application\AddTaskHandler::App\TodoList\Application\AddTaskHandler::execute
+```
+
+Y estamos listos para implementar el caso de uso. Este código debería bastar:
+
+```php
+<?php
+
+declare(strict_types=1);
+
+namespace App\TodoList\Application;
+
+use App\TodoList\Domain\Task;
+use App\TodoList\Domain\TaskRepository;
+
+class AddTaskHandler
+{
+    /** @var TaskRepository */
+    private TaskRepository $taskRepository;
+
+    public function __construct(TaskRepository $taskRepository)
+    {
+        $this->taskRepository = $taskRepository;
+    }
+
+    public function execute(string $taskDescription): void
+    {
+        $id = $this->taskRepository->nextIdentity();
+
+        $task = new Task($id, $taskDescription);
+
+        $this->taskRepository->store($task);
+    }
+}
+```
+
+
+El código es suficiente para hacer pasar el test, por lo que podemos volver al nivel de aceptación.
+
+## Nuevo ciclo
+
+Al relanzar el test de aceptación nos encontramos que éste pasa. Sin embargo, la historia de usuario no está implementada aún ya que no tenemos un repositorio concreto en el que se estén guardando `Task`. De hecho, nuestras clases `Task` no tienen ningún código todavía.
+
+El motivo es que estamos usando un *Mock* de `TaskRepository` en el test de aceptación. Nos interesaría dejar de usarlo para que `TodoList` utilice una implementación concreta. El problema que tendríamos ahora es que de momento no vamos a tener métodos con los que explorar el contenido del repositorio y verificar el test. Vamos a hacer esto en dos fases.
+
+En la primera simplemente eliminamos el uso del Mock y verificamos que la respuesta del API devuelve el código 201 (created).
+
+```php
+<?php
+
+declare(strict_types=1);
+
+namespace App\Tests\Katas\TodoList;
+
+use App\TodoList\Domain\Task;
+use App\TodoList\Domain\TaskRepository;
+use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
+use Symfony\Component\HttpFoundation\Response;
+
+class TodoListAcceptanceTest extends WebTestCase
+{
+    /** @test */
+    public function asUserIWantToAddTaskToAToDoList(): void
+    {
+        $client = self::createClient();
+
+        $client->request(
+            'POST',
+            '/api/todo',
+            [],
+            [],
+            ['CONTENT-TYPE' => 'json/application'],
+            json_encode(['task' => 'Write a test that fails'], JSON_THROW_ON_ERROR)
+        );
+
+        $response = $client->getResponse();
+
+        self::assertEquals(Response::HTTP_CREATED, $response->getStatusCode());
+    }
+
+
+    protected function setUp(): void
+    {
+        $this->resetRepositoryData();
+    }
+
+    protected function tearDown(): void
+    {
+        $this->resetRepositoryData();
+    }
+
+    private function resetRepositoryData(): void
+    {
+        if (file_exists('repository.data')) {
+            unlink('repository.data');
+        }
+    }
+}
+```
+
+Antes de continuar, tenemos que eliminar la definición del servicio que hicimos antes en `services_test.yaml`. Como es el único que tenemos declarado aquí, podemos eliminar el archivo sin problema.
+
+Y al ejecutar el test, nos aparece el siguiente error del framework:
+
+```
+Cannot autowire service "App\TodoList\Application\AddTaskHandler": argument "$taskRepository" of method "__construct()"
+```
+
+Esto ocurre porque sólo tenemos una interfaz de `TaskRepository` y necesitaríamos una implementación concreta que usar. De este modo, tenemos un error que nos permite avanzar en el desarrollo. Necesitaremos un test para implementar `FileTaskRepository`, un repositorio basado en un sencillo archivo de texto para guardar los objetos serializados:
+
+```php
+<?php
+
+declare(strict_types=1);
+
+namespace App\Lib;
+
+
+class FileStorageEngine
+{
+    private string $filePath;
+
+    public function __construct($filePath)
+    {
+        $this->filePath = $filePath;
+    }
+
+    public function loadObjects(string $class): array
+    {
+        if (!file_exists($this->filePath)) {
+            return [];
+        }
+
+        $file = fopen($this->filePath, 'rb');
+        $objects = unserialize(fgets($file), ['allowed_classes' => [$class]]);
+        fclose($file);
+
+        return $objects;
+    }
+
+    public function persistObjects(array $objects): void
+    {
+        $file = fopen($this->filePath, 'wb');
+        fwrite($file, serialize($objects));
+        fclose($file);
+    }
+
+}
+```
+
+En primer lugar vamos a crear una implementación por defecto para `FileTaskRepository` en su lugar, que será `App\TodoList\Infrastructure\Persistence`:
+
+```php
+<?php
+
+declare(strict_types=1);
+
+namespace App\TodoList\Infrastructure\Persistence;
+
+
+use App\TodoList\Domain\Task;
+use App\TodoList\Domain\TaskRepository;
+
+class FileTaskRepository implements TaskRepository
+{
+
+    public function store(Task $task): void
+    {
+        throw new \RuntimeException('Implement store() method.');
+    }
+
+    public function nextIdentity(): int
+    {
+        throw new \RuntimeException('Implement nextIdentity() method.');
+    }
+}
+```
+
+Al volver a ejecutar el test de aceptación se producen dos errores. Uno nos dice que tenemos que implementar el método `nextIdentity` del repositorio. El otro, que es un error propio del test, nos informa de que el endpoint devuelve el código 500 en lugar de 201. Es lógico porque la implementación que tenemos ahora de FileTaskRepository fallará de forma fatal.
+
+Pero es una buena noticia, porque nos dice por dónde seguir. Así que crearemos un nuevo test unitario para guiar el desarrollo de `FileTaskRepository`. En este test simulamos distinto número de objetos en el almacenamiento para asegurar la implementación correcta.
+
+```php
+<?php
+
+declare(strict_types=1);
+
+namespace App\Tests\TodoList\Infrastructure\Persistence;
+
+use App\Lib\FileStorageEngine;
+use App\TodoList\Infrastructure\Persistence\FileTaskRepository;
+use PHPUnit\Framework\TestCase;
+
+class FileTaskRepositoryTest extends TestCase
+{
+    /** @test */
+    public function shouldProvideNextIdentityCountingExistingObjects(): void
+    {
+        $storageEngine = $this->createMock(FileStorageEngine::class);
+
+        $taskRepository = new FileTaskRepository($storageEngine);
+        $storageEngine
+            ->method('loadObjects')
+            ->willReturn(
+                [],
+                ['Task'],
+                ['Task', 'Task']
+            );
+
+        self::assertEquals(1, $taskRepository->nextIdentity());
+        self::assertEquals(2, $taskRepository->nextIdentity());
+        self::assertEquals(3, $taskRepository->nextIdentity());
+    }
+}
+```
+
+Con este test pasando, volvemos al test de aceptación, que vuelve a fallar. El endpoint devuelve un error 500 porque no tenemos una implementación del método `store` en `FileTaskRepository`.
+
+Introduciremos un nuevo test, aunque antes lo hemos refactorizado un poco a fin de que sea más fácil introducir los cambios:
+
+```php
+<?php
+
+declare(strict_types=1);
+
+namespace App\Tests\TodoList\Infrastructure\Persistence;
+
+use App\Lib\FileStorageEngine;
+use App\TodoList\Domain\Task;
+use App\TodoList\Domain\TaskRepository;
+use App\TodoList\Infrastructure\Persistence\FileTaskRepository;
+use PHPUnit\Framework\TestCase;
+
+class FileTaskRepositoryTest extends TestCase
+{
+    private FileStorageEngine $fileStorageEngine;
+    private TaskRepository $taskRepository;
+
+    public function setUp(): void
+    {
+        $this->fileStorageEngine = $this->createMock(FileStorageEngine::class);
+        $this->taskRepository = new FileTaskRepository($this->fileStorageEngine);
+    }
+
+    /** @test */
+    public function shouldProvideNextIdentityCountingExistingObjects(): void
+    {
+        $this->fileStorageEngine
+            ->method('loadObjects')
+            ->willReturn(
+                [],
+                ['Task'],
+                ['Task', 'Task']
+            );
+
+        self::assertEquals(1, $this->taskRepository->nextIdentity());
+        self::assertEquals(2, $this->taskRepository->nextIdentity());
+        self::assertEquals(3, $this->taskRepository->nextIdentity());
+    }
+
+    /** @test */
+    public function shouldStoreATask(): void
+    {
+        $task = new Task(1, 'Task Description');
+
+        $this->fileStorageEngine
+            ->method('loadObjects')
+            ->willReturn([]);
+        $this->fileStorageEngine
+            ->expects(self::once())
+            ->method('persistObjects')
+            ->with([1 => $task]);
+
+        $this->taskRepository->store($task);
+    }
+}
+```
+
+Esta es nuestra implementación para pasar el test:
+
+```php
+<?php
+
+declare(strict_types=1);
+
+namespace App\TodoList\Infrastructure\Persistence;
+
+
+use App\Lib\FileStorageEngine;
+use App\TodoList\Domain\Task;
+use App\TodoList\Domain\TaskRepository;
+
+class FileTaskRepository implements TaskRepository
+{
+
+    /** @var FileStorageEngine */
+    private FileStorageEngine $fileStorageEngine;
+
+    public function __construct(FileStorageEngine $fileStorageEngine)
+    {
+        $this->fileStorageEngine = $fileStorageEngine;
+    }
+
+    public function store(Task $task): void
+    {
+       $tasks = $this->fileStorageEngine->loadObjects(Task::class);
+
+       $tasks[$task->id()] = $task;
+
+       $this->fileStorageEngine->persistObjects($tasks);
+    }
+
+    public function nextIdentity(): int
+    {
+        $tasks = $this->fileStorageEngine->loadObjects(Task::class);
+
+        return count($tasks) + 1;
+    }
+}
+```
+
+Tenemos que implementar el método `Task::id`, lo que nos hace introducir también un constructor:
+
+```php
+<?php
+
+declare(strict_types=1);
+
+namespace App\TodoList\Domain;
+
+class Task
+{
+    private int $id;
+    private string $description;
+
+    public function __construct(int $id, string $description)
+    {
+        $this->id = $id;
+        $this->description = $description;
+    }
+
+    public function id(): int
+    {
+        return $this->id;
+    }
+}
+```
+
+La implementación hace pasar el test. Para no alargarnos no introduciré más ejemplos que sería lo propio para tener más confianza en el comportamiento del test. Pero de momento nos vale para entender el proceso.
+
+Como estamos en verde, volvemos al test de aceptación para comprobar qué avances hemos tenido.
+
+Y al ejecutarlo, el test de aceptación pasa, indicando que la feature está completa.
+
+O casi, ya que por el momento no tenemos forma de saber si las tareas se han almacenado o no.
+
+Una posibilidad es obtener el contenido de FileStorageEngine y ver si allí se encuentran nuestras tareas. No nos obliga a implementar nada en el código de producción:
+
+```php
+<?php
+
+declare(strict_types=1);
+
+namespace App\Tests\Katas\TodoList;
+
+use App\Lib\FileStorageEngine;
+use App\TodoList\Domain\Task;
+use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
+use Symfony\Component\HttpFoundation\Response;
+
+class TodoListAcceptanceTest extends WebTestCase
+{
+    /** @test */
+    public function asUserIWantToAddTaskToAToDoList(): void
+    {
+        $client = self::createClient();
+
+        $client->request(
+            'POST',
+            '/api/todo',
+            [],
+            [],
+            ['CONTENT-TYPE' => 'json/application'],
+            json_encode(['task' => 'Write a test that fails'], JSON_THROW_ON_ERROR)
+        );
+
+        $response = $client->getResponse();
+
+        self::assertEquals(Response::HTTP_CREATED, $response->getStatusCode());
+
+        $storage = new FileStorageEngine('repository.data');
+        $tasks = $storage->loadObjects(Task::class);
+
+        self::assertCount(1, $tasks);
+        self::assertEquals(1, $tasks[1]->id());
+    }
+
+
+    protected function setUp(): void
+    {
+        $this->resetRepositoryData();
+    }
+
+    protected function tearDown(): void
+    {
+        $this->resetRepositoryData();
+    }
+
+    private function resetRepositoryData(): void
+    {
+        if (file_exists('repository.data')) {
+            unlink('repository.data');
+        }
+    }
+}
+```
+
+El test verifica que hemos guardado una tarea en el repositorio, confirmando que la primera historia de usuario está implementada.
+
+Puede ser buen momento para examinar lo que hemos hecho y ver si podemos hacer algún refactor que pueda facilitar los siguientes pasos del desarrollo.
+
+Empecemos con el test de aceptación:
+
+```php
+<?php
+
+declare(strict_types=1);
+
+namespace App\Tests\Katas\TodoList;
+
+use App\Lib\FileStorageEngine;
+use App\TodoList\Domain\Task;
+use Symfony\Bundle\FrameworkBundle\Client;
+use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
+use Symfony\Component\HttpFoundation\Response;
+
+class TodoListAcceptanceTest extends WebTestCase
+{
+    private Client $client;
+
+    /** @test */
+    public function asUserIWantToAddTaskToAToDoList(): void
+    {
+        $response = $this->whenWeRequestToCreateATaskWithDescription('Write a test that fails');
+
+        $this->thenResponseShouldBeSuccesful($response);
+
+        $this->thenTheTaskIsStored();
+    }
+
+
+    protected function setUp(): void
+    {
+        $this->resetRepositoryData();
+
+        $this->client = self::createClient();
+    }
+
+    protected function tearDown(): void
+    {
+        $this->resetRepositoryData();
+    }
+
+    private function resetRepositoryData(): void
+    {
+        if (file_exists('repository.data')) {
+            unlink('repository.data');
+        }
+    }
+
+    private function whenWeRequestToCreateATaskWithDescription(string $taskDescription): Response
+    {
+        $this->client->request(
+            'POST',
+            '/api/todo',
+            [],
+            [],
+            ['CONTENT-TYPE' => 'json/application'],
+            json_encode(['task' => $taskDescription], JSON_THROW_ON_ERROR)
+        );
+
+        return $this->client->getResponse();
+    }
+
+    private function thenResponseShouldBeSuccesful(Response $response): void
+    {
+        self::assertEquals(Response::HTTP_CREATED, $response->getStatusCode());
+    }
+
+    private function thenTheTaskIsStored(): void
+    {
+        $storage = new FileStorageEngine('repository.data');
+        $tasks = $storage->loadObjects(Task::class);
+
+        self::assertCount(1, $tasks);
+        self::assertEquals(1, $tasks[1]->id());
+    }
+}
+```
+
+**TodoListControllerTest**:
+
+```php
+<?php
+
+declare(strict_types=1);
+
+namespace App\Tests\TodoList\Infrastructure\EntryPoint\Api;
+
+use App\TodoList\Application\AddTaskHandler;
+use App\TodoList\Infrastructure\EntryPoint\Api\TodoListController;
+use PHPUnit\Framework\TestCase;
+use Symfony\Component\HttpFoundation\Request;
+
+class TodoListControllerTest extends TestCase
+{
+    private const TASK_DESCRIPTION = 'Task Description';
+    private AddTaskHandler $addTaskHandler;
+    private TodoListController $todoListController;
+
+    protected function setUp(): void
+    {
+        $this->addTaskHandler = $this->createMock(AddTaskHandler::class);
+        $this->todoListController = new TodoListController($this->addTaskHandler);
+    }
+
+
+    /** @test */
+    public function shouldAddTask(): void
+    {
+        $this->addTaskHandler
+            ->expects(self::once())
+            ->method('execute')
+            ->with(self::TASK_DESCRIPTION);
+
+        $request = new Request(
+            [],
+            [],
+            [],
+            [],
+            [],
+            ['CONTENT-TYPE' => 'json/application'],
+            json_encode(['task' => self::TASK_DESCRIPTION], JSON_THROW_ON_ERROR)
+        );
+
+        $response = $this->todoListController->addTask($request);
+
+        self::assertEquals(201, $response->getStatusCode());
+    }
+}
+```
+
+Hay otros pequeños cambios en archivos, pero no los vamos a detallar aquí.
+
+
+## Ver las tareas de la lista
+
+### US 2
+
+* As a User
+* I want to see the task in my to-do list
+* So that, I can know what I have to do next
+
+Nuestra segunda historia requiere su propio endpoint, controlador y caso de uso. Ya tenemos un repositorio de tareas, al cual tendremos que añadir un método con el que obtener las lista completa.
+
+Como tenemos una implementación *real* del repositorio ya no tenemos que usar un mock como nos hizo falta antes para poder arrancar el desarrollo. En una situación en la que estuviésemos usando una persistencia en base de datos o similar, posiblemente necesitaríamos una implementación *fake*, como un repositorio en memoria o incluso este simple repositorio en archivo que estamos utilizando, que necesitamos por el problema de la persistencia entre requests de PHP.
+
+Esta es la primera versión del test de aceptación para esta US:
+
+```php
+<?php
+
+declare(strict_types=1);
+
+namespace App\Tests\Katas\TodoList;
+
+use App\Lib\FileStorageEngine;
+use App\TodoList\Domain\Task;
+use Symfony\Bundle\FrameworkBundle\Client;
+use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
+use Symfony\Component\HttpFoundation\Response;
+
+class TodoListAcceptanceTest extends WebTestCase
+{
+    private Client $client;
+
+    /** @test */
+    public function asUserIWantToAddTaskToAToDoList(): void
+    {
+        $response = $this->whenWeRequestToCreateATaskWithDescription('Write a test that fails');
+
+        $this->thenResponseShouldBeSuccesful($response);
+
+        $this->thenTheTaskIsStored();
+    }
+
+    /** @test */
+    public function asUserIWantToSeeTheTasksInMyTodoList(): void
+    {
+        $expectedList = [
+            '[ ] 1. Write a test tha fails',
+            '[ ] 2. Write code to make the test pass'
+        ];
+        
+        $this->apiCreateTaskWithDescription('Write a test tha fails');
+        $this->apiCreateTaskWithDescription('Write code to make the test pass');
+        
+        $this->client->request(
+            'GET',
+            '/api/todo'
+        );
+
+        $response =  $this->client->getResponse();
+        
+        self::assertEquals(Response::HTTP_OK, $response->getStatusCode());
+        
+        $taskList = json_decode($response->getContent(), true);
+        
+        self::assertEquals($expectedList, $taskList);
+    }
+
+
+    protected function setUp(): void
+    {
+        $this->resetRepositoryData();
+
+        $this->client = self::createClient();
+    }
+
+    protected function tearDown(): void
+    {
+        $this->resetRepositoryData();
+    }
+
+    private function resetRepositoryData(): void
+    {
+        if (file_exists('repository.data')) {
+            unlink('repository.data');
+        }
+    }
+
+    private function whenWeRequestToCreateATaskWithDescription(string $taskDescription): Response
+    {
+        return $this->apiCreateTaskWithDescription($taskDescription);
+    }
+
+    private function thenResponseShouldBeSuccesful(Response $response): void
+    {
+        self::assertEquals(Response::HTTP_CREATED, $response->getStatusCode());
+    }
+
+    private function thenTheTaskIsStored(): void
+    {
+        $storage = new FileStorageEngine('repository.data');
+        $tasks = $storage->loadObjects(Task::class);
+
+        self::assertCount(1, $tasks);
+        self::assertEquals(1, $tasks[1]->id());
+    }
+
+    private function apiCreateTaskWithDescription(string $taskDescription): Response
+    {
+        $this->client->request(
+            'POST',
+            '/api/todo',
+            [],
+            [],
+            ['CONTENT-TYPE' => 'json/application'],
+            json_encode(['task' => $taskDescription], JSON_THROW_ON_ERROR)
+        );
+
+        return $this->client->getResponse();
+    }
+}
+```
+
+Así que lo ejecutamos y, como antes, nos vamos fijando en los errores que lanza para arreglarlos hasta que el test falle por las razones correctas. En este caso podemos ver dos errores relacionados. 
+
+El primero es que no hay una ruta adecuada para el endpoint.
+
+```
+"No route found for "GET /api/todo": Method Not Allowed (Allow: POST)"
+```
+
+Lo que, por supuesto, causa el error en el test al verificar el código de estado:
+
+```
+Failed asserting that 405 matches expected 200.
+```
+
+Configuramos la ruta en **routes.yaml**:
+
+```yaml
+api_add_task:
+  path: /api/todo
+  controller: App\TodoList\Infrastructure\EntryPoint\Api\TodoListController::addTask
+  methods: ['POST']
+```
+
+Lanzamos el test. El error es diferente, lo que indica que hemos hecho el cambio correctamente, pero ahora nos hace falta el controlador específico:
+
+```
+"The controller for URI "/api/todo" is not callable. Expected method "getTaskList" on class "App\TodoList\Infrastructure\EntryPoint\Api\TodoListController"
+```
+
+Así que añadimos nuestra implementación *vacía* inicial:
+
+```php
+<?php
+
+declare(strict_types=1);
+
+namespace App\TodoList\Infrastructure\EntryPoint\Api;
+
+
+use App\TodoList\Application\AddTaskHandler;
+use Symfony\Component\HttpFoundation\JsonResponse;
+use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Response;
+
+class TodoListController
+{
+    /** @var AddTaskHandler */
+    private AddTaskHandler $addTaskHandler;
+
+    public function __construct(AddTaskHandler $addTaskHandler)
+    {
+        $this->addTaskHandler = $addTaskHandler;
+    }
+
+    public function addTask(Request $request): Response
+    {
+        $payload = $this->obtainPayload($request);
+
+        $this->addTaskHandler->execute($payload['task']);
+
+        return new JsonResponse('', Response::HTTP_CREATED);
+    }
+
+    public function getTaskList(): Response
+    {
+        throw new \RuntimeException(sprintf('Implement %s', __METHOD__));
+    }
+
+    private function obtainPayload(Request $request): array
+    {
+        return json_decode($request->getContent(), true, 512, JSON_THROW_ON_ERROR);
+    }
+}
+```
+
+Al volver a lanzar el test, se lanza la excepción que nos indica que necesitamos implementar algo. Es el momento de volver al test unitario de `TodoListController`. Es importante aprender a identificar cuando tenemos que movernos entre el ciclo del test de aceptación y el ciclo de tests unitarios.
+
+El nuevo test nos ayuda a introducir el nuevo caso de uso `GetTaskListHandler`, pero también nos plantea un problema interesante: ¿qué debería devolver `GetTaskListHandler`: objetos Task o una representación de estos?
+
+En este caso, lo más correcto sería utilizar algún tipo de `DataTransformer` y aplicar un patrón `Strategy` de modo que `TodoListController` le indique al caso de uso qué `DataTransformer` quiere usar. Este transformer se puede pasar como dependencia al controlador y este se lo enviará al caso de uso como parámetro.
+
+Como puedes ver. ahora estamos literalmente diseñando. Así que vamos a ver cómo queda el test.
+
+```php
+<?php
+
+declare(strict_types=1);
+
+namespace App\Tests\TodoList\Infrastructure\EntryPoint\Api;
+
+use App\TodoList\Application\AddTaskHandler;
+use App\TodoList\Infrastructure\EntryPoint\Api\TodoListController;
+use PHPUnit\Framework\TestCase;
+use Symfony\Component\HttpFoundation\Request;
+
+class TodoListControllerTest extends TestCase
+{
+    private const TASK_DESCRIPTION = 'Task Description';
+    private AddTaskHandler $addTaskHandler;
+    private TodoListController $todoListController;
+    private GetTaskListHandler $getTaskListHandler;
+    private TaskListTransformer $taskListTransformer;
+
+    protected function setUp(): void
+    {
+        $this->addTaskHandler = $this->createMock(AddTaskHandler::class);
+        $this->getTaskListHandler = $this->createMock(GetTaskListHandler::class);
+        $this->taskListTransformer = $this->createMock(TaskListTransformer::class);
+        $this->todoListController = new TodoListController(
+            $this->addTaskHandler,
+            $this->getTaskListHandler,
+            $this->taskListTransformer
+        );
+    }
+
+
+    /** @test */
+    public function shouldAddTask(): void
+    {
+        $this->addTaskHandler
+            ->expects(self::once())
+            ->method('execute')
+            ->with(self::TASK_DESCRIPTION);
+
+        $request = new Request(
+            [],
+            [],
+            [],
+            [],
+            [],
+            ['CONTENT-TYPE' => 'json/application'],
+            json_encode(['task' => self::TASK_DESCRIPTION], JSON_THROW_ON_ERROR)
+        );
+
+        $response = $this->todoListController->addTask($request);
+
+        self::assertEquals(201, $response->getStatusCode());
+    }
+
+    /** @test */
+    public function shouldGetTaskList(): void
+    {
+        $expectedList = [
+            '[ ] 1. Task Description',
+            '[ ] 2. Task Description',
+        ];
+        $this->getTaskListHandler
+            ->expects(self::once())
+            ->method('execute')
+            ->with($this->taskListTransformer)
+            ->willReturn($expectedList);
+
+        $response = $this->todoListController->getTaskList(new Request());
+
+        self::assertEquals(200, $response->getStatusCode());
+
+        $list = json_decode($response->getContent(), true);
+
+        self::assertEquals($expectedList, $list);
+    }
+}
+```
+
+En este punto, sólo necesitamos `TaskListTransformer` para que el controlador lo pase al caso de uso. Si lanzamos el test, fallará porque no tenemos aún definida la clase `GetTaskListHandler`. Introducimos una implementación inicial.
+
+```php
+class GetTaskListHandler
+{
+    
+}
+```
+
+Lanzando el test de nuevo, vemos que ahora nos pide `TaskListTransformer`. Primero movemos GetTaskListHandler a su lugar en `App\TodoList\Application`. Luego creamos TaskListTransformer.
+
+```php
+class TaskListTransformer
+{
+    
+}
+```
+
+Comprobamos de nuevo el resultado del test, que ahora nos dice que nos falta un método execute en `GetTaskListHandler`. Igual que hicimos antes, movemos primero la clase TaskListTransformer a su lugar. En principio yo lo introduciría en `App\TodoList\Infrastructure\EntryPoint\Api` puesto que la razón de ser del transformer es preparar una respuesta específica para el Api. Una vez recolocado nos ocupamos de añadir el método execute en `GetTaskListHandler`.
+
+```php
+<?php
+
+declare(strict_types=1);
+
+namespace App\TodoList\Application;
+
+use App\TodoList\Infrastructure\EntryPoint\Api\TaskListTransformer;
+
+class GetTaskListHandler
+{
+    public function execute(TaskListTransformer $taskListTransformer): array
+    {
+        throw new \RuntimeException(sprintf('Implement %s', __METHOD__));
+    }
+}
+```
+
+Con este añadido, al ejecutar el test conseguimos que falle porque vemos que ha saltado la excepción que nos pide implementar getTaskList en el controlador:
+
+```
+RuntimeException : Implement App\TodoList\Infrastructure\EntryPoint\Api\TodoListController::getTaskList
+```
+
+Y podemos implementar lo necesario para que pase el test:
+
+```php
+<?php
+
+declare(strict_types=1);
+
+namespace App\TodoList\Infrastructure\EntryPoint\Api;
+
+
+use App\TodoList\Application\AddTaskHandler;
+use App\TodoList\Application\GetTaskListHandler;
+use Symfony\Component\HttpFoundation\JsonResponse;
+use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Response;
+
+class TodoListController
+{
+    private AddTaskHandler $addTaskHandler;
+    private GetTaskListHandler $getTaskListHandler;
+    private TaskListTransformer $taskListTransformer;
+
+    public function __construct(
+        AddTaskHandler $addTaskHandler,
+        GetTaskListHandler $getTaskListHandler,
+        TaskListTransformer $taskListTransformer
+    ) {
+        $this->addTaskHandler = $addTaskHandler;
+        $this->getTaskListHandler = $getTaskListHandler;
+        $this->taskListTransformer = $taskListTransformer;
+    }
+
+    public function addTask(Request $request): Response
+    {
+        $payload = $this->obtainPayload($request);
+
+        $this->addTaskHandler->execute($payload['task']);
+
+        return new JsonResponse('', Response::HTTP_CREATED);
+    }
+
+    public function getTaskList(Request $request): Response
+    {
+        $taskList = $this->getTaskListHandler->execute($this->taskListTransformer);
+
+        return new JsonResponse($taskList, Response::HTTP_OK);
+    }
+
+    private function obtainPayload(Request $request): array
+    {
+        return json_decode($request->getContent(), true, 512, JSON_THROW_ON_ERROR);
+    }
+}
+```
+
+Se puede observar que el controlador tiene muchas dependencias. Esto se puede solucionar con un bus de comandos o dividiendo la clase en otras más pequeñas, pero no es algo que vayamos a hacer en este ejercicio para no perder el foco.
+
+En cualquier caso, el test pasa, lo que nos indica que es el momento de moverse de nuevo al ciclo del test de aceptación.
+
+Este seguirá fallando, como cabría esperar:
+
+```
+PHP Exception RuntimeException: "Implement App\TodoList\Application\GetTaskListHandler::execute" 
+```
+
+Fallo que nos dice que el siguiente paso es desarrollar con un test unitario el caso de uso GetTaskListHandler.
+
+```php
+<?php
+
+declare(strict_types=1);
+
+namespace App\Tests\TodoList\Application;
+
+use App\TodoList\Application\GetTaskListHandler;
+use App\TodoList\Domain\Task;
+use App\TodoList\Domain\TaskRepository;
+use App\TodoList\Infrastructure\EntryPoint\Api\TaskListTransformer;
+use PHPUnit\Framework\TestCase;
+
+class GetTaskListHandlerTest extends TestCase
+{
+    /** @test */
+    public function shouldGetExistingTasks(): void
+    {
+        $expectedList = [
+            '[ ] 1. Write a test that fails',
+            '[ ] 2. Write code to make the test pass',
+        ];
+
+        $taskList = [
+            new Task(1, 'Write a test that fails'),
+            new Task(2, 'Write code to make the test pass'),
+        ];
+
+        $tasksRepository = $this->createMock(TaskRepository::class);
+        $tasksRepository
+            ->method('findAll')
+            ->willReturn($taskList);
+
+        $taskListTransformer = $this->createMock(TaskListTransformer::class);
+        $taskListTransformer
+            ->expects(self::once())
+            ->method('transform')
+            ->with($taskList)
+            ->willReturn($expectedList);
+
+        $getTaskListHandler = new GetTaskListHandler($tasksRepository);
+        $list = $getTaskListHandler->execute($taskListTransformer);
+
+        self::assertEquals($expectedList, $list);
+    }
+}
+```
+
+Al lanzar este test, nos pide añadir el método `findAll` en el repositorio.
+
+```
+Trying to configure method "findAll" which cannot be configured because it does not exist, has not been specified, is final, or is static
+```
+
+Esto lo hacemos en la interfaz y en la implementación concreta:
+
+```php
+<?php
+
+declare(strict_types=1);
+
+namespace App\TodoList\Domain;
+
+interface TaskRepository
+{
+    public function store(Task $task): void;
+
+    public function nextIdentity(): int;
+
+    public function findAll(): array;
+}
+
+```
+
+```php
+<?php
+
+declare(strict_types=1);
+
+namespace App\TodoList\Infrastructure\Persistence;
+
+
+use App\Lib\FileStorageEngine;
+use App\TodoList\Domain\Task;
+use App\TodoList\Domain\TaskRepository;
+
+class FileTaskRepository implements TaskRepository
+{
+
+    /** @var FileStorageEngine */
+    private FileStorageEngine $fileStorageEngine;
+
+    public function __construct(FileStorageEngine $fileStorageEngine)
+    {
+        $this->fileStorageEngine = $fileStorageEngine;
+    }
+
+    public function store(Task $task): void
+    {
+       $tasks = $this->fileStorageEngine->loadObjects(Task::class);
+
+       $tasks[$task->id()] = $task;
+
+       $this->fileStorageEngine->persistObjects($tasks);
+    }
+
+    public function nextIdentity(): int
+    {
+        $tasks = $this->fileStorageEngine->loadObjects(Task::class);
+
+        return count($tasks) + 1;
+    }
+
+    public function findAll(): array
+    {
+        throw new \RuntimeException('Implement findAll() method.');
+    }
+}
+```
+
+Y lo mismo para el método `transform` en TaskListTransformer:
+
+```
+Trying to configure method "transform" which cannot be configured because it does not exist, has not been specified, is final, or is static
+```
+
+El cual quedará así:
+
+```php
+<?php
+
+declare(strict_types=1);
+
+namespace App\TodoList\Infrastructure\EntryPoint\Api;
+
+class TaskListTransformer
+{
+    public function transform(array $taskList): array
+    {
+        throw new \RuntimeException(sprintf('Implement %s', __METHOD__));
+    }
+}
+```
+
+Con estos cambios, el test ahora fallará para decirnos que necesitamos implementar el método execute del caso de uso, que es justo donde queríamos estar:
+
+```
+RuntimeException : Implement App\TodoList\Application\GetTaskListHandler::execute
+```
+
+Y he aquí la implementación que hace pasar el test.
+
+```php
+<?php
+
+declare(strict_types=1);
+
+namespace App\TodoList\Application;
+
+use App\TodoList\Domain\TaskRepository;
+use App\TodoList\Infrastructure\EntryPoint\Api\TaskListTransformer;
+
+class GetTaskListHandler
+{
+    /** @var TaskRepository */
+    private TaskRepository $taskRepository;
+
+    public function __construct(TaskRepository $taskRepository)
+    {
+        $this->taskRepository = $taskRepository;
+    }
+
+    public function execute(TaskListTransformer $taskListTransformer): array
+    {
+        $tasks = $this->taskRepository->findAll();
+
+        return $taskListTransformer->transform($tasks);
+    }
+}
+```
+
+Ahora que hemos vuelto a verde, regresaremos al ciclo de aceptación. Al lanzar el test el resultado es un mensaje de error nuevo, que nos pide implementar `findAll` en FileTaskRepository.
+
+```
+RuntimeException: "Implement findAll() method."
+```
+
+Esto requiere un test unitario.
+
+```php
+<?php
+
+declare(strict_types=1);
+
+namespace App\Tests\TodoList\Infrastructure\Persistence;
+
+use App\Lib\FileStorageEngine;
+use App\TodoList\Domain\Task;
+use App\TodoList\Domain\TaskRepository;
+use App\TodoList\Infrastructure\Persistence\FileTaskRepository;
+use PHPUnit\Framework\TestCase;
+
+class FileTaskRepositoryTest extends TestCase
+{
+    private FileStorageEngine $fileStorageEngine;
+    private TaskRepository $taskRepository;
+
+    public function setUp(): void
+    {
+        $this->fileStorageEngine = $this->createMock(FileStorageEngine::class);
+        $this->taskRepository = new FileTaskRepository($this->fileStorageEngine);
+    }
+
+    /** @test */
+    public function shouldProvideNextIdentityCountingExistingObjects(): void
+    {
+        $this->fileStorageEngine
+            ->method('loadObjects')
+            ->willReturn(
+                [],
+                ['Task'],
+                ['Task', 'Task']
+            );
+
+        self::assertEquals(1, $this->taskRepository->nextIdentity());
+        self::assertEquals(2, $this->taskRepository->nextIdentity());
+        self::assertEquals(3, $this->taskRepository->nextIdentity());
+    }
+
+    /** @test */
+    public function shouldStoreATask(): void
+    {
+        $task = new Task(1, 'Task Description');
+
+        $this->fileStorageEngine
+            ->method('loadObjects')
+            ->willReturn([]);
+        $this->fileStorageEngine
+            ->expects(self::once())
+            ->method('persistObjects')
+            ->with([1 => $task]);
+
+        $this->taskRepository->store($task);
+    }
+
+    /** @test */
+    public function shouldGetStoredTasks(): void
+    {
+        $storedTasks = [
+            1 => new Task(1, 'Write a test that fails'),
+            2 => new Task(2, 'Write code to make the test pass'),
+        ];
+
+        $this->fileStorageEngine
+            ->method('loadObjects')
+            ->willReturn(
+                $storedTasks
+            );
+
+        self::assertEquals($storedTasks, $this->taskRepository->findAll());
+    }
+}
+```
+
+Al ejecutarlo, nos pedirá:
+
+```
+RuntimeException : Implement findAll() method.
+```
+
+Así que vamos a ello:
+
+```php
+<?php
+
+declare(strict_types=1);
+
+namespace App\TodoList\Infrastructure\Persistence;
+
+
+use App\Lib\FileStorageEngine;
+use App\TodoList\Domain\Task;
+use App\TodoList\Domain\TaskRepository;
+
+class FileTaskRepository implements TaskRepository
+{
+
+    /** @var FileStorageEngine */
+    private FileStorageEngine $fileStorageEngine;
+
+    public function __construct(FileStorageEngine $fileStorageEngine)
+    {
+        $this->fileStorageEngine = $fileStorageEngine;
+    }
+
+    public function store(Task $task): void
+    {
+       $tasks = $this->fileStorageEngine->loadObjects(Task::class);
+
+       $tasks[$task->id()] = $task;
+
+       $this->fileStorageEngine->persistObjects($tasks);
+    }
+
+    public function nextIdentity(): int
+    {
+        $tasks = $this->fileStorageEngine->loadObjects(Task::class);
+
+        return count($tasks) + 1;
+    }
+
+    public function findAll(): array
+    {
+        return $this->fileStorageEngine->loadObjects(Task::class);
+    }
+}
+```
+
+Ahora el test unitario pasa, con lo cual tenemos implementado buena parte del repositorio. ¿Será suficiente para hacer pasar el test de aceptación?
+
+No, todavía tenemos cosas pendientes:
+
+```
+RuntimeException: "Implement App\TodoList\Infrastructure\EntryPoint\Api\TaskListTransformer::transform"
+```
+
+Ahora nos toca introducir un nuevo test unitario para desarrollar el Transformer. Este nos va a  suponer un pequeño reto de diseño. No disponemos todavía de formas de acceder a las propiedades de Task, una entidad que tampoco hemos tenido que desarrollar más hasta ahora, y lo cierto es que no deberíamos condicionar su implementación a este tipo de necesidades. En un sistema más real y sofisticado podríamos aplicar un patrón Visitor o similar. En este caso, lo que haremos será pasar una plantilla a Task para que nos la devuelva cubierta con sus datos.
+
+Como Task es una entidad prefiero no mockearla, así que el test quedará de esta forma:
+
+```php
+<?php
+
+declare(strict_types=1);
+
+namespace App\Tests\TodoList\Infrastructure\EntryPoint\Api;
+
+use App\TodoList\Domain\Task;
+use App\TodoList\Infrastructure\EntryPoint\Api\TaskListTransformer;
+use PHPUnit\Framework\TestCase;
+
+class TaskListTransformerTest extends TestCase
+{
+    /** @test
+     * @dataProvider examplesProvider
+     */
+    public function shouldTransformList($tasksList, $expected): void
+    {
+        $taskListTransformer = new TaskListTransformer();
+
+        $result = $taskListTransformer->transform($tasksList);
+
+        self::assertEquals($expected, $result);
+    }
+
+    public function examplesProvider(): array
+    {
+        return [
+          [[], []],
+          [[new Task(1, 'Task Description')], ['[ ] 1. Task Description']]
+        ];
+    }
+}
+
+```
+
+Y el código de producción podría ser este:
+
+```php
+<?php
+
+declare(strict_types=1);
+
+namespace App\TodoList\Infrastructure\EntryPoint\Api;
+
+class TaskListTransformer
+{
+    public function transform(array $taskList): array
+    {
+        $transformed = [];
+
+        foreach ($taskList as $task) {
+            $transformed[] = $task->representedAs('[:check] :id. :description');
+        }
+
+        return $transformed;
+    }
+}
+
+```
+
+El test lanzará un error para decirnos que no está implementado el método representedAs en Task, por lo que podemos añadirlo.
+
+```php
+<?php
+
+declare(strict_types=1);
+
+namespace App\TodoList\Domain;
+
+class Task
+{
+    private int $id;
+    private string $description;
+
+    public function __construct(int $id, string $description)
+    {
+        $this->id = $id;
+        $this->description = $description;
+    }
+
+    public function id(): int
+    {
+        return $this->id;
+    }
+
+    public function representedAs(): string
+    {
+        throw new \RuntimeException(sprintf('Implement %s', __METHOD__));
+    }
+}
+```
+
+En cierto modo, podemos usar el test actual como test de aceptación. Si lo ejecutamos veremos que se lanza la excepción:
+
+```
+RuntimeException : Implement App\TodoList\Domain\Task::representedAs
+```
+
+Lo que nos indicaría la necesidad de pasar al siguiente nivel y crear un test unitario para desarrollar Task, o al menos el método representedAs. Otra opción, sería desarrollar Task bajo la cobertura del test actual, pero no es muy buena idea ya que el test podría requerir de ejemplos que no aportan nada realmente al test y que son relevantes sólo para task.
+
+```php
+<?php
+
+declare(strict_types=1);
+
+namespace App\Tests\TodoList\Domain;
+
+use App\TodoList\Domain\Task;
+use PHPUnit\Framework\TestCase;
+
+class TaskTest extends TestCase
+{
+    /** @test */
+    public function shouldProvideRepresentation(): void
+    {
+        $expected = '[ ] 1. Task Description';
+        $task = new Task(1, 'Task Description');
+        
+        $representation = $task->representedAs('[:check] :id. :description');
+        
+        self::assertEquals($expected, $representation);
+    }
+}
+```
+
+Por el momento esta implementación ya nos iría bien. 
+
+```php
+<?php
+
+declare(strict_types=1);
+
+namespace App\TodoList\Domain;
+
+class Task
+{
+    private int $id;
+    private string $description;
+
+    public function __construct(int $id, string $description)
+    {
+        $this->id = $id;
+        $this->description = $description;
+    }
+
+    public function id(): int
+    {
+        return $this->id;
+    }
+
+    public function representedAs(string $format): string
+    {
+        $values = [
+            ':check' => ' ',
+            ':id' => $this->id,
+            ':description' => $this->description
+        ];
+        return strtr($format, $values);
+
+    }
+}
+```
+
+Así que podríamos subir un nivel y volver al test anterior del Transformer, que pasa sin más problemas.
+
+Con este test en verde, regresamos al nivel de aceptación, que también pasa, indicando que hemos terminado de desarrollar esta historia de usuario.
+
+## Marcar tareas completadas
+
+### US-3
+
+* As a User
+* I want to check a task when it is done
+* So that, I can see my progress
+
+La tercera historia de usuario se construye fácilmente a partir de las dos anteriores, ya que nuestra aplicación ya permite introducir tareas y ver la lista. Por eso, antes de empezar con el desarrollo refactorizaremos el test de aceptación para que sea más sencillo extenderlo. De hecho, hasta podemos reutilizar algunas partes. Este es el resultado, ya con el nuevo test de aceptación.
+
+```php
+<?php
+
+declare(strict_types=1);
+
+namespace App\Tests\Katas\TodoList;
+
+use App\Lib\FileStorageEngine;
+use App\TodoList\Domain\Task;
+use Symfony\Bundle\FrameworkBundle\Client;
+use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
+use Symfony\Component\HttpFoundation\Response;
+
+class TodoListAcceptanceTest extends WebTestCase
+{
+    private Client $client;
+
+    /** @test */
+    public function asUserIWantToAddTaskToAToDoList(): void
+    {
+        $response = $this->whenWeRequestToCreateATaskWithDescription('Write a test that fails');
+
+        $this->thenResponseShouldBeSuccesful($response);
+
+        $this->thenTheTaskIsStored();
+    }
+
+    /** @test */
+    public function asUserIWantToSeeTheTasksInMyTodoList(): void
+    {
+        $this->givenIHaveAddedTasks();
+
+        $response = $this->whenIRequestTheListOfTasks();
+
+        $this->thenICanSeeAddedTasksInTheList(
+            [
+                '[ ] 1. Write a test tha fails',
+                '[ ] 2. Write code to make the test pass'
+            ],
+            $response
+        );
+    }
+
+    /** @test */
+    public function asUserIWantToMarkTasksAsCompleted(): void
+    {
+        $this->givenIHaveAddedTasks();
+        
+        $this->client->request(
+            'PATCH',
+            '/api/todo/1',
+            [],
+            [],
+            ['CONTENT-TYPE' => 'json/application'],
+            json_encode(['completed' => true], JSON_THROW_ON_ERROR)
+
+        );
+        
+        $patchResponse = $this->client->getResponse();
+
+        self::assertEquals(Response::HTTP_OK, $patchResponse->getStatusCode());
+                
+        $response = $this->whenIRequestTheListOfTasks();
+
+        $this->thenICanSeeAddedTasksInTheList(
+            [
+                '[√] 1. Write a test tha fails',
+                '[ ] 2. Write code to make the test pass'
+            ],
+            $response
+        );
+    }
+
+
+    protected function setUp(): void
+    {
+        $this->resetRepositoryData();
+
+        $this->client = self::createClient();
+    }
+
+    protected function tearDown(): void
+    {
+        $this->resetRepositoryData();
+    }
+
+    private function resetRepositoryData(): void
+    {
+        if (file_exists('repository.data')) {
+            unlink('repository.data');
+        }
+    }
+
+    private function whenWeRequestToCreateATaskWithDescription(string $taskDescription): Response
+    {
+        return $this->apiCreateTaskWithDescription($taskDescription);
+    }
+
+    private function thenResponseShouldBeSuccesful(Response $response): void
+    {
+        self::assertEquals(Response::HTTP_CREATED, $response->getStatusCode());
+    }
+
+    private function thenTheTaskIsStored(): void
+    {
+        $storage = new FileStorageEngine('repository.data');
+        $tasks = $storage->loadObjects(Task::class);
+
+        self::assertCount(1, $tasks);
+        self::assertEquals(1, $tasks[1]->id());
+    }
+
+    private function apiCreateTaskWithDescription(string $taskDescription): Response
+    {
+        $this->client->request(
+            'POST',
+            '/api/todo',
+            [],
+            [],
+            ['CONTENT-TYPE' => 'json/application'],
+            json_encode(['task' => $taskDescription], JSON_THROW_ON_ERROR)
+        );
+
+        return $this->client->getResponse();
+    }
+
+    private function whenIRequestTheListOfTasks(): Response
+    {
+        $response = $this->apiGetTasksList();
+
+        self::assertEquals(Response::HTTP_OK, $response->getStatusCode());
+        return $response;
+    }
+
+    private function apiGetTasksList(): Response
+    {
+        $this->client->request(
+            'GET',
+            '/api/todo'
+        );
+
+        return $this->client->getResponse();
+    }
+
+    private function givenIHaveAddedTasks(): void
+    {
+        $this->apiCreateTaskWithDescription('Write a test tha fails');
+        $this->apiCreateTaskWithDescription('Write code to make the test pass');
+    }
+
+    private function thenICanSeeAddedTasksInTheList(array $expectedTasks, Response $response): void
+    {
+        $taskList = json_decode($response->getContent(), true);
+
+        self::assertEquals(
+            $expectedTasks, $taskList);
+    }
+}
+```
+
+Al lanzar el test, y como era de esperar, falla porque no se encuentra la ruta al endpoint:
+
+```
+"No route found for "PATCH /api/todo/1"
+```
+
+Y, como hemos hecho antes, tendremos que definirla y crear un controlador que la gestione. En primer lugar, la definición de la ruta en **routes.yaml**.
+
+```yaml
+api_add_task:
+  path: /api/todo
+  controller: App\TodoList\Infrastructure\EntryPoint\Api\TodoListController::addTask
+  methods: ['POST']
+
+api_get_task_list:
+  path: /api/todo
+  controller: App\TodoList\Infrastructure\EntryPoint\Api\TodoListController::getTaskList
+  methods: ['GET']
+
+api_mark_task_completed:
+  path: /api/todo/{taskId}
+  controller: App\TodoList\Infrastructure\EntryPoint\Api\TodoListController::markTaskCompleted
+  methods: ['PATCH']
+```
+
+Una nueva ejecución del test nos indica que falta un controlador:
+
+```
+"The controller for URI "/api/todo/1" is not callable. Expected method "markTaskCompleted"
+```
+
+Y añadimos uno vacío:
+
+```php
+<?php
+
+declare(strict_types=1);
+
+namespace App\TodoList\Infrastructure\EntryPoint\Api;
+
+
+use App\TodoList\Application\AddTaskHandler;
+use App\TodoList\Application\GetTaskListHandler;
+use Symfony\Component\HttpFoundation\JsonResponse;
+use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Response;
+
+class TodoListController
+{
+    private AddTaskHandler $addTaskHandler;
+    private GetTaskListHandler $getTaskListHandler;
+    private TaskListTransformer $taskListTransformer;
+
+    public function __construct(
+        AddTaskHandler $addTaskHandler,
+        GetTaskListHandler $getTaskListHandler,
+        TaskListTransformer $taskListTransformer
+    ) {
+        $this->addTaskHandler = $addTaskHandler;
+        $this->getTaskListHandler = $getTaskListHandler;
+        $this->taskListTransformer = $taskListTransformer;
+    }
+
+    public function addTask(Request $request): Response
+    {
+        $payload = $this->obtainPayload($request);
+
+        $this->addTaskHandler->execute($payload['task']);
+
+        return new JsonResponse('', Response::HTTP_CREATED);
+    }
+
+    public function getTaskList(Request $request): Response
+    {
+        $taskList = $this->getTaskListHandler->execute($this->taskListTransformer);
+
+        return new JsonResponse($taskList, Response::HTTP_OK);
+    }
+
+    public function markTaskCompleted(int $taskId): Response
+    {
+        throw new \RuntimeException(sprintf('Implement %s', __METHOD__));
+    }
+
+    private function obtainPayload(Request $request): array
+    {
+        return json_decode($request->getContent(), true, 512, JSON_THROW_ON_ERROR);
+    }
+}
+```
+
+El error ahora es:
+
+```
+RuntimeException: "Implement App\TodoList\Infrastructure\EntryPoint\Api\TodoListController::markTaskCompleted"
+```
+
+Y el test falla porque espera que ese endpoint esté funcionando como es debido y respondiendo, pero todavía está sin implementar. Por tanto, nos movemos al nivel unitario para definir la funcionalidad del controlador.
+
+Como en los casos anteriores, implementar la funcionalidad require además del controlador un caso de uso y utilizar el repositorio para recuperar la tarea que se quiere marcar, y volver a guardarla. Por tanto, la clave del test será esperar que se ejecute el caso de uso con los parámetros adecuados.
+
+Así que, el test quedaría más o menos así;
+
+```php
+<?php
+
+declare(strict_types=1);
+
+namespace App\Tests\TodoList\Infrastructure\EntryPoint\Api;
+
+use App\TodoList\Application\AddTaskHandler;
+use App\TodoList\Application\GetTaskListHandler;
+use App\TodoList\Infrastructure\EntryPoint\Api\TaskListTransformer;
+use App\TodoList\Infrastructure\EntryPoint\Api\TodoListController;
+use PHPUnit\Framework\TestCase;
+use Symfony\Component\HttpFoundation\Request;
+
+class TodoListControllerTest extends TestCase
+{
+    private const TASK_DESCRIPTION = 'Task Description';
+    private const COMPLETED_TASK_ID = 1;
+    private AddTaskHandler $addTaskHandler;
+    private TodoListController $todoListController;
+    private GetTaskListHandler $getTaskListHandler;
+    private TaskListTransformer $taskListTransformer;
+    private MarkTaskCompletedHandler $markTaskCompletedHandler;
+
+    protected function setUp(): void
+    {
+        $this->addTaskHandler = $this->createMock(AddTaskHandler::class);
+        $this->getTaskListHandler = $this->createMock(GetTaskListHandler::class);
+        $this->taskListTransformer = $this->createMock(TaskListTransformer::class);
+        $this->markTaskCompletedHandler = $this->createMock(MarkTaskCompletedHandler::class);
+        $this->todoListController = new TodoListController(
+            $this->addTaskHandler,
+            $this->getTaskListHandler,
+            $this->taskListTransformer,
+            $this->markTaskCompletedHandler
+        );
+    }
+
+
+    /** @test */
+    public function shouldAddTask(): void
+    {
+        $this->addTaskHandler
+            ->expects(self::once())
+            ->method('execute')
+            ->with(self::TASK_DESCRIPTION);
+
+        $request = new Request(
+            [],
+            [],
+            [],
+            [],
+            [],
+            ['CONTENT-TYPE' => 'json/application'],
+            json_encode(['task' => self::TASK_DESCRIPTION], JSON_THROW_ON_ERROR)
+        );
+
+        $response = $this->todoListController->addTask($request);
+
+        self::assertEquals(201, $response->getStatusCode());
+    }
+
+    /** @test */
+    public function shouldGetTaskList(): void
+    {
+        $expectedList = [
+            '[ ] 1. Task Description',
+            '[ ] 2. Task Description',
+        ];
+        $this->getTaskListHandler
+            ->expects(self::once())
+            ->method('execute')
+            ->with($this->taskListTransformer)
+            ->willReturn($expectedList);
+
+        $response = $this->todoListController->getTaskList(new Request());
+
+        self::assertEquals(200, $response->getStatusCode());
+
+        $list = json_decode($response->getContent(), true);
+
+        self::assertEquals($expectedList, $list);
+    }
+
+    /** @test */
+    public function shouldMarkTaskCompleted(): void
+    {
+        $this->markTaskCompletedHandler
+            ->expects(self::once())
+            ->method('execute')
+            ->with(self::COMPLETED_TASK_ID, true);
+
+        $request = new Request(
+            [],
+            [],
+            [],
+            [],
+            [],
+            ['CONTENT-TYPE' => 'json/application'],
+            json_encode(['completed' => true], JSON_THROW_ON_ERROR)
+        );
+
+        $response = $this->todoListController->markTaskCompleted(self::COMPLETED_TASK_ID, $request);
+
+        self::assertEquals(200, $response->getStatusCode());
+    }
+}
+```
+
+Una vez que tenemos el test, lo lanzamos. El resultado es que nos pide crear la clase MarkTaskCompletedHandler.
+
+```
+Cannot stub or mock class or interface "App\Tests\TodoList\Infrastructure\EntryPoint\Api\MarkTaskCompletedHandler" which does not exist
+```
+
+La creamos en el propio test y luego la movemos a su ubicación en `App\TodoList\Application`. A continuación nos pedirá crear el método `execute`.
+
+```
+Trying to configure method "execute" which cannot be configured because it does not exist, has not been specified, is final, or is static
+```
+
+EL cual prepararemos de esta forma:
+
+```php
+<?php
+
+declare(strict_types=1);
+
+namespace App\TodoList\Application;
+
+
+class MarkTaskCompletedHandler
+{
+    public function execute(int $taskId, bool $completed): void
+    {
+        throw new \RuntimeException(sprintf('Implement %s', __METHOD__));
+    }
+}
+```
+
+Con esto ya tenemos lo necesario para implementar la acción del controlador, cosa que hacemos, porque el siguiente error nos lo indica:
+
+```
+RuntimeException : Implement App\TodoList\Infrastructure\EntryPoint\Api\TodoListController::markTaskCompleted
+```
+
+Este es el código que hará pasar el test del controlador.
+
+```php
+<?php
+
+declare(strict_types=1);
+
+namespace App\TodoList\Infrastructure\EntryPoint\Api;
+
+
+use App\TodoList\Application\AddTaskHandler;
+use App\TodoList\Application\GetTaskListHandler;
+use App\TodoList\Application\MarkTaskCompletedHandler;
+use Symfony\Component\HttpFoundation\JsonResponse;
+use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Response;
+
+class TodoListController
+{
+    private AddTaskHandler $addTaskHandler;
+    private GetTaskListHandler $getTaskListHandler;
+    private TaskListTransformer $taskListTransformer;
+    private MarkTaskCompletedHandler $markTaskCompletedHandler;
+
+    public function __construct(
+        AddTaskHandler $addTaskHandler,
+        GetTaskListHandler $getTaskListHandler,
+        TaskListTransformer $taskListTransformer,
+        MarkTaskCompletedHandler $markTaskCompletedHandler
+    ) {
+        $this->addTaskHandler = $addTaskHandler;
+        $this->getTaskListHandler = $getTaskListHandler;
+        $this->taskListTransformer = $taskListTransformer;
+        $this->markTaskCompletedHandler = $markTaskCompletedHandler;
+    }
+
+    public function addTask(Request $request): Response
+    {
+        $payload = $this->obtainPayload($request);
+
+        $this->addTaskHandler->execute($payload['task']);
+
+        return new JsonResponse('', Response::HTTP_CREATED);
+    }
+
+    public function getTaskList(Request $request): Response
+    {
+        $taskList = $this->getTaskListHandler->execute($this->taskListTransformer);
+
+        return new JsonResponse($taskList, Response::HTTP_OK);
+    }
+
+    public function markTaskCompleted(int $taskId, Request $request): Response
+    {
+        $payload = $this->obtainPayload($request);
+
+        $this->markTaskCompletedHandler->execute($taskId, $payload['completed']);
+
+        return new JsonResponse('', Response::HTTP_OK);
+    }
+
+    private function obtainPayload(Request $request): array
+    {
+        return json_decode($request->getContent(), true, 512, JSON_THROW_ON_ERROR);
+    }
+}
+```
+
+Una vez que el test del controlador pasa, tendremos que volver a lanzar el test de aceptación. Este nos indicará el siguiente paso:
+
+```
+RuntimeException: "Implement App\TodoList\Application\MarkTaskCompletedHandler::execute"
+```
+
+Nos requiere implementar el caso de uso. Por lo tanto, necesitamos un nuevo test unitario:
+
+```php
+<?php
+
+declare(strict_types=1);
+
+namespace App\Tests\TodoList\Application;
+
+use App\TodoList\Application\MarkTaskCompletedHandler;
+use App\TodoList\Domain\Task;
+use App\TodoList\Domain\TaskRepository;
+use PHPUnit\Framework\TestCase;
+
+class MarkTaskCompletedHandlerTest extends TestCase
+{
+    private const COMPLETED_TASK_ID = 1;
+
+    /** @test */
+    public function shouldMarkTaskAsCompletedAndPersist(): void
+    {
+        $task = new Task(self::COMPLETED_TASK_ID, 'Task Description');
+        
+        $taskRepository = $this->createMock(TaskRepository::class);
+        $taskRepository
+            ->method('retrieve')
+            ->with(self::COMPLETED_TASK_ID)
+            ->willReturn($task);
+
+        $taskRepository
+            ->expects(self::once())
+            ->method('store')
+            ->with($task);
+
+        $markTaskCompletedHandler = new MarkTaskCompletedHandler($taskRepository);
+
+        $markTaskCompletedHandler->execute(self::COMPLETED_TASK_ID, true);
+    }
+}
+```
+
+La ejecución del test arroja el siguiente error:
+
+```
+Trying to configure method "retrieve" which cannot be configured because it does not exist, has not been specified, is final, or is static
+```
+
+Hasta ahora no habíamos requerido este método en el repositorio, por lo cual tendremos que añadirlo a la interfaz.
+
+```php
+<?php
+
+declare(strict_types=1);
+
+namespace App\TodoList\Domain;
+
+interface TaskRepository
+{
+    public function store(Task $task): void;
+
+    public function nextIdentity(): int;
+
+    public function findAll(): array;
+
+    public function retrieve(int $taskId): Task;
+}
+```
+
+Esto será suficiente para poder seguir ejecutando el test y que nos pida implementar el método `execute` en el caso de uso.
+
+```
+RuntimeException : Implement App\TodoList\Application\MarkTaskCompletedHandler::execute
+```
+
+Así que vamos a ello. Es bastante sencillo:
+
+```php
+<?php
+
+declare(strict_types=1);
+
+namespace App\TodoList\Application;
+
+
+use App\TodoList\Domain\TaskRepository;
+
+class MarkTaskCompletedHandler
+{
+    private TaskRepository $taskRepository;
+
+    public function __construct(TaskRepository $taskRepository)
+    {
+        $this->taskRepository = $taskRepository;
+    }
+
+    public function execute(int $taskId, bool $completed): void
+    {
+        $task = $this->taskRepository->retrieve($taskId);
+
+        if ($completed) {
+            $task->markCompleted();
+        }
+        
+        $this->taskRepository->store($task);
+    }
+}
+```
+
+Al volver a ejecutar el test fallará. Esto es porque no tenemos definido el método `Task::markCompleted`:
+
+```
+Error : Call to undefined method App\TodoList\Domain\Task::markCompleted()
+```
+
+Siempre que tenemos un error de este tipo, tendremos que profundizar y entrar en un nuevo test unitario. En este caso, para implementar este método en `Task`. No tenemos acceso directo a la propiedad `complete`, que aún no tenemos definida siquiera, pero podemos controlar su estado indirectamente gracias a su representación.
+
+```php
+<?php
+
+declare(strict_types=1);
+
+namespace App\Tests\TodoList\Domain;
+
+use App\TodoList\Domain\Task;
+use PHPUnit\Framework\TestCase;
+
+class TaskTest extends TestCase
+{
+    /** @test */
+    public function shouldProvideRepresentation(): void
+    {
+        $expected = '[ ] 1. Task Description';
+        $task = new Task(1, 'Task Description');
+
+        $representation = $task->representedAs('[:check] :id. :description');
+
+        self::assertEquals($expected, $representation);
+    }
+
+    /** @test */
+    public function shouldMarkTaskCompleted(): void
+    {
+        $expected = '[√] 1. Task Description';
+        $task = new Task(1, 'Task Description');
+        $task->markCompleted();
+        
+        $representation = $task->representedAs('[:check] :id. :description');
+
+        self::assertEquals($expected, $representation);
+    }
+}
+```
+
+La implementación es bastante sencilla:
+
+```php
+<?php
+
+declare(strict_types=1);
+
+namespace App\TodoList\Domain;
+
+class Task
+{
+    private int $id;
+    private string $description;
+    private bool $completed;
+
+    public function __construct(int $id, string $description)
+    {
+        $this->id = $id;
+        $this->description = $description;
+        $this->completed = false;
+    }
+
+    public function id(): int
+    {
+        return $this->id;
+    }
+
+    public function representedAs(string $format): string
+    {
+        $values = [
+            ':check' => $this->completed ? '√' : ' ',
+            ':id' => $this->id,
+            ':description' => $this->description
+        ];
+        return strtr($format, $values);
+
+    }
+
+    public function markCompleted(): void
+    {
+        $this->completed = true;
+    }
+}
+```
+
+Con esto, el test de Task pasa y podemos volver al nivel del Caso de Uso. Al lanzar el test de nuevo, vemos que también pasa, por lo que podemos volver al nivel del test de aceptación.
+
+Este test, en cambio, no pasará porque espera que implementemos el método `retrieve` en FileTaskRepository, que aún no lo tenemos. Nos vamos al test.
+
+```php
+<?php
+
+declare(strict_types=1);
+
+namespace App\Tests\TodoList\Infrastructure\Persistence;
+
+use App\Lib\FileStorageEngine;
+use App\TodoList\Domain\Task;
+use App\TodoList\Domain\TaskRepository;
+use App\TodoList\Infrastructure\Persistence\FileTaskRepository;
+use PHPUnit\Framework\TestCase;
+
+class FileTaskRepositoryTest extends TestCase
+{
+    private FileStorageEngine $fileStorageEngine;
+    private TaskRepository $taskRepository;
+
+    public function setUp(): void
+    {
+        $this->fileStorageEngine = $this->createMock(FileStorageEngine::class);
+        $this->taskRepository = new FileTaskRepository($this->fileStorageEngine);
+    }
+
+    /** @test */
+    public function shouldProvideNextIdentityCountingExistingObjects(): void
+    {
+        $this->fileStorageEngine
+            ->method('loadObjects')
+            ->willReturn(
+                [],
+                ['Task'],
+                ['Task', 'Task']
+            );
+
+        self::assertEquals(1, $this->taskRepository->nextIdentity());
+        self::assertEquals(2, $this->taskRepository->nextIdentity());
+        self::assertEquals(3, $this->taskRepository->nextIdentity());
+    }
+
+    /** @test */
+    public function shouldStoreATask(): void
+    {
+        $task = new Task(1, 'Task Description');
+
+        $this->fileStorageEngine
+            ->method('loadObjects')
+            ->willReturn([]);
+        $this->fileStorageEngine
+            ->expects(self::once())
+            ->method('persistObjects')
+            ->with([1 => $task]);
+
+        $this->taskRepository->store($task);
+    }
+
+    /** @test */
+    public function shouldGetStoredTasks(): void
+    {
+        $storedTasks = [
+            1 => new Task(1, 'Write a test that fails'),
+            2 => new Task(2, 'Write code to make the test pass'),
+        ];
+
+        $this->fileStorageEngine
+            ->method('loadObjects')
+            ->willReturn(
+                $storedTasks
+            );
+
+        self::assertEquals($storedTasks, $this->taskRepository->findAll());
+    }
+
+    /** @test */
+    public function shouldRetrieveATaskByItsId(): void
+    {
+        $expectedTask = new Task(1, 'Write a test that fails');
+        
+        $storedTasks = [
+            1 => $expectedTask,
+            2 => new Task(2, 'Write code to make the test pass'),
+        ];
+
+        $this->fileStorageEngine
+            ->method('loadObjects')
+            ->willReturn(
+                $storedTasks
+            );
+
+        self::assertEquals($expectedTask, $this->taskRepository->retrieve(1));
+    }
+}
+```
+
+Como era de esperar, el test nos reclamará escribir el método retrieve.
+
+```php
+<?php
+
+declare(strict_types=1);
+
+namespace App\TodoList\Infrastructure\Persistence;
+
+
+use App\Lib\FileStorageEngine;
+use App\TodoList\Domain\Task;
+use App\TodoList\Domain\TaskRepository;
+
+class FileTaskRepository implements TaskRepository
+{
+    private FileStorageEngine $fileStorageEngine;
+
+    public function __construct(FileStorageEngine $fileStorageEngine)
+    {
+        $this->fileStorageEngine = $fileStorageEngine;
+    }
+
+    public function store(Task $task): void
+    {
+       $tasks = $this->fileStorageEngine->loadObjects(Task::class);
+
+       $tasks[$task->id()] = $task;
+
+       $this->fileStorageEngine->persistObjects($tasks);
+    }
+
+    public function nextIdentity(): int
+    {
+        $tasks = $this->fileStorageEngine->loadObjects(Task::class);
+
+        return count($tasks) + 1;
+    }
+
+    public function findAll(): array
+    {
+        return $this->fileStorageEngine->loadObjects(Task::class);
+    }
+
+    public function retrieve(int $taskId): Task
+    {
+        $tasks = $this->fileStorageEngine->loadObjects(Task::class);
+
+        return $tasks[$taskId];
+    }
+}
+```
+
+Y con este el test de FileTaskRepository está en verde. Aprovechamos para hacer un pequeño refactor, de modo que la dependencia esté controlada:
+
+```php
+<?php
+
+declare(strict_types=1);
+
+namespace App\TodoList\Infrastructure\Persistence;
+
+
+use App\Lib\FileStorageEngine;
+use App\TodoList\Domain\Task;
+use App\TodoList\Domain\TaskRepository;
+
+class FileTaskRepository implements TaskRepository
+{
+    private FileStorageEngine $fileStorageEngine;
+
+    public function __construct(FileStorageEngine $fileStorageEngine)
+    {
+        $this->fileStorageEngine = $fileStorageEngine;
+    }
+
+    public function store(Task $task): void
+    {
+        $tasks = $this->findAll();
+
+        $tasks[$task->id()] = $task;
+
+        $this->persistAllInStorage($tasks);
+    }
+
+    public function nextIdentity(): int
+    {
+        $tasks = $this->findAll();
+
+        return count($tasks) + 1;
+    }
+
+    public function findAll(): array
+    {
+        return $this->getAllFromStorage();
+    }
+
+    public function retrieve(int $taskId): Task
+    {
+        $tasks = $this->findAll();
+
+        return $tasks[$taskId];
+    }
+
+    private function getAllFromStorage(): array
+    {
+        return $this->fileStorageEngine->loadObjects(Task::class);
+    }
+
+    private function persistAllInStorage(array $tasks): void
+    {
+        $this->fileStorageEngine->persistObjects($tasks);
+    }
+}
+```
+
+Y ahora volveremos a lanzar el test de aceptación, que esta vez pasa limpiamente.
+
+## Siguientes pasos
+
+En este punto tenemos las tres historias de usuario implementadas. ¿Qué nos interesa hacer ahora?
+
+Una de las mejoras que podemos hacer en este momento es arreglar el test de aceptación para que pueda usarse como test de QA. Ahora que hemos desarrollado todos los componentes implicados es posible hacer que el test sea más expresivo y más útil para describir el comportamiento implementado.
+
+Los tests unitarios nos pueden valer tal como están. Una posible objeción es que al estar basados en mocks son frágiles por su acoplamiento a la implementación. Sin embargo, debemos recordar que básicamente hemos estado diseñando los componentes que necesitábamos y la forma en que queríamos hacerlos interactuar. En otras palabras: no es previsible que esta implementación vaya a cambiar demasiado hasta el punto de invalidar los test. Por otro lado, los tests unitarios que hemos usado, caracterizan el comportamiento concreto de cada unidad. En conjunto son rápidos y nos proporcionan la resolución necesaria como para ayudarnos a diagnosticar rápidamente los problemas que puedan surgir.
+
+Así que vamos a retocar el test de aceptación para que tenga un mejor lenguaje de negocio:
+
+```php
+<?php
+
+declare(strict_types=1);
+
+namespace App\Tests\Katas\TodoList;
+
+use Symfony\Bundle\FrameworkBundle\Client;
+use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
+use Symfony\Component\HttpFoundation\Response;
+
+class TodoListAcceptanceTest extends WebTestCase
+{
+    private Client $client;
+
+    /** @test */
+    public function asUserIWantToAddTaskToAToDoList(): void
+    {
+        $this->givenIRequestToCreateATaskWithDescription('Write a test that fails');
+        $response = $this->whenIRequestTheListOfTasks();
+        $this->thenICanSeeAddedTasksInTheList(
+            [
+                '[ ] 1. Write a test that fails',
+            ],
+            $response
+        );
+    }
+
+    /** @test */
+    public function asUserIWantToSeeTheTasksInMyTodoList(): void
+    {
+        $this->givenIHaveAddedTasks(
+            [
+                'Write a test that fails',
+                'Write code to make the test pass',
+            ]
+        );
+        $response = $this->whenIRequestTheListOfTasks();
+        $this->thenICanSeeAddedTasksInTheList(
+            [
+                '[ ] 1. Write a test that fails',
+                '[ ] 2. Write code to make the test pass',
+            ],
+            $response
+        );
+    }
+
+    /** @test */
+    public function asUserIWantToMarkTasksAsCompleted(): void
+    {
+        $this->givenIHaveAddedTasks(
+            [
+                'Write a test that fails',
+                'Write code to make the test pass',
+            ]
+        );
+        $this->givenIMarkATaskAsCompleted(1);
+        $response = $this->whenIRequestTheListOfTasks();
+        $this->thenICanSeeAddedTasksInTheList(
+            [
+                '[√] 1. Write a test that fails',
+                '[ ] 2. Write code to make the test pass',
+            ],
+            $response
+        );
+    }
+
+    private function givenIRequestToCreateATaskWithDescription(string $taskDescription): Response
+    {
+        return $this->apiCreateTaskWithDescription($taskDescription);
+    }
+
+    private function apiCreateTaskWithDescription(string $taskDescription): Response
+    {
+        $this->client->request(
+            'POST',
+            '/api/todo',
+            [],
+            [],
+            ['CONTENT-TYPE' => 'json/application'],
+            json_encode(['task' => $taskDescription], JSON_THROW_ON_ERROR)
+        );
+
+        return $this->client->getResponse();
+    }
+
+    private function whenIRequestTheListOfTasks(): Response
+    {
+        $response = $this->apiGetTasksList();
+
+        self::assertEquals(Response::HTTP_OK, $response->getStatusCode());
+
+        return $response;
+    }
+
+    private function apiGetTasksList(): Response
+    {
+        $this->client->request(
+            'GET',
+            '/api/todo'
+        );
+
+        return $this->client->getResponse();
+    }
+
+    private function thenICanSeeAddedTasksInTheList(array $expectedTasks, Response $response): void
+    {
+        $taskList = json_decode($response->getContent(), true);
+
+        self::assertEquals($expectedTasks, $taskList);
+    }
+
+    private function givenIHaveAddedTasks($tasks): void
+    {
+        foreach ($tasks as $task) {
+            $this->apiCreateTaskWithDescription($task);
+        }
+    }
+
+    private function givenIMarkATaskAsCompleted(int $taskId): void
+    {
+        $patchResponse = $this->apiMarkTaskCompleted($taskId);
+
+        self::assertEquals(Response::HTTP_OK, $patchResponse->getStatusCode());
+    }
+
+    private function apiMarkTaskCompleted(int $taskId): Response
+    {
+        $this->client->request(
+            'PATCH',
+            '/api/todo/' . $taskId . '',
+            [],
+            [],
+            ['CONTENT-TYPE' => 'json/application'],
+            json_encode(['completed' => true], JSON_THROW_ON_ERROR)
+
+        );
+
+        return $this->client->getResponse();
+    }
+
+    protected function setUp(): void
+    {
+        $this->resetRepositoryData();
+
+        $this->client = self::createClient();
+    }
+
+    private function resetRepositoryData(): void
+    {
+        if (file_exists('repository.data')) {
+            unlink('repository.data');
+        }
+    }
+
+    protected function tearDown(): void
+    {
+        $this->resetRepositoryData();
+    }
+}
+```
+
+Básicamente hemos reescrito el test usando un estilo Behavior Driven Development. No nos ha hecho falta hacer un Gherkin aquí, pero hubiésemos podido hacerlo.
+
+Esto nos ha permitido desprendernos de la llamada directa al motor de almacenamiento que habíamos introducido al principio, y al hacerlo conseguimos que el test sea más portable, ya que sólo usa las llamadas a los endpoints, por lo que puede funcionar en distintos entornos (local e integración contínua, por ejemplo).
+

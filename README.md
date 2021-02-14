@@ -35,10 +35,14 @@ Por otro lado, cada una de las katas se desarrolla en un lenguaje diferente.
       * Greetings (Scala, FunSuite, FP)
          *  [Greetings](manuscript/Katas/Greetings/Greetings.md)
          *  [Resolviendo la kata Greetings](manuscript/Katas/Greetings/Greetings-resolved.md)
-* Segunda parte: TDD en el mundo real
+* Segunda parte: Outside in TDD
     * [Enfoques de TDD](manuscript/tdd-schools.md)
-    * Outside-in
-         *  [To-to list kata, London School](manuscript/OutsideIn/To-do-list-kata-resolved.md)
+    * [To-to list kata, London School](manuscript/OutsideIn/To-do-list-kata-resolved.md)
+* Tercera parte: TDD en el mundo real
+    * [Lista de tareas, outside-in TDD por historias de usuario](manuscript/OutsideIn/To-do-list-us-by-us.md)
+    * [Tratamiento de Bugs con TDD]()
+    * [Desarrollo iterativo]()
+
 * [Epílogo: Calidad de vida y TDD](manuscript/life-quality.md)
 
 ## Repositorios de katas
