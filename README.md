@@ -10,40 +10,7 @@ Por otro lado, cada una de las katas se desarrolla en un lenguaje diferente.
 
 ## Contenidos
 
-* [Prólogo](manuscript/preface.md)
-* [Introducción: ¿Qué es TDD y por qué debería importarme?](manuscript/tdd-intro.md)
-* Primera parte: TDD básico
-    * Katas
-      * [Conceptos básicos](manuscript/basic-concepts.md)
-      * [Coding-dojo y katas](manuscript/coding-dojo-katas.md)
-      * FizzBuzz (Python, unittest, OOP)
-          * [Las leyes de TDD](manuscript/Katas/FizzBuzz/tdd-rules.md)
-          * [Fizz Buzz](manuscript/Katas/FizzBuzz/FizzBuzz.md)
-          * [Resolviendo la kata Fizz Buzz](manuscript/Katas/FizzBuzz/FizzBuzz-resolved.md)
-      * Prime Factors (Javascript, JEST, procedural)
-          * [Evolución del algoritmo mediante tests](manuscript/Katas/PrimeFactors/evolving.md)
-          * [Prime Factors](manuscript/Katas/PrimeFactors/PrimeFactors.md)
-          * [Resolviendo la kata Prime Factors](manuscript/Katas/PrimeFactors/PrimeFactors-resolved.md)
-      * NIF (Go, testing, mixed)
-          * [Elección del primer test](manuscript/Katas/NIF/first-test.md)
-          * [NIF](manuscript/Katas/NIF/NIF.md)
-          * [Resolviendo la kata NIF](manuscript/Katas/NIF/NIF-resolved.md)
-      * Bowling Game (Ruby, RSpec, OOP)
-          * [La fase de refactor](manuscript/Katas/Bowling/Refactor.md)
-          * [Bowling Game](manuscript/Katas/Bowling/BowlingGame.md)
-          * [Resolviendo la kata Bowling Game](manuscript/Katas/Bowling/BowlingGame-resolved.md)
-      * Greetings (Scala, FunSuite, FP)
-         *  [Greetings](manuscript/Katas/Greetings/Greetings.md)
-         *  [Resolviendo la kata Greetings](manuscript/Katas/Greetings/Greetings-resolved.md)
-* Segunda parte: Outside in TDD
-    * [Enfoques de TDD](manuscript/tdd-schools.md)
-    * [To-to list kata, London School](manuscript/OutsideIn/To-do-list-kata-resolved.md)
-* Tercera parte: TDD en el mundo real
-    * [Lista de tareas, outside-in TDD por historias de usuario](manuscript/OutsideIn/To-do-list-us-by-us.md)
-    * [Tratamiento de Bugs con TDD]()
-    * [Desarrollo iterativo]()
-
-* [Epílogo: Calidad de vida y TDD](manuscript/life-quality.md)
+WIP
 
 ## Repositorios de katas
 
