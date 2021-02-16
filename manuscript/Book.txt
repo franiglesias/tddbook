@@ -15,12 +15,12 @@ Katas/3.NIF/2.3.2.NIF.md
 Katas/3.NIF/2.3.3.NIF-resolved.md
 Katas/4.Bowling/2.4.1.refactor.md
 Katas/4.Bowling/2.4.2.BowlingGame.md
-Katas/4.Bowling/2.4.3.BowlingGame-resolved.1md
+Katas/4.Bowling/2.4.3.BowlingGame-resolved.md
 Katas/5.Greetings/2.5.1.Greetings.md
 Katas/5.Greetings/2.5.2.Greetings-resolved.md
 3.0.outside-in-tdd.md
 3.1.tdd-schools.md
-3.3.To-do-list-kata-resolved.md
+3.2.To-do-list-kata-resolved.md
 4.0.real-life-tdd.md
 4.1.To-do-list-us-by-us.md
 4.2.bugs-management.md
