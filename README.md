@@ -28,6 +28,6 @@ WIP
 * [Go](https://github.com/franiglesias/tddbook-go)
 * [Kotlin](https://github.com/franiglesias/kotlinKata)
 
-## Repositorio para prácticas en PHP
+## Repositorio para prácticas en PHP
 
 * [PHP](https://github.com/franiglesias/tb)
