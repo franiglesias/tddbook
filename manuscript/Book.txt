@@ -24,5 +24,6 @@ Katas/5.Greetings/2.5.2.Greetings-resolved.md
 4.0.real-life-tdd.md
 4.1.To-do-list-us-by-us.md
 4.2.bugs-management.md
+4.3.new-features.md
 5.0.life-quality.md
 
