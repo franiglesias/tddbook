@@ -7,6 +7,7 @@
 Katas/1.FizzBuzz/2.1.1.tdd-rules.md
 Katas/1.FizzBuzz/2.1.2.FizzBuzz.md
 Katas/1.FizzBuzz/2.1.3.FizzBuzz-resolved.md
+Katas/2.PrimeFactors/2.2.0.check-list-driven-testing.md
 Katas/2.PrimeFactors/2.2.1.evolving.md
 Katas/2.PrimeFactors/2.2.2.PrimeFactors.md
 Katas/2.PrimeFactors/2.2.3.PrimeFactors-resolved.md
