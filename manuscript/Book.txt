@@ -23,7 +23,7 @@ Katas/5.Greetings/2.5.2.Greetings-resolved.md
 3.1.tdd-schools.md
 3.2.todo-list-app.md
 3.3.outside-in-london-style.md
-3.4.ouside-in-classic-style.md
+3.4.outside-in-classic-style.md
 4.0.real-life-tdd.md
 4.1.To-do-list-us-by-us.md
 4.2.bugs-management.md
